@@ -1,0 +1,34 @@
+name: recon-suite
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Containerfile
+    image: localhost/recon-suite/api:latest
+    environment:
+      PORT: 4000
+      CORS_ORIGIN: http://localhost:${WEB_PORT:-8080}
+      ALLOW_PRIVATE_TARGETS: ${ALLOW_PRIVATE_TARGETS:-false}
+      THROTTLE_LIMIT: ${THROTTLE_LIMIT:-60}
+    ports:
+      - '${API_PORT:-4000}:4000'
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:4000/api/health']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Containerfile
+    image: localhost/recon-suite/web:latest
+    ports:
+      - '${WEB_PORT:-8080}:8080'
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
