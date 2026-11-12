@@ -50,7 +50,12 @@ Configuration: see `.env.example`, `apps/api/.env.example` and `apps/web/.env.ex
 
 > **WiFi Scanner** is a local tool: it lists what the wireless adapter of the machine running
 > the API can see (macOS `system_profiler`, Linux `nmcli`, Windows `netsh`). Use it with
-> `pnpm dev`; it is disabled in the Podman setup because containers have no WiFi adapter.
+> `pnpm dev`; it is disabled by default in the Podman setup because the container has no
+> wireless adapter and no view of the host's NetworkManager. To enable it on Linux, set
+> `LOCAL_TOOLS_ENABLED=true` and uncomment the `network_mode: host` / `cap_add` / D-Bus
+> volume lines for the `api` service in `compose.yaml` (see the comments there); this shares
+> the host's network namespace with the container and only works when NetworkManager runs
+> on the host.
 >
 > On **macOS** the OS redacts network names and BSSIDs unless the scanner has Location
 > permission. Run `pnpm setup:wifi-macos` once and click **Allow**: this builds a small helper

@@ -20,6 +20,9 @@ RUN pnpm --filter=@recon/api deploy --prod --legacy /prod/api
 FROM docker.io/library/node:26-alpine AS runner
 ENV NODE_ENV=production
 WORKDIR /app
+# nmcli client for the WiFi tool (R-01). It is a no-op unless the container is also granted
+# access to the host's wireless adapter and NetworkManager D-Bus socket (see compose.yaml).
+RUN apk add --no-cache networkmanager-cli
 COPY --from=builder --chown=node:node /prod/api .
 USER node
 EXPOSE 4000
