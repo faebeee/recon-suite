@@ -1,5 +1,6 @@
 import {
   formatMacSecurity,
+  parseCoreWlan,
   parseHardwarePorts,
   parseNetshInterfaces,
   parseNmcliDevices,
@@ -247,5 +248,72 @@ There are 2 interfaces on the system:
     );
     expect(out.interface).toBe('en7');
     expect(out.networks.map((n) => n.ssid)).toEqual(['B']);
+  });
+});
+
+describe('redaction handling', () => {
+  it('marks <redacted> SSIDs instead of treating them as names', () => {
+    const out = parseSystemProfiler({
+      SPAirPortDataType: [
+        {
+          spairport_airport_interfaces: [
+            {
+              _name: 'en0',
+              spairport_current_network_information: {
+                _name: '<redacted>',
+                spairport_network_channel: '36 (5GHz, 80MHz)',
+                spairport_signal_noise: '-41 dBm / -88 dBm',
+              },
+              spairport_airport_other_local_wireless_networks: [
+                {
+                  _name: '<redacted>',
+                  spairport_network_channel: '36 (5GHz, 80MHz)',
+                  spairport_signal_noise: '-41 dBm / -88 dBm',
+                },
+                {
+                  _name: '<redacted>',
+                  spairport_network_channel: '6 (2GHz, 20MHz)',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    // No dedupe possible without names: all entries kept.
+    expect(out.networks).toHaveLength(3);
+    expect(
+      out.networks.every((n) => n.redacted && n.ssid === '' && !n.hidden),
+    ).toBe(true);
+  });
+
+  it('maps CoreWLAN helper output', () => {
+    const [n] = parseCoreWlan({
+      authorized: true,
+      status: 'authorized',
+      networks: [
+        {
+          ssid: 'Office',
+          bssid: 'aa:bb:cc:dd:ee:ff',
+          rssi: -55,
+          noise: 0,
+          channel: 36,
+          band: '5 GHz',
+          width: 80,
+          security: 'WPA3 Personal',
+          current: true,
+        },
+      ],
+    });
+    expect(n).toMatchObject({
+      ssid: 'Office',
+      bssid: 'aa:bb:cc:dd:ee:ff',
+      signalDbm: -55,
+      noiseDbm: undefined,
+      quality: 90,
+      channelWidthMhz: 80,
+      redacted: false,
+      current: true,
+    });
   });
 });

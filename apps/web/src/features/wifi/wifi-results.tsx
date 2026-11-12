@@ -1,7 +1,21 @@
-import { ChevronRight, Wifi, WifiHigh, WifiLow, WifiZero } from 'lucide-react';
+import {
+  ChevronRight,
+  EyeOff,
+  Wifi,
+  WifiHigh,
+  WifiLow,
+  WifiZero,
+} from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { WifiBand, WifiNetwork, WifiOutput } from '@recon/shared';
-import { KeyValueGrid, Meter, Panel, Segmented, Tag } from '@/components/cyber';
+import {
+  CopyButton,
+  KeyValueGrid,
+  Meter,
+  Panel,
+  Segmented,
+  Tag,
+} from '@/components/cyber';
 import { cn } from '@/lib/utils';
 import { toneText, type Tone } from '@/lib/tones';
 import {
@@ -63,6 +77,8 @@ export function WifiResults({ data }: { data: WifiOutput }) {
 
   return (
     <div className="space-y-4">
+      {data.redaction && <RedactionNotice redaction={data.redaction} />}
+
       <Panel title="Spectrum">
         <KeyValueGrid
           className="lg:grid-cols-4"
@@ -91,10 +107,9 @@ export function WifiResults({ data }: { data: WifiOutput }) {
             },
           ]}
         />
-        {data.platform === 'macos' && (
+        {data.platform === 'macos' && !data.redaction && (
           <p className="mt-4 text-[11px] text-muted-foreground">
-            macOS hides BSSIDs and reports signal strength only for some
-            networks.
+            macOS reports signal strength only for some networks.
           </p>
         )}
       </Panel>
@@ -145,7 +160,11 @@ function NetworkRow({ group: g }: { group: WifiGroup }) {
         />
         <SignalIcon quality={g.bestQuality} />
         <span className="min-w-0 flex-1 truncate text-sm font-semibold">
-          {g.hidden ? (
+          {g.redacted ? (
+            <span className="text-muted-foreground italic">
+              name redacted by OS
+            </span>
+          ) : g.hidden ? (
             <span className="text-muted-foreground italic">hidden network</span>
           ) : (
             g.ssid
@@ -229,12 +248,41 @@ function AccessPoints({ aps }: { aps: WifiNetwork[] }) {
                     : '-'}
               </td>
               <td className="py-1.5 text-muted-foreground">
-                {ap.bssid ?? 'hidden by OS'}
+                {ap.bssid ?? (ap.redacted ? 'redacted by OS' : '-')}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
+  );
+}
+
+function RedactionNotice({
+  redaction,
+}: {
+  redaction: NonNullable<WifiOutput['redaction']>;
+}) {
+  return (
+    <Panel title="Names redacted" tone="yellow">
+      <div className="flex items-start gap-3 text-sm">
+        <EyeOff className="mt-0.5 size-5 shrink-0 text-neon-yellow" />
+        <div className="min-w-0 space-y-2">
+          <p>{redaction.reason}</p>
+          <p className="text-muted-foreground">{redaction.fix}</p>
+          {redaction.command && (
+            <div className="flex flex-wrap items-center gap-2">
+              <code className="border border-neon-yellow/40 bg-background/60 px-2 py-1 text-xs text-neon-yellow">
+                {redaction.command}
+              </code>
+              <CopyButton value={redaction.command} />
+              <span className="text-[11px] text-muted-foreground">
+                run in the repo root, then scan again
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+    </Panel>
   );
 }

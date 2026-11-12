@@ -13,6 +13,11 @@ import type {
 } from '@recon/shared';
 import type { Env } from '../../config/env.js';
 import {
+  HELPER_SETUP_COMMAND,
+  helperInstalled,
+  runHelperScan,
+} from './macos-helper.js';
+import {
   CommandFailedError,
   CommandNotFoundError,
   runCommand,
@@ -26,6 +31,7 @@ import {
   parseNetsh,
   parseNetshInterfaces,
   parseNmcli,
+  parseCoreWlan,
   parseNmcliDevices,
   parseSystemProfiler,
   pickDefaultInterface,
@@ -104,19 +110,8 @@ export class WifiService {
   private scanInterface(iface: string): Promise<WifiOutput> {
     return this.withCommandErrors(async () => {
       switch (currentPlatform()) {
-        case 'macos': {
-          // system_profiler has no interface flag; it reports every interface and we pick one.
-          const json = JSON.parse(
-            await runCommand('system_profiler', ['SPAirPortDataType', '-json']),
-          ) as SystemProfilerJson;
-          const { networks } = parseSystemProfiler(json, iface);
-          return {
-            platform: 'macos',
-            method: 'system_profiler SPAirPortDataType',
-            interface: iface,
-            networks: sort(networks),
-          };
-        }
+        case 'macos':
+          return this.scanMacos(iface);
         case 'linux':
           return {
             platform: 'linux',
@@ -144,6 +139,52 @@ export class WifiService {
           };
       }
     });
+  }
+
+  /**
+   * Preferred: the ReconWifi helper (CoreWLAN with Location permission, unredacted).
+   * Fallback: system_profiler, where macOS redacts SSIDs/BSSIDs.
+   */
+  private async scanMacos(iface: string): Promise<WifiOutput> {
+    let reason =
+      'macOS hides WiFi names and BSSIDs from command-line tools that lack Location permission.';
+
+    if (helperInstalled()) {
+      const result = await runHelperScan(iface);
+      if (result.authorized && !result.error) {
+        return {
+          platform: 'macos',
+          method: 'CoreWLAN (ReconWifi helper)',
+          interface: result.interface || iface,
+          networks: sort(parseCoreWlan(result)),
+        };
+      }
+      reason = result.error
+        ? `The ReconWifi helper failed (${result.error}); showing redacted fallback data.`
+        : `The ReconWifi helper has no Location permission (status: ${result.status}).`;
+    }
+
+    // system_profiler has no interface flag; it reports every interface and we pick one.
+    const json = JSON.parse(
+      await runCommand('system_profiler', ['SPAirPortDataType', '-json']),
+    ) as SystemProfilerJson;
+    const { networks } = parseSystemProfiler(json, iface);
+    const redacted = networks.some((n) => n.redacted);
+    return {
+      platform: 'macos',
+      method: 'system_profiler SPAirPortDataType',
+      interface: iface,
+      networks: sort(networks),
+      redaction: redacted
+        ? {
+            reason,
+            fix: helperInstalled()
+              ? 'Allow Location access for "ReconWifi" in System Settings > Privacy & Security > Location Services, or re-run the setup to get the prompt again.'
+              : 'Build the ReconWifi helper once and click "Allow" when macOS asks for Location access.',
+            command: HELPER_SETUP_COMMAND,
+          }
+        : undefined,
+    };
   }
 
   private assertEnabled() {

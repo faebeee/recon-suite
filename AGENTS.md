@@ -23,17 +23,18 @@ apps typecheck (`turbo` does this automatically through `dependsOn: ["^build"]`)
 
 ## Commands (run from repo root)
 
-| Task                       | Command                                            |
-| -------------------------- | -------------------------------------------------- |
-| Dev (api :4000, web :5173) | `pnpm dev`                                         |
-| Build everything           | `pnpm build`                                       |
-| Typecheck                  | `pnpm typecheck`                                   |
-| Lint                       | `pnpm lint`                                        |
-| Unit tests                 | `pnpm test`                                        |
-| API e2e tests              | `pnpm --filter @recon/api test:e2e`                |
-| Format                     | `pnpm format`                                      |
-| Containers                 | `pnpm compose:up` / `pnpm compose:down`            |
-| Add shadcn component       | `cd apps/web && pnpm dlx shadcn@latest add <name>` |
+| Task                       | Command                                                                     |
+| -------------------------- | --------------------------------------------------------------------------- |
+| Dev (api :4000, web :5173) | `pnpm dev`                                                                  |
+| Build everything           | `pnpm build`                                                                |
+| Typecheck                  | `pnpm typecheck`                                                            |
+| Lint                       | `pnpm lint`                                                                 |
+| Unit tests                 | `pnpm test`                                                                 |
+| API e2e tests              | `pnpm --filter @recon/api test:e2e`                                         |
+| Format                     | `pnpm format`                                                               |
+| Containers                 | `pnpm compose:up` / `pnpm compose:down`                                     |
+| Add shadcn component       | `cd apps/web && pnpm dlx shadcn@latest add <name>`                          |
+| macOS WiFi helper (once)   | `pnpm setup:wifi-macos` (builds `apps/api/native/macos`, asks for Location) |
 
 **Definition of done** for any change:
 `pnpm format && pnpm build && pnpm typecheck && pnpm lint && pnpm test && pnpm --filter @recon/api test:e2e`
@@ -161,3 +162,15 @@ pure analysis function with tests).
 | `VITE_API_URL`          | web | `/api`                  | API base URL used by the browser        |
 
 Port 3000 is often taken by other local projects on dev machines; that is why the API uses 4000.
+
+## Platform notes
+
+- **macOS WiFi names:** since macOS 14, SSIDs and BSSIDs are replaced with `<redacted>` for any
+  process without Location Services permission, which CLI tools cannot get. The Swift helper app
+  in `apps/api/native/macos/ReconWifi` (CoreWLAN + CoreLocation) gets that permission once; the
+  API launches it via `open` so macOS attributes the permission to the helper. Without it the API
+  falls back to `system_profiler` and returns `redaction` info that the UI shows. Treat
+  `<redacted>` as unknown, never as a real name (do not group or dedupe on it). The helper's build
+  output (`native/macos/build/`) is git-ignored; rebuilding changes its ad-hoc signature, so
+  macOS may ask for permission again.
+- **Windows 11 24H2+** also requires Location permission for `netsh wlan show networks`.

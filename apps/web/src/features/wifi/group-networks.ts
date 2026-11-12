@@ -6,6 +6,7 @@ export interface WifiGroup {
   key: string;
   ssid: string;
   hidden: boolean;
+  redacted: boolean;
   current: boolean;
   security: string;
   bands: WifiBand[];
@@ -19,14 +20,18 @@ const BAND_ORDER: WifiBand[] = ['2.4 GHz', '5 GHz', '6 GHz'];
 export function groupNetworks(networks: WifiNetwork[]): WifiGroup[] {
   const groups = new Map<string, WifiGroup>();
   networks.forEach((n, i) => {
-    // Hidden networks can't be correlated by name: keep each one separate.
-    const key = n.hidden ? `hidden-${n.bssid ?? i}` : `${n.ssid}|${n.security}`;
+    // Hidden or OS-redacted networks can't be correlated by name: keep each one separate.
+    const key =
+      n.hidden || n.redacted
+        ? `anon-${n.bssid ?? i}`
+        : `${n.ssid}|${n.security}`;
     const g =
       groups.get(key) ??
       ({
         key,
         ssid: n.ssid,
         hidden: n.hidden,
+        redacted: !!n.redacted,
         current: false,
         security: n.security,
         bands: [],

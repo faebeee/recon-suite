@@ -66,12 +66,17 @@ function parseSignalNoise(value: string | undefined) {
   return m ? { signalDbm: Number(m[1]), noiseDbm: Number(m[2]) } : {};
 }
 
+/** What macOS puts in place of SSIDs for processes without Location permission. */
+export const MACOS_REDACTED = '<redacted>';
+
 function fromSp(n: SpNetwork, current: boolean): WifiNetwork {
-  const ssid = n._name ?? '';
+  const redacted = n._name === MACOS_REDACTED;
+  const ssid = redacted ? '' : (n._name ?? '');
   const signal = parseSignalNoise(n.spairport_signal_noise);
   return {
     ssid,
-    hidden: ssid === '',
+    hidden: !redacted && ssid === '',
+    redacted,
     ...parseMacChannel(n.spairport_network_channel),
     phyMode: n.spairport_network_phymode,
     security: formatMacSecurity(n.spairport_security_mode),
@@ -109,7 +114,8 @@ export function parseSystemProfiler(
   if (current) networks.push(current);
 
   // macOS repeats the connected access point in the nearby list; drop that one copy.
-  let skippedSelf = false;
+  // Only possible to tell when names are visible.
+  let skippedSelf = current?.redacted ?? true;
   for (const n of iface.spairport_airport_other_local_wireless_networks ?? []) {
     const net = fromSp(n, false);
     const isSelf =
@@ -299,4 +305,43 @@ export function pickDefaultInterface(
     interfaces.find((i) => i.state === 'connected' || i.connection) ??
     interfaces[0]
   )?.name;
+}
+
+// ---------------------------------------------------------------- macOS CoreWLAN helper
+// JSON written by native/macos/ReconWifi (see main.swift).
+
+export interface CoreWlanResult {
+  authorized: boolean;
+  status: string;
+  interface?: string;
+  error?: string;
+  networks?: {
+    ssid: string;
+    bssid?: string;
+    rssi?: number;
+    noise?: number;
+    channel?: number;
+    band?: WifiBand;
+    width?: number;
+    security: string;
+    current: boolean;
+  }[];
+}
+
+export function parseCoreWlan(result: CoreWlanResult): WifiNetwork[] {
+  return (result.networks ?? []).map((n) => ({
+    ssid: n.ssid,
+    hidden: n.ssid === '',
+    redacted: false,
+    bssid: n.bssid,
+    channel: n.channel,
+    band: n.band,
+    channelWidthMhz: n.width,
+    security: n.security,
+    // CoreWLAN reports 0 when a value is unavailable.
+    signalDbm: n.rssi || undefined,
+    noiseDbm: n.noise || undefined,
+    quality: n.rssi ? dbmToQuality(n.rssi) : undefined,
+    current: n.current,
+  }));
 }

@@ -51,6 +51,11 @@ Configuration: see `.env.example`, `apps/api/.env.example` and `apps/web/.env.ex
 > **WiFi Scanner** is a local tool: it lists what the wireless adapter of the machine running
 > the API can see (macOS `system_profiler`, Linux `nmcli`, Windows `netsh`). Use it with
 > `pnpm dev`; it is disabled in the Podman setup because containers have no WiFi adapter.
+>
+> On **macOS** the OS redacts network names and BSSIDs unless the scanner has Location
+> permission. Run `pnpm setup:wifi-macos` once and click **Allow**: this builds a small helper
+> app (`apps/api/native/macos/ReconWifi`, Swift/CoreWLAN) that the API then uses for unredacted
+> scans. Your location itself is never read.
 
 ## Security model
 
