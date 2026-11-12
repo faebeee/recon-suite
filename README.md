@@ -49,10 +49,14 @@ pnpm compose:down
 
 Configuration: see `.env.example`, `apps/api/.env.example` and `apps/web/.env.example`.
 
-> **WiFi and Bluetooth Scanner** are local tools: they scan from the radios of the machine
-> running the API (WiFi: macOS/Linux `nmcli`/Windows `netsh`; Bluetooth: macOS/Linux
-> `bluetoothctl`). Use them with `pnpm dev`; they are disabled in the Podman setup because
-> containers have no radios.
+> **WiFi Scanner** is a local tool: it lists what the wireless adapter of the machine running
+> the API can see (macOS `system_profiler`, Linux `nmcli`, Windows `netsh`). Use it with
+> `pnpm dev`; it is disabled by default in the Podman setup because the container has no
+> wireless adapter and no view of the host's NetworkManager. To enable it on Linux, set
+> `LOCAL_TOOLS_ENABLED=true` and uncomment the `network_mode: host` / `cap_add` / D-Bus
+> volume lines for the `api` service in `compose.yaml` (see the comments there); this shares
+> the host's network namespace with the container and only works when NetworkManager runs
+> on the host.
 >
 > On **macOS** run `pnpm setup:macos-helper` once and click **Allow** twice (Location, then
 > Bluetooth). This builds `ReconHelper` (`apps/api/native/macos`, Swift), which macOS requires for
