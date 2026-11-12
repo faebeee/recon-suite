@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
   <key>CFBundleIdentifier</key>
-  <string>dev.recon-suite.wifi-helper</string>
+  <string>dev.recon-suite.helper</string>
   <key>CFBundleName</key>
-  <string>ReconWifi</string>
+  <string>ReconHelper</string>
   <key>CFBundleDisplayName</key>
-  <string>Recon Suite WiFi Helper</string>
+  <string>Recon Suite Helper</string>
   <key>CFBundleExecutable</key>
-  <string>ReconWifi</string>
+  <string>ReconHelper</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleVersion</key>
@@ -24,5 +24,7 @@
   <string>macOS only reveals WiFi network names and BSSIDs to apps with Location access. Recon Suite uses it to list nearby networks; your location is not read or stored.</string>
   <key>NSLocationWhenInUseUsageDescription</key>
   <string>macOS only reveals WiFi network names and BSSIDs to apps with Location access. Recon Suite uses it to list nearby networks; your location is not read or stored.</string>
+  <key>NSBluetoothAlwaysUsageDescription</key>
+  <string>Recon Suite scans for nearby Bluetooth LE and Classic devices on request. Nothing is connected to or stored.</string>
 </dict>
 </plist>

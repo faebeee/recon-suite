@@ -23,18 +23,18 @@ apps typecheck (`turbo` does this automatically through `dependsOn: ["^build"]`)
 
 ## Commands (run from repo root)
 
-| Task                       | Command                                                                     |
-| -------------------------- | --------------------------------------------------------------------------- |
-| Dev (api :4000, web :5173) | `pnpm dev`                                                                  |
-| Build everything           | `pnpm build`                                                                |
-| Typecheck                  | `pnpm typecheck`                                                            |
-| Lint                       | `pnpm lint`                                                                 |
-| Unit tests                 | `pnpm test`                                                                 |
-| API e2e tests              | `pnpm --filter @recon/api test:e2e`                                         |
-| Format                     | `pnpm format`                                                               |
-| Containers                 | `pnpm compose:up` / `pnpm compose:down`                                     |
-| Add shadcn component       | `cd apps/web && pnpm dlx shadcn@latest add <name>`                          |
-| macOS WiFi helper (once)   | `pnpm setup:wifi-macos` (builds `apps/api/native/macos`, asks for Location) |
+| Task                       | Command                                                                                   |
+| -------------------------- | ----------------------------------------------------------------------------------------- |
+| Dev (api :4000, web :5173) | `pnpm dev`                                                                                |
+| Build everything           | `pnpm build`                                                                              |
+| Typecheck                  | `pnpm typecheck`                                                                          |
+| Lint                       | `pnpm lint`                                                                               |
+| Unit tests                 | `pnpm test`                                                                               |
+| API e2e tests              | `pnpm --filter @recon/api test:e2e`                                                       |
+| Format                     | `pnpm format`                                                                             |
+| Containers                 | `pnpm compose:up` / `pnpm compose:down`                                                   |
+| Add shadcn component       | `cd apps/web && pnpm dlx shadcn@latest add <name>`                                        |
+| macOS helper (once)        | `pnpm setup:macos-helper` (builds `apps/api/native/macos`, asks for Location + Bluetooth) |
 
 **Definition of done** for any change:
 `pnpm format && pnpm build && pnpm typecheck && pnpm lint && pnpm test && pnpm --filter @recon/api test:e2e`
@@ -165,12 +165,21 @@ Port 3000 is often taken by other local projects on dev machines; that is why th
 
 ## Platform notes
 
-- **macOS WiFi names:** since macOS 14, SSIDs and BSSIDs are replaced with `<redacted>` for any
-  process without Location Services permission, which CLI tools cannot get. The Swift helper app
-  in `apps/api/native/macos/ReconWifi` (CoreWLAN + CoreLocation) gets that permission once; the
-  API launches it via `open` so macOS attributes the permission to the helper. Without it the API
-  falls back to `system_profiler` and returns `redaction` info that the UI shows. Treat
-  `<redacted>` as unknown, never as a real name (do not group or dedupe on it). The helper's build
-  output (`native/macos/build/`) is git-ignored; rebuilding changes its ad-hoc signature, so
-  macOS may ask for permission again.
+- **macOS privacy permissions and `ReconHelper`:** macOS only gives WiFi names/BSSIDs (Location
+  Services) and Bluetooth scan results (Bluetooth permission) to app bundles holding those
+  permissions; CLI tools can't get them. `apps/api/native/macos/ReconHelper` is a Swift app
+  (`--mode wifi`: CoreWLAN; `--mode bluetooth`: CoreBluetooth for BLE + IOBluetooth inquiry for
+  Classic). The API runs it via `core/native/macos-helper.ts` (`runHelper(mode, args)`, through
+  `open` so macOS attributes the permission to the helper; results come back as a JSON file).
+  Scan modes never prompt; `pnpm setup:macos-helper` builds it and requests both permissions.
+  New macOS-native features go into this helper as another `--mode`, not a new app.
+- Without permission the tools degrade instead of failing: WiFi falls back to `system_profiler`
+  (names `<redacted>`; treat as unknown, never group or dedupe on it) and Bluetooth to the paired
+  devices list. They return a `HostNotice` (`redaction` / `notice`) that the UI shows with
+  `HostNoticePanel`. The helper build output (`native/macos/build/`) is git-ignored; rebuilding
+  changes its ad-hoc signature, so macOS may ask for permission again.
+- **macOS BLE** exposes per-host UUIDs instead of MAC addresses; many devices rotate random
+  addresses, so duplicates are expected. Classic inquiry only finds discoverable devices.
+- **Linux Bluetooth** uses BlueZ `bluetoothctl --timeout N scan le|bredr` (one transport per run).
+  **Windows Bluetooth** scanning is not implemented (returns 503).
 - **Windows 11 24H2+** also requires Location permission for `netsh wlan show networks`.

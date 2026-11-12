@@ -1,5 +1,10 @@
 import type { z } from 'zod';
 import {
+  bluetoothInputSchema,
+  type BluetoothInput,
+  type BluetoothOutput,
+} from './features/bluetooth.js';
+import {
   wifiInputSchema,
   type WifiInput,
   type WifiOutput,
@@ -45,6 +50,7 @@ export const TOOL_INPUT_SCHEMAS = {
   tls: tlsInputSchema,
   ports: portsInputSchema,
   wifi: wifiInputSchema,
+  bluetooth: bluetoothInputSchema,
 } as const satisfies Record<ToolId, z.ZodType>;
 
 /** Request/response types per tool. Register new tools here. */
@@ -56,6 +62,7 @@ export interface ToolIO {
   tls: { input: TlsInput; output: TlsOutput };
   ports: { input: PortsInput; output: PortsOutput };
   wifi: { input: WifiInput; output: WifiOutput };
+  bluetooth: { input: BluetoothInput; output: BluetoothOutput };
 }
 
 // Compile-time check: every ToolId has an entry in ToolIO.

@@ -94,6 +94,18 @@ export const TOOL_CATALOG: Record<ToolId, ToolMeta> = {
     scope: 'local',
     targetHint: '',
   },
+  bluetooth: {
+    id: 'bluetooth',
+    code: 'R-02',
+    name: 'Bluetooth Scanner',
+    tagline: 'BLE and Classic devices nearby',
+    description:
+      'Listens for Bluetooth Low Energy advertisements and runs a Bluetooth Classic inquiry from the machine running the API.',
+    category: 'wireless',
+    mode: 'passive',
+    scope: 'local',
+    targetHint: '',
+  },
 };
 
 export const TOOL_LIST: ToolMeta[] = Object.values(TOOL_CATALOG);

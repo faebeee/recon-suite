@@ -207,7 +207,15 @@ from the catalog + registry.
 
 ## Variant: local tools (no target)
 
-Reference: `wifi` (shared `features/wifi.ts`, api `features/wifi/`, web `features/wifi/`).
+References: `wifi` (interface dropdown, redaction fallback) and `bluetooth` (options-only input,
+macOS helper + fallback, Linux CLI). Files: shared `features/<id>.ts`, api `features/<id>/`, web
+`features/<id>/`.
+
+- macOS APIs that need a privacy permission (Location, Bluetooth, ...): add a `--mode` to
+  `apps/api/native/macos/ReconHelper` (Swift, one file per mode, add the usage string to its
+  `Info.plist` and the permission request to `build.sh`), call it with `runHelper()` from
+  `core/native/macos-helper.ts`, and return a `HostNotice` when falling back without permission
+  (web: `HostNoticePanel`). Scan modes must never show a permission prompt.
 
 - Shared: `inputSchema = z.object({})` (options only, no `target`); catalog `scope: 'local'`,
   `targetHint: ''`.

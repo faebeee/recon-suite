@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { HostNotice } from '../common/tool.js';
 
 /** OS interface name (en0, wlan0, "Wi-Fi 2"). Strict: it ends up as a command argument. */
 export const wifiInterfaceNameSchema = z
@@ -71,7 +72,7 @@ export interface WifiOutput {
   interface?: string;
   networks: WifiNetwork[];
   /** Set when the OS withheld network names; explains why and how to fix it. */
-  redaction?: { reason: string; fix: string; command?: string };
+  redaction?: HostNotice;
 }
 
 /** dBm -> 0-100 quality (-100 dBm = 0, -50 dBm = 100). */

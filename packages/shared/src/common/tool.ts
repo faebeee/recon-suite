@@ -6,6 +6,7 @@ export const TOOL_IDS = [
   'tls',
   'ports',
   'wifi',
+  'bluetooth',
 ] as const;
 
 export type ToolId = (typeof TOOL_IDS)[number];
@@ -46,6 +47,16 @@ export interface ToolResult<T> {
   startedAt: string;
   durationMs: number;
   data: T;
+}
+
+/**
+ * Explains why a local tool returned degraded data (e.g. missing OS permission) and how to fix it.
+ * The web UI renders it as a notice panel with a copyable command.
+ */
+export interface HostNotice {
+  reason: string;
+  fix: string;
+  command?: string;
 }
 
 /** Every tool is served at POST /api/tools/:id */

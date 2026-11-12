@@ -11,3 +11,4 @@ export * from './features/http-headers.js';
 export * from './features/tls.js';
 export * from './features/ports.js';
 export * from './features/wifi.js';
+export * from './features/bluetooth.js';

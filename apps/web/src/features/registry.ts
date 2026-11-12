@@ -1,4 +1,5 @@
 import {
+  Bluetooth,
   Fingerprint,
   Globe,
   Network,
@@ -39,6 +40,7 @@ export const TOOL_UI: Record<ToolId, ToolUi> = {
   ports: { icon: Network, tone: 'green', accepts: ['domain', 'ip'] },
   // Local tool: no target, so it never appears in pivots or quick-target.
   wifi: { icon: Wifi, tone: 'cyan', accepts: [] },
+  bluetooth: { icon: Bluetooth, tone: 'magenta', accepts: [] },
 };
 
 export type ToolPath = `/tools/${ToolId}`;

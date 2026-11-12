@@ -308,7 +308,7 @@ export function pickDefaultInterface(
 }
 
 // ---------------------------------------------------------------- macOS CoreWLAN helper
-// JSON written by native/macos/ReconWifi (see main.swift).
+// JSON written by native/macos/ReconHelper --mode wifi (see Wifi.swift).
 
 export interface CoreWlanResult {
   authorized: boolean;

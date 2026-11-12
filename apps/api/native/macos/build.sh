@@ -1,34 +1,42 @@
 #!/usr/bin/env bash
-# Builds the ReconWifi helper app (macOS only) and asks for Location permission.
-# Usage: pnpm --filter @recon/api setup:wifi-macos   [--no-auth]
+# Builds the ReconHelper app (macOS only) and asks for the permissions it needs:
+#   Location  -> unredacted WiFi names/BSSIDs
+#   Bluetooth -> BLE + Classic scanning
+# Usage: pnpm setup:macos-helper [--no-auth]
 set -euo pipefail
 
 if [[ "$(uname)" != "Darwin" ]]; then
-  echo "ReconWifi is only needed on macOS; skipping." && exit 0
+  echo "ReconHelper is only needed on macOS; skipping." && exit 0
 fi
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
-APP="$DIR/build/ReconWifi.app"
+APP="$DIR/build/ReconHelper.app"
 
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS"
-cp "$DIR/ReconWifi/Info.plist" "$APP/Contents/Info.plist"
-swiftc -O -o "$APP/Contents/MacOS/ReconWifi" "$DIR/ReconWifi/main.swift" \
-  -framework CoreWLAN -framework CoreLocation
-# Ad-hoc signature: macOS ties the Location permission to the app's identity.
+cp "$DIR/ReconHelper/Info.plist" "$APP/Contents/Info.plist"
+swiftc -O -o "$APP/Contents/MacOS/ReconHelper" "$DIR"/ReconHelper/*.swift \
+  -framework CoreWLAN -framework CoreLocation -framework CoreBluetooth -framework IOBluetooth
+# Ad-hoc signature: macOS ties privacy permissions to the app's identity.
 codesign --force --sign - "$APP" >/dev/null
 echo "Built $APP"
 
-if [[ "${1:-}" != "--no-auth" ]]; then
-  OUT="$(mktemp -t reconwifi)"
-  echo "Requesting Location permission: click 'Allow' in the macOS dialog (waits up to 2 min)..."
-  open -n -W -a "$APP" --args --request-auth --output "$OUT"
-  STATUS="$(cat "$OUT" 2>/dev/null || echo '{}')"
-  rm -f "$OUT"
-  echo "Result: $STATUS"
-  if [[ "$STATUS" != *'"authorized":true'* ]]; then
-    echo "Not authorised. Enable it in System Settings > Privacy & Security > Location Services > ReconWifi,"
-    echo "then scan again (no rebuild needed)."
-    open "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices" || true
+[[ "${1:-}" == "--no-auth" ]] && exit 0
+
+request() { # mode label settings-anchor
+  local out status
+  out="$(mktemp -t reconhelper)"
+  echo
+  echo "Requesting $2 permission: click 'Allow' in the macOS dialog (waits up to 2 min)..."
+  open -n -W -a "$APP" --args --mode "$1" --request-auth --output "$out"
+  status="$(cat "$out" 2>/dev/null || echo '{}')"
+  rm -f "$out"
+  echo "$2: $status"
+  if [[ "$status" != *'"authorized":true'* ]]; then
+    echo "Not authorised. Enable ReconHelper in System Settings > Privacy & Security > $2, then scan again."
+    open "x-apple.systempreferences:com.apple.preference.security?$3" || true
   fi
-fi
+}
+
+request wifi "Location Services" Privacy_LocationServices
+request bluetooth "Bluetooth" Privacy_Bluetooth

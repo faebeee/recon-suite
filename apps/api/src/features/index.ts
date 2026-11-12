@@ -1,3 +1,4 @@
+import { BluetoothModule } from './bluetooth/bluetooth.module.js';
 import { DnsModule } from './dns/dns.module.js';
 import { HttpHeadersModule } from './http-headers/http-headers.module.js';
 import { PortsModule } from './ports/ports.module.js';
@@ -17,4 +18,5 @@ export const FEATURE_MODULES = [
   TlsModule,
   PortsModule,
   WifiModule,
+  BluetoothModule,
 ];

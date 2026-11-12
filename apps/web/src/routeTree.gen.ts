@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ToolsBluetoothRouteImport } from './routes/tools/bluetooth'
 import { Route as ToolsDnsRouteImport } from './routes/tools/dns'
 import { Route as ToolsHttpHeadersRouteImport } from './routes/tools/http-headers'
 import { Route as ToolsPortsRouteImport } from './routes/tools/ports'
@@ -21,6 +22,11 @@ import { Route as ToolsWifiRouteImport } from './routes/tools/wifi'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsBluetoothRoute = ToolsBluetoothRouteImport.update({
+  id: '/tools/bluetooth',
+  path: '/tools/bluetooth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ToolsDnsRoute = ToolsDnsRouteImport.update({
@@ -61,6 +67,7 @@ const ToolsWifiRoute = ToolsWifiRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/tools/bluetooth': typeof ToolsBluetoothRoute
   '/tools/dns': typeof ToolsDnsRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/ports': typeof ToolsPortsRoute
@@ -71,6 +78,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/tools/bluetooth': typeof ToolsBluetoothRoute
   '/tools/dns': typeof ToolsDnsRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/ports': typeof ToolsPortsRoute
@@ -82,6 +90,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/tools/bluetooth': typeof ToolsBluetoothRoute
   '/tools/dns': typeof ToolsDnsRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/ports': typeof ToolsPortsRoute
@@ -94,6 +103,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/tools/bluetooth'
     | '/tools/dns'
     | '/tools/http-headers'
     | '/tools/ports'
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/tools/bluetooth'
     | '/tools/dns'
     | '/tools/http-headers'
     | '/tools/ports'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/tools/bluetooth'
     | '/tools/dns'
     | '/tools/http-headers'
     | '/tools/ports'
@@ -125,6 +137,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ToolsBluetoothRoute: typeof ToolsBluetoothRoute
   ToolsDnsRoute: typeof ToolsDnsRoute
   ToolsHttpHeadersRoute: typeof ToolsHttpHeadersRoute
   ToolsPortsRoute: typeof ToolsPortsRoute
@@ -141,6 +154,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/bluetooth': {
+      id: '/tools/bluetooth'
+      path: '/tools/bluetooth'
+      fullPath: '/tools/bluetooth'
+      preLoaderRoute: typeof ToolsBluetoothRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tools/dns': {
@@ -197,6 +217,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ToolsBluetoothRoute: ToolsBluetoothRoute,
   ToolsDnsRoute: ToolsDnsRoute,
   ToolsHttpHeadersRoute: ToolsHttpHeadersRoute,
   ToolsPortsRoute: ToolsPortsRoute,

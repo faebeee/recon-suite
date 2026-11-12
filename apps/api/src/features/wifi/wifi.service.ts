@@ -15,8 +15,8 @@ import type { Env } from '../../config/env.js';
 import {
   HELPER_SETUP_COMMAND,
   helperInstalled,
-  runHelperScan,
-} from './macos-helper.js';
+  runHelper,
+} from '../../core/native/macos-helper.js';
 import {
   CommandFailedError,
   CommandNotFoundError,
@@ -32,6 +32,7 @@ import {
   parseNetshInterfaces,
   parseNmcli,
   parseCoreWlan,
+  type CoreWlanResult,
   parseNmcliDevices,
   parseSystemProfiler,
   pickDefaultInterface,
@@ -142,26 +143,30 @@ export class WifiService {
   }
 
   /**
-   * Preferred: the ReconWifi helper (CoreWLAN with Location permission, unredacted).
+   * Preferred: the ReconHelper app (CoreWLAN with Location permission, unredacted).
    * Fallback: system_profiler, where macOS redacts SSIDs/BSSIDs.
    */
   private async scanMacos(iface: string): Promise<WifiOutput> {
     let reason =
-      'macOS hides WiFi names and BSSIDs from command-line tools that lack Location permission.';
+      'macOS hides WiFi names and BSSIDs from tools that lack Location permission.';
 
     if (helperInstalled()) {
-      const result = await runHelperScan(iface);
+      const result = await runHelper<CoreWlanResult>(
+        'wifi',
+        ['--interface', iface],
+        30_000,
+      );
       if (result.authorized && !result.error) {
         return {
           platform: 'macos',
-          method: 'CoreWLAN (ReconWifi helper)',
+          method: 'CoreWLAN (ReconHelper)',
           interface: result.interface || iface,
           networks: sort(parseCoreWlan(result)),
         };
       }
       reason = result.error
-        ? `The ReconWifi helper failed (${result.error}); showing redacted fallback data.`
-        : `The ReconWifi helper has no Location permission (status: ${result.status}).`;
+        ? `The ReconHelper app failed (${result.error}); showing redacted fallback data.`
+        : `The ReconHelper app has no Location permission (status: ${result.status}).`;
     }
 
     // system_profiler has no interface flag; it reports every interface and we pick one.
@@ -179,8 +184,8 @@ export class WifiService {
         ? {
             reason,
             fix: helperInstalled()
-              ? 'Allow Location access for "ReconWifi" in System Settings > Privacy & Security > Location Services, or re-run the setup to get the prompt again.'
-              : 'Build the ReconWifi helper once and click "Allow" when macOS asks for Location access.',
+              ? 'Allow Location access for "ReconHelper" in System Settings > Privacy & Security > Location Services, or re-run the setup to get the prompt again.'
+              : 'Build the ReconHelper app once and click "Allow" when macOS asks for Location access.',
             command: HELPER_SETUP_COMMAND,
           }
         : undefined,
