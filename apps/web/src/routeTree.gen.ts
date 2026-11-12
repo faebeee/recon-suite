@@ -16,6 +16,7 @@ import { Route as ToolsPortsRouteImport } from './routes/tools/ports'
 import { Route as ToolsSubdomainsRouteImport } from './routes/tools/subdomains'
 import { Route as ToolsTlsRouteImport } from './routes/tools/tls'
 import { Route as ToolsWhoisRouteImport } from './routes/tools/whois'
+import { Route as ToolsWifiRouteImport } from './routes/tools/wifi'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -52,6 +53,11 @@ const ToolsWhoisRoute = ToolsWhoisRouteImport.update({
   path: '/tools/whois',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToolsWifiRoute = ToolsWifiRouteImport.update({
+  id: '/tools/wifi',
+  path: '/tools/wifi',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/tools/subdomains': typeof ToolsSubdomainsRoute
   '/tools/tls': typeof ToolsTlsRoute
   '/tools/whois': typeof ToolsWhoisRoute
+  '/tools/wifi': typeof ToolsWifiRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/tools/subdomains': typeof ToolsSubdomainsRoute
   '/tools/tls': typeof ToolsTlsRoute
   '/tools/whois': typeof ToolsWhoisRoute
+  '/tools/wifi': typeof ToolsWifiRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/tools/subdomains': typeof ToolsSubdomainsRoute
   '/tools/tls': typeof ToolsTlsRoute
   '/tools/whois': typeof ToolsWhoisRoute
+  '/tools/wifi': typeof ToolsWifiRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/tools/subdomains'
     | '/tools/tls'
     | '/tools/whois'
+    | '/tools/wifi'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/tools/subdomains'
     | '/tools/tls'
     | '/tools/whois'
+    | '/tools/wifi'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/tools/subdomains'
     | '/tools/tls'
     | '/tools/whois'
+    | '/tools/wifi'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +131,7 @@ export interface RootRouteChildren {
   ToolsSubdomainsRoute: typeof ToolsSubdomainsRoute
   ToolsTlsRoute: typeof ToolsTlsRoute
   ToolsWhoisRoute: typeof ToolsWhoisRoute
+  ToolsWifiRoute: typeof ToolsWifiRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -172,6 +185,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToolsWhoisRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tools/wifi': {
+      id: '/tools/wifi'
+      path: '/tools/wifi'
+      fullPath: '/tools/wifi'
+      preLoaderRoute: typeof ToolsWifiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -183,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   ToolsSubdomainsRoute: ToolsSubdomainsRoute,
   ToolsTlsRoute: ToolsTlsRoute,
   ToolsWhoisRoute: ToolsWhoisRoute,
+  ToolsWifiRoute: ToolsWifiRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

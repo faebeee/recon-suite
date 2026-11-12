@@ -8,14 +8,15 @@ Turborepo monorepo with a feature-driven architecture.
 
 ## Tools
 
-| Code | Tool             | Mode    | What it does                                                             |
-| ---- | ---------------- | ------- | ------------------------------------------------------------------------ |
-| D-01 | DNS Recon        | passive | A, AAAA, CNAME, MX, NS, TXT, SOA, CAA via Cloudflare/Google/Quad9/system |
-| D-02 | Subdomain Finder | passive | Subdomains from certificate transparency logs (crt.sh)                   |
-| I-01 | WHOIS / RDAP     | passive | Registrar, lifecycle, status, nameservers; IP network ownership          |
-| W-01 | HTTP Inspector   | active  | Redirect chain, headers, security-header grade, disclosures              |
-| W-02 | TLS Inspector    | active  | Protocol, cipher, certificate, SANs, chain, expiry                       |
-| N-01 | Port Probe       | active  | TCP connect check on preset or custom ports (max 64)                     |
+| Code | Tool             | Mode    | What it does                                                                     |
+| ---- | ---------------- | ------- | -------------------------------------------------------------------------------- |
+| D-01 | DNS Recon        | passive | A, AAAA, CNAME, MX, NS, TXT, SOA, CAA via Cloudflare/Google/Quad9/system         |
+| D-02 | Subdomain Finder | passive | Subdomains from certificate transparency logs (crt.sh)                           |
+| I-01 | WHOIS / RDAP     | passive | Registrar, lifecycle, status, nameservers; IP network ownership                  |
+| W-01 | HTTP Inspector   | active  | Redirect chain, headers, security-header grade, disclosures                      |
+| W-02 | TLS Inspector    | active  | Protocol, cipher, certificate, SANs, chain, expiry                               |
+| N-01 | Port Probe       | active  | TCP connect check on preset or custom ports (max 64)                             |
+| R-01 | WiFi Scanner     | local   | Nearby WiFi networks seen by the API host: SSID, band, channel, security, signal |
 
 Results link to each other ("pivots"): a hostname found in DNS, CT logs or a certificate
 can be opened in any other compatible tool with one click. Every tool also accepts
@@ -46,6 +47,10 @@ pnpm compose:down
 ```
 
 Configuration: see `.env.example`, `apps/api/.env.example` and `apps/web/.env.example`.
+
+> **WiFi Scanner** is a local tool: it lists what the wireless adapter of the machine running
+> the API can see (macOS `system_profiler`, Linux `nmcli`, Windows `netsh`). Use it with
+> `pnpm dev`; it is disabled in the Podman setup because containers have no WiFi adapter.
 
 ## Security model
 

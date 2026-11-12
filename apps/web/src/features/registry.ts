@@ -5,6 +5,7 @@ import {
   Radar,
   ScanSearch,
   ShieldCheck,
+  Wifi,
   type LucideIcon,
 } from 'lucide-react';
 import {
@@ -36,6 +37,8 @@ export const TOOL_UI: Record<ToolId, ToolUi> = {
   },
   tls: { icon: Radar, tone: 'yellow', accepts: ['domain', 'ip'] },
   ports: { icon: Network, tone: 'green', accepts: ['domain', 'ip'] },
+  // Local tool: no target, so it never appears in pivots or quick-target.
+  wifi: { icon: Wifi, tone: 'cyan', accepts: [] },
 };
 
 export type ToolPath = `/tools/${ToolId}`;

@@ -1,5 +1,9 @@
 import {
   formatMacSecurity,
+  parseHardwarePorts,
+  parseNetshInterfaces,
+  parseNmcliDevices,
+  pickDefaultInterface,
   parseMacChannel,
   parseNetsh,
   parseNmcli,
@@ -47,6 +51,15 @@ describe('macOS system_profiler parser', () => {
               },
               spairport_airport_other_local_wireless_networks: [
                 {
+                  _name: 'HomeNet',
+                  spairport_network_channel: '36 (5GHz, 80MHz)',
+                  spairport_signal_noise: '-41 dBm / -88 dBm',
+                },
+                {
+                  _name: 'HomeNet',
+                  spairport_network_channel: '1 (2GHz, 20MHz)',
+                },
+                {
                   _name: 'CafeFree',
                   spairport_network_channel: '6 (2GHz, 20MHz)',
                   spairport_security_mode: 'spairport_security_mode_none',
@@ -59,7 +72,9 @@ describe('macOS system_profiler parser', () => {
       ],
     });
     expect(out.interface).toBe('en0');
-    expect(out.networks).toHaveLength(2);
+    // connected AP's duplicate dropped, second HomeNet radio kept
+    expect(out.networks).toHaveLength(3);
+    expect(out.networks.map((n) => n.channel)).toEqual([36, 1, 6]);
     expect(out.networks[0]).toMatchObject({
       ssid: 'HomeNet',
       current: true,
@@ -67,7 +82,7 @@ describe('macOS system_profiler parser', () => {
       noiseDbm: -88,
       quality: 100,
     });
-    expect(out.networks[1]).toMatchObject({
+    expect(out.networks[2]).toMatchObject({
       ssid: 'CafeFree',
       security: 'Open',
       band: '2.4 GHz',
@@ -142,5 +157,95 @@ SSID 1 : Office
       band: '2.4 GHz',
       channel: 11,
     });
+  });
+});
+
+describe('interface parsers', () => {
+  it('keeps only Wi-Fi hardware ports on macOS', () => {
+    expect(
+      parseHardwarePorts(`Hardware Port: Ethernet Adapter (en3)
+Device: en3
+Ethernet Address: de:71:9f:41:fa:bb
+
+Hardware Port: Wi-Fi
+Device: en0
+Ethernet Address: 1c:f6:4c:b8:b3:36
+
+VLAN Configurations
+===================`),
+    ).toEqual([
+      { name: 'en0', description: 'Wi-Fi', macAddress: '1c:f6:4c:b8:b3:36' },
+    ]);
+  });
+
+  it('keeps only wifi devices from nmcli', () => {
+    const out = parseNmcliDevices(
+      'wlan0:wifi:connected:Home Net\neth0:ethernet:connected:Wired\nwlx00c0:wifi:disconnected:--\n',
+    );
+    expect(out).toEqual([
+      {
+        name: 'wlan0',
+        description: 'WiFi',
+        state: 'connected',
+        connection: 'Home Net',
+      },
+      {
+        name: 'wlx00c0',
+        description: 'WiFi',
+        state: 'disconnected',
+        connection: undefined,
+      },
+    ]);
+    expect(pickDefaultInterface(out)).toBe('wlan0');
+  });
+
+  it('parses netsh interfaces', () => {
+    const out = parseNetshInterfaces(`
+There are 2 interfaces on the system:
+
+    Name                   : Wi-Fi
+    Description            : Intel(R) Wi-Fi 6 AX201 160MHz
+    Physical address       : aa:bb:cc:dd:ee:ff
+    State                  : connected
+    SSID                   : Office
+
+    Name                   : Wi-Fi 2
+    Description            : USB Wireless Adapter
+    State                  : disconnected
+`);
+    expect(out.map((i) => i.name)).toEqual(['Wi-Fi', 'Wi-Fi 2']);
+    expect(out[0]).toMatchObject({
+      state: 'connected',
+      connection: 'Office',
+      macAddress: 'aa:bb:cc:dd:ee:ff',
+    });
+  });
+
+  it('selects the requested macOS interface', () => {
+    const out = parseSystemProfiler(
+      {
+        SPAirPortDataType: [
+          {
+            spairport_airport_interfaces: [
+              {
+                _name: 'en0',
+                spairport_airport_other_local_wireless_networks: [
+                  { _name: 'A' },
+                ],
+              },
+              {
+                _name: 'en7',
+                spairport_airport_other_local_wireless_networks: [
+                  { _name: 'B' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      'en7',
+    );
+    expect(out.interface).toBe('en7');
+    expect(out.networks.map((n) => n.ssid)).toEqual(['B']);
   });
 });

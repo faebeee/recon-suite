@@ -1,4 +1,4 @@
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, HardDrive } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { ToolId } from '@recon/shared';
 import { Tag } from '@/components/cyber';
@@ -35,6 +35,13 @@ export function ToolPage({
         <p className="max-w-2xl text-sm text-muted-foreground">
           {tool.description}
         </p>
+        {tool.scope === 'local' && (
+          <p className="flex items-start gap-2 text-xs text-primary/90">
+            <HardDrive className="mt-px size-3.5 shrink-0" />
+            Local tool: runs on the machine hosting the API and inspects its
+            surroundings, not a remote target.
+          </p>
+        )}
         {tool.mode === 'active' && (
           <p className="flex items-start gap-2 text-xs text-neon-yellow/90">
             <AlertTriangle className="mt-px size-3.5 shrink-0" />

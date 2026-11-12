@@ -13,6 +13,7 @@
     "test": "turbo run test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "setup:wifi-macos": "pnpm --filter @recon/api setup:wifi-macos",
     "compose:up": "podman compose up --build -d",
     "compose:down": "podman compose down",
     "compose:logs": "podman compose logs -f"

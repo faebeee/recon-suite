@@ -55,6 +55,7 @@ apps/api/src/
   core/              cross-cutting infra (global CoreModule)
     net/             TargetGuardService: SSRF protection, blocked IP ranges
     http/            HttpClientService (guarded + trusted undici agents), readTextLimited
+    process/         runCommand(): fixed OS commands via execFile (local tools)
     util/            mapConcurrent
     tool-runner.ts   runTool(): wraps results in the ToolResult envelope
   config/env.ts      Zod-validated environment
@@ -78,10 +79,18 @@ apps/web/src/
   (`@Body({ schema })`, Nest's `StandardSchemaValidationPipe`, registered in `app.setup.ts`).
 - Every tool responds with `ToolResult<Output>` built by `runTool(id, target, fn)`.
 - The request field holding the target is always called `target`.
+- **Local tools** (`scope: 'local'`, e.g. `wifi`) have no target: their input schema is
+  `z.object({})` (or options only), `runTool` gets `os.hostname()` as target, `TOOL_UI.accepts`
+  is `[]`, and the web page uses a scan panel instead of `TargetForm`. They only work when the
+  API runs natively on a machine with the needed hardware, and are gated by
+  `LOCAL_TOOLS_ENABLED` (answer 503 with a helpful message when unavailable).
 - Errors are Nest HTTP exceptions: 400 invalid input, 403 blocked target, 404 not found/NXDOMAIN,
   502 upstream failure, 504 timeout. The web `ApiError` shows `message` to the user, so write
   messages for humans.
 - `GET /api/tools` returns the catalog, `GET /api/health` is the health check.
+- Tools may expose helper sub-resources for their UI as `GET /api/tools/<id>/<name>` (plain
+  response, no `ToolResult` envelope), e.g. `GET /api/tools/wifi/interfaces` for the dropdown.
+  Put the path constant in the shared feature file (`WIFI_INTERFACES_ENDPOINT`).
 
 ## Security rules (non-negotiable)
 
@@ -100,6 +109,12 @@ apps/web/src/
    authorisation notice automatically.
 6. Rate limiting is global (`@nestjs/throttler`, `THROTTLE_LIMIT`). Only system endpoints use
    `@SkipThrottle()`.
+7. OS commands only through `runCommand()` with a hard-coded command and argument array.
+   Never build commands from user input and never use a shell. A user-chosen value may only
+   become an argument after strict schema validation **and** an allowlist check against what the
+   OS reported (see `WifiService.scan`: the interface must be in `listInterfaces()`).
+8. Local tools expose the server's surroundings (e.g. nearby WiFi networks reveal its location):
+   check `LOCAL_TOOLS_ENABLED` in the service. Compose sets it to `false` by default.
 
 ## Adding a new tool
 
@@ -141,6 +156,7 @@ pure analysis function with tests).
 | `CORS_ORIGIN`           | api | `http://localhost:5173` | Comma-separated allowed origins         |
 | `ALLOW_PRIVATE_TARGETS` | api | `false`                 | Allow loopback/private/reserved targets |
 | `THROTTLE_LIMIT`        | api | `60`                    | Requests per minute per client          |
+| `LOCAL_TOOLS_ENABLED`   | api | `true`                  | Enable host-local tools (WiFi scan)     |
 | `API_PROXY_TARGET`      | web | `http://localhost:4000` | Vite dev proxy target for `/api`        |
 | `VITE_API_URL`          | web | `/api`                  | API base URL used by the browser        |
 

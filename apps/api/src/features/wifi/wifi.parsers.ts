@@ -2,6 +2,7 @@ import {
   bandFromFrequency,
   dbmToQuality,
   type WifiBand,
+  type WifiInterface,
   type WifiNetwork,
 } from '@recon/shared';
 
@@ -83,7 +84,10 @@ function fromSp(n: SpNetwork, current: boolean): WifiNetwork {
   };
 }
 
-export function parseSystemProfiler(json: SystemProfilerJson): {
+export function parseSystemProfiler(
+  json: SystemProfilerJson,
+  interfaceName?: string,
+): {
   interface?: string;
   networks: WifiNetwork[];
 } {
@@ -91,16 +95,33 @@ export function parseSystemProfiler(json: SystemProfilerJson): {
     (t) => t.spairport_airport_interfaces ?? [],
   );
   // The WiFi card is the interface that reports nearby networks or a named current network.
-  const iface =
-    interfaces.find((i) => i.spairport_airport_other_local_wireless_networks) ??
-    interfaces.find((i) => i.spairport_current_network_information?._name);
+  const iface = interfaceName
+    ? interfaces.find((i) => i._name === interfaceName)
+    : (interfaces.find(
+        (i) => i.spairport_airport_other_local_wireless_networks,
+      ) ??
+      interfaces.find((i) => i.spairport_current_network_information?._name));
   if (!iface) return { networks: [] };
 
   const networks: WifiNetwork[] = [];
   const cur = iface.spairport_current_network_information;
-  if (cur?._name) networks.push(fromSp(cur, true));
+  const current = cur?._name ? fromSp(cur, true) : undefined;
+  if (current) networks.push(current);
+
+  // macOS repeats the connected access point in the nearby list; drop that one copy.
+  let skippedSelf = false;
   for (const n of iface.spairport_airport_other_local_wireless_networks ?? []) {
-    networks.push(fromSp(n, false));
+    const net = fromSp(n, false);
+    const isSelf =
+      current &&
+      net.ssid === current.ssid &&
+      net.channel === current.channel &&
+      net.signalDbm === current.signalDbm;
+    if (isSelf && !skippedSelf) {
+      skippedSelf = true;
+      continue;
+    }
+    networks.push(net);
   }
   return { interface: iface._name, networks };
 }
@@ -203,4 +224,79 @@ export function parseNetsh(text: string): WifiNetwork[] {
     }
   }
   return networks;
+}
+
+// ---------------------------------------------------------------- Interfaces
+
+/** macOS: `networksetup -listallhardwareports`, keeping Wi-Fi ports only. */
+export function parseHardwarePorts(text: string): WifiInterface[] {
+  return text
+    .split(/\n\s*\n/)
+    .map((block) => ({
+      port: /^Hardware Port:\s*(.+)$/m.exec(block)?.[1]?.trim(),
+      device: /^Device:\s*(.+)$/m.exec(block)?.[1]?.trim(),
+      mac: /^Ethernet Address:\s*(.+)$/m.exec(block)?.[1]?.trim(),
+    }))
+    .filter((p) => p.device && p.port && /wi-?fi|airport/i.test(p.port))
+    .map((p) => ({
+      name: p.device!,
+      description: p.port,
+      macAddress: p.mac && p.mac !== 'N/A' ? p.mac : undefined,
+    }));
+}
+
+export const NMCLI_DEVICE_ARGS = [
+  '-t',
+  '-e',
+  'yes',
+  '-f',
+  'DEVICE,TYPE,STATE,CONNECTION',
+  'device',
+  'status',
+];
+
+/** Linux: `nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device status`, wifi devices only. */
+export function parseNmcliDevices(text: string): WifiInterface[] {
+  return text
+    .split('\n')
+    .filter((l) => l.trim())
+    .map(splitTerse)
+    .filter(([, type]) => type === 'wifi')
+    .map(([device = '', , state, connection]) => ({
+      name: device,
+      description: 'WiFi',
+      state: state || undefined,
+      connection: connection && connection !== '--' ? connection : undefined,
+    }));
+}
+
+export const NETSH_INTERFACES_ARGS = ['wlan', 'show', 'interfaces'];
+
+/** Windows: `netsh wlan show interfaces` (English output). */
+export function parseNetshInterfaces(text: string): WifiInterface[] {
+  const result: WifiInterface[] = [];
+  let cur: WifiInterface | undefined;
+  for (const raw of text.split(/\r?\n/)) {
+    const m = /^\s*([^:]+?)\s*:\s*(.*)$/.exec(raw);
+    if (!m) continue;
+    const [, key, value] = m as unknown as [string, string, string];
+    if (key === 'Name') {
+      cur = { name: value.trim() };
+      result.push(cur);
+    } else if (cur && key === 'Description') cur.description = value.trim();
+    else if (cur && key === 'Physical address') cur.macAddress = value.trim();
+    else if (cur && key === 'State') cur.state = value.trim();
+    else if (cur && key === 'SSID') cur.connection = value.trim() || undefined;
+  }
+  return result;
+}
+
+/** Connected interface first, else the first one. */
+export function pickDefaultInterface(
+  interfaces: WifiInterface[],
+): string | undefined {
+  return (
+    interfaces.find((i) => i.state === 'connected' || i.connection) ??
+    interfaces[0]
+  )?.name;
 }

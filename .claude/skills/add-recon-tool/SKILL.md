@@ -15,9 +15,11 @@ implementations: `dns` (simple) and `http-headers` (outbound HTTP to a target).
 
 ## 0. Decide
 
-- **Category**: `dns` | `intel` | `web` | `network` (add one to `ToolCategory` and
+- **Category**: `dns` | `intel` | `web` | `network` | `wireless` (add one to `ToolCategory` and
   `CATEGORY_LABELS` only if none fits).
 - **Mode**: `passive` (only third-party sources) or `active` (connects to the target).
+- **Scope**: `remote` (takes a `target`) or `local` (inspects the API host, no target). For
+  local tools follow the variant section "Local tools" below and use `wifi` as reference.
 - **Target kind**: domain (`domainSchema`), host/IP (`hostSchema`), URL (`httpUrlSchema`).
 - **Code**: next free code in the category (`D-03`, `W-03`, `N-02`, `I-02`, ...).
 - **Outbound path**: target connection -> `HttpClientService.target()` or
@@ -202,6 +204,26 @@ export const Route = createFileRoute('/tools/security-txt')({
 
 Sidebar, dashboard card, quick-target launcher and pivots pick the tool up automatically
 from the catalog + registry.
+
+## Variant: local tools (no target)
+
+Reference: `wifi` (shared `features/wifi.ts`, api `features/wifi/`, web `features/wifi/`).
+
+- Shared: `inputSchema = z.object({})` (options only, no `target`); catalog `scope: 'local'`,
+  `targetHint: ''`.
+- Options that select a host resource (e.g. `interface`): strict regex in the schema, a helper
+  `GET /api/tools/<id>/<name>` endpoint listing valid values for a UI dropdown, and an allowlist
+  check in the service before the value is used as a command argument.
+- API: run OS tooling only via `runCommand(cmd, FIXED_ARGS)` from `core/process/`, parse the
+  output in pure per-platform parsers with fixture-based specs, check `LOCAL_TOOLS_ENABLED` and
+  map `CommandNotFoundError` / `CommandFailedError` to `ServiceUnavailableException` with a
+  message explaining the requirement (native run, hardware, OS package). Controller passes
+  `os.hostname()` as target to `runTool`.
+- Web: `TOOL_UI` entry with `accepts: []`; page = `ToolPage` + a `Panel` with a Scan button
+  calling `runner.run()` (`useToolRunner(id, { buildInput: () => ({}) })`) + `ToolResultView`;
+  the route file has no `validateSearch`.
+- Verify on the dev machine (`curl -X POST localhost:4000/api/tools/<id> -d '{}' -H 'content-type: application/json'`)
+  and state which platforms were only covered by fixture tests.
 
 ## 4. Verify
 

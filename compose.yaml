@@ -11,6 +11,8 @@ services:
       CORS_ORIGIN: http://localhost:${WEB_PORT:-8080}
       ALLOW_PRIVATE_TARGETS: ${ALLOW_PRIVATE_TARGETS:-false}
       THROTTLE_LIMIT: ${THROTTLE_LIMIT:-60}
+      # Containers have no WiFi adapter; local tools also leak host surroundings when shared.
+      LOCAL_TOOLS_ENABLED: ${LOCAL_TOOLS_ENABLED:-false}
     ports:
       - '${API_PORT:-4000}:4000'
     healthcheck:
