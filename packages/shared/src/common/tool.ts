@@ -5,6 +5,7 @@ export const TOOL_IDS = [
   'http-headers',
   'tls',
   'ports',
+  'host-scan',
   'wifi',
   'bluetooth',
 ] as const;

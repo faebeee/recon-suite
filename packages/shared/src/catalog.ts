@@ -82,6 +82,18 @@ export const TOOL_CATALOG: Record<ToolId, ToolMeta> = {
     scope: 'remote',
     targetHint: 'example.com',
   },
+  'host-scan': {
+    id: 'host-scan',
+    code: 'N-02',
+    name: 'Host Scan',
+    tagline: 'ARP-discover hosts on the local network',
+    description:
+      "Sends ARP requests over the API host's chosen network interface to discover live hosts and MAC addresses on its local subnet.",
+    category: 'network',
+    mode: 'active',
+    scope: 'local',
+    targetHint: '',
+  },
   wifi: {
     id: 'wifi',
     code: 'R-01',

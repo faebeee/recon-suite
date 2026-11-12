@@ -4,6 +4,7 @@ import {
   Globe,
   Network,
   Radar,
+  Router,
   ScanSearch,
   ShieldCheck,
   Wifi,
@@ -39,6 +40,7 @@ export const TOOL_UI: Record<ToolId, ToolUi> = {
   tls: { icon: Radar, tone: 'yellow', accepts: ['domain', 'ip'] },
   ports: { icon: Network, tone: 'green', accepts: ['domain', 'ip'] },
   // Local tool: no target, so it never appears in pivots or quick-target.
+  'host-scan': { icon: Router, tone: 'green', accepts: [] },
   wifi: { icon: Wifi, tone: 'cyan', accepts: [] },
   bluetooth: { icon: Bluetooth, tone: 'magenta', accepts: [] },
 };

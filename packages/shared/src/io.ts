@@ -31,6 +31,11 @@ import {
   type SubdomainsOutput,
 } from './features/subdomains.js';
 import {
+  hostScanInputSchema,
+  type HostScanInput,
+  type HostScanOutput,
+} from './features/host-scan.js';
+import {
   tlsInputSchema,
   type TlsInput,
   type TlsOutput,
@@ -49,6 +54,7 @@ export const TOOL_INPUT_SCHEMAS = {
   'http-headers': httpHeadersInputSchema,
   tls: tlsInputSchema,
   ports: portsInputSchema,
+  'host-scan': hostScanInputSchema,
   wifi: wifiInputSchema,
   bluetooth: bluetoothInputSchema,
 } as const satisfies Record<ToolId, z.ZodType>;
@@ -61,6 +67,7 @@ export interface ToolIO {
   'http-headers': { input: HttpHeadersInput; output: HttpHeadersOutput };
   tls: { input: TlsInput; output: TlsOutput };
   ports: { input: PortsInput; output: PortsOutput };
+  'host-scan': { input: HostScanInput; output: HostScanOutput };
   wifi: { input: WifiInput; output: WifiOutput };
   bluetooth: { input: BluetoothInput; output: BluetoothOutput };
 }

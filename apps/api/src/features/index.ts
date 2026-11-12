@@ -1,5 +1,6 @@
 import { BluetoothModule } from './bluetooth/bluetooth.module.js';
 import { DnsModule } from './dns/dns.module.js';
+import { HostScanModule } from './host-scan/host-scan.module.js';
 import { HttpHeadersModule } from './http-headers/http-headers.module.js';
 import { PortsModule } from './ports/ports.module.js';
 import { SubdomainsModule } from './subdomains/subdomains.module.js';
@@ -17,6 +18,7 @@ export const FEATURE_MODULES = [
   HttpHeadersModule,
   TlsModule,
   PortsModule,
+  HostScanModule,
   WifiModule,
   BluetoothModule,
 ];

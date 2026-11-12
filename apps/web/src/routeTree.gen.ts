@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ToolsBluetoothRouteImport } from './routes/tools/bluetooth'
 import { Route as ToolsDnsRouteImport } from './routes/tools/dns'
+import { Route as ToolsHostScanRouteImport } from './routes/tools/host-scan'
 import { Route as ToolsHttpHeadersRouteImport } from './routes/tools/http-headers'
 import { Route as ToolsPortsRouteImport } from './routes/tools/ports'
 import { Route as ToolsSubdomainsRouteImport } from './routes/tools/subdomains'
@@ -32,6 +33,11 @@ const ToolsBluetoothRoute = ToolsBluetoothRouteImport.update({
 const ToolsDnsRoute = ToolsDnsRouteImport.update({
   id: '/tools/dns',
   path: '/tools/dns',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsHostScanRoute = ToolsHostScanRouteImport.update({
+  id: '/tools/host-scan',
+  path: '/tools/host-scan',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ToolsHttpHeadersRoute = ToolsHttpHeadersRouteImport.update({
@@ -69,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/tools/bluetooth': typeof ToolsBluetoothRoute
   '/tools/dns': typeof ToolsDnsRoute
+  '/tools/host-scan': typeof ToolsHostScanRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/ports': typeof ToolsPortsRoute
   '/tools/subdomains': typeof ToolsSubdomainsRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/tools/bluetooth': typeof ToolsBluetoothRoute
   '/tools/dns': typeof ToolsDnsRoute
+  '/tools/host-scan': typeof ToolsHostScanRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/ports': typeof ToolsPortsRoute
   '/tools/subdomains': typeof ToolsSubdomainsRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/tools/bluetooth': typeof ToolsBluetoothRoute
   '/tools/dns': typeof ToolsDnsRoute
+  '/tools/host-scan': typeof ToolsHostScanRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/ports': typeof ToolsPortsRoute
   '/tools/subdomains': typeof ToolsSubdomainsRoute
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/'
     | '/tools/bluetooth'
     | '/tools/dns'
+    | '/tools/host-scan'
     | '/tools/http-headers'
     | '/tools/ports'
     | '/tools/subdomains'
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | '/'
     | '/tools/bluetooth'
     | '/tools/dns'
+    | '/tools/host-scan'
     | '/tools/http-headers'
     | '/tools/ports'
     | '/tools/subdomains'
@@ -127,6 +138,7 @@ export interface FileRouteTypes {
     | '/'
     | '/tools/bluetooth'
     | '/tools/dns'
+    | '/tools/host-scan'
     | '/tools/http-headers'
     | '/tools/ports'
     | '/tools/subdomains'
@@ -139,6 +151,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ToolsBluetoothRoute: typeof ToolsBluetoothRoute
   ToolsDnsRoute: typeof ToolsDnsRoute
+  ToolsHostScanRoute: typeof ToolsHostScanRoute
   ToolsHttpHeadersRoute: typeof ToolsHttpHeadersRoute
   ToolsPortsRoute: typeof ToolsPortsRoute
   ToolsSubdomainsRoute: typeof ToolsSubdomainsRoute
@@ -168,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/tools/dns'
       fullPath: '/tools/dns'
       preLoaderRoute: typeof ToolsDnsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/host-scan': {
+      id: '/tools/host-scan'
+      path: '/tools/host-scan'
+      fullPath: '/tools/host-scan'
+      preLoaderRoute: typeof ToolsHostScanRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tools/http-headers': {
@@ -219,6 +239,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ToolsBluetoothRoute: ToolsBluetoothRoute,
   ToolsDnsRoute: ToolsDnsRoute,
+  ToolsHostScanRoute: ToolsHostScanRoute,
   ToolsHttpHeadersRoute: ToolsHttpHeadersRoute,
   ToolsPortsRoute: ToolsPortsRoute,
   ToolsSubdomainsRoute: ToolsSubdomainsRoute,
