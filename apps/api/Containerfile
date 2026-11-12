@@ -23,6 +23,13 @@ WORKDIR /app
 # nmcli client for the WiFi tool (R-01). It is a no-op unless the container is also granted
 # access to the host's wireless adapter and NetworkManager D-Bus socket (see compose.yaml).
 RUN apk add --no-cache networkmanager-cli
+# arp-scan for the Host Scan tool (N-02). It needs raw sockets; the app runs as "node", so the
+# binary gets the cap_net_raw file capability. The container must still be granted NET_RAW
+# (cap_add) and use the host network to see the LAN (see compose.yaml).
+RUN apk add --no-cache arp-scan \
+  && apk add --no-cache --virtual .setcap libcap-setcap \
+  && setcap cap_net_raw+ep "$(command -v arp-scan)" \
+  && apk del .setcap
 COPY --from=builder --chown=node:node /prod/api .
 USER node
 EXPOSE 4000

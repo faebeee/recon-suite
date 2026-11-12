@@ -22,9 +22,14 @@ services:
     # above, uncomment the four lines below, and make sure NetworkManager runs on the host
     # (nmcli talks to it over D-Bus; the wireless device itself stays on the host, it is
     # never moved into the container network namespace).
+    #
+    # --- Host Scan (N-02) ---
+    # arp-scan needs NET_RAW (Docker grants it by default, Podman does not). Without
+    # network_mode: host it only sees the container's own bridge network, not your LAN.
     # network_mode: host
     cap_add:
       - NET_ADMIN
+      - NET_RAW
     volumes:
       - /run/dbus:/run/dbus:ro
     healthcheck:
