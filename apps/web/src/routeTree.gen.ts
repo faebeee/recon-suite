@@ -27,6 +27,7 @@ import { Route as ToolsHostScanRouteImport } from './routes/tools/host-scan'
 import { Route as ToolsHttpHeadersRouteImport } from './routes/tools/http-headers'
 import { Route as ToolsIpIntelRouteImport } from './routes/tools/ip-intel'
 import { Route as ToolsJsEndpointsRouteImport } from './routes/tools/js-endpoints'
+import { Route as ToolsNetworkScanRouteImport } from './routes/tools/network-scan'
 import { Route as ToolsNmapRouteImport } from './routes/tools/nmap'
 import { Route as ToolsPortsRouteImport } from './routes/tools/ports'
 import { Route as ToolsReverseIpRouteImport } from './routes/tools/reverse-ip'
@@ -131,6 +132,11 @@ const ToolsJsEndpointsRoute = ToolsJsEndpointsRouteImport.update({
   path: '/tools/js-endpoints',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToolsNetworkScanRoute = ToolsNetworkScanRouteImport.update({
+  id: '/tools/network-scan',
+  path: '/tools/network-scan',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ToolsNmapRoute = ToolsNmapRouteImport.update({
   id: '/tools/nmap',
   path: '/tools/nmap',
@@ -215,6 +221,7 @@ export interface FileRoutesByFullPath {
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/ip-intel': typeof ToolsIpIntelRoute
   '/tools/js-endpoints': typeof ToolsJsEndpointsRoute
+  '/tools/network-scan': typeof ToolsNetworkScanRoute
   '/tools/nmap': typeof ToolsNmapRoute
   '/tools/ports': typeof ToolsPortsRoute
   '/tools/reverse-ip': typeof ToolsReverseIpRoute
@@ -248,6 +255,7 @@ export interface FileRoutesByTo {
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/ip-intel': typeof ToolsIpIntelRoute
   '/tools/js-endpoints': typeof ToolsJsEndpointsRoute
+  '/tools/network-scan': typeof ToolsNetworkScanRoute
   '/tools/nmap': typeof ToolsNmapRoute
   '/tools/ports': typeof ToolsPortsRoute
   '/tools/reverse-ip': typeof ToolsReverseIpRoute
@@ -282,6 +290,7 @@ export interface FileRoutesById {
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/ip-intel': typeof ToolsIpIntelRoute
   '/tools/js-endpoints': typeof ToolsJsEndpointsRoute
+  '/tools/network-scan': typeof ToolsNetworkScanRoute
   '/tools/nmap': typeof ToolsNmapRoute
   '/tools/ports': typeof ToolsPortsRoute
   '/tools/reverse-ip': typeof ToolsReverseIpRoute
@@ -317,6 +326,7 @@ export interface FileRouteTypes {
     | '/tools/http-headers'
     | '/tools/ip-intel'
     | '/tools/js-endpoints'
+    | '/tools/network-scan'
     | '/tools/nmap'
     | '/tools/ports'
     | '/tools/reverse-ip'
@@ -350,6 +360,7 @@ export interface FileRouteTypes {
     | '/tools/http-headers'
     | '/tools/ip-intel'
     | '/tools/js-endpoints'
+    | '/tools/network-scan'
     | '/tools/nmap'
     | '/tools/ports'
     | '/tools/reverse-ip'
@@ -383,6 +394,7 @@ export interface FileRouteTypes {
     | '/tools/http-headers'
     | '/tools/ip-intel'
     | '/tools/js-endpoints'
+    | '/tools/network-scan'
     | '/tools/nmap'
     | '/tools/ports'
     | '/tools/reverse-ip'
@@ -417,6 +429,7 @@ export interface RootRouteChildren {
   ToolsHttpHeadersRoute: typeof ToolsHttpHeadersRoute
   ToolsIpIntelRoute: typeof ToolsIpIntelRoute
   ToolsJsEndpointsRoute: typeof ToolsJsEndpointsRoute
+  ToolsNetworkScanRoute: typeof ToolsNetworkScanRoute
   ToolsNmapRoute: typeof ToolsNmapRoute
   ToolsPortsRoute: typeof ToolsPortsRoute
   ToolsReverseIpRoute: typeof ToolsReverseIpRoute
@@ -561,6 +574,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToolsJsEndpointsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tools/network-scan': {
+      id: '/tools/network-scan'
+      path: '/tools/network-scan'
+      fullPath: '/tools/network-scan'
+      preLoaderRoute: typeof ToolsNetworkScanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tools/nmap': {
       id: '/tools/nmap'
       path: '/tools/nmap'
@@ -673,6 +693,7 @@ const rootRouteChildren: RootRouteChildren = {
   ToolsHttpHeadersRoute: ToolsHttpHeadersRoute,
   ToolsIpIntelRoute: ToolsIpIntelRoute,
   ToolsJsEndpointsRoute: ToolsJsEndpointsRoute,
+  ToolsNetworkScanRoute: ToolsNetworkScanRoute,
   ToolsNmapRoute: ToolsNmapRoute,
   ToolsPortsRoute: ToolsPortsRoute,
   ToolsReverseIpRoute: ToolsReverseIpRoute,

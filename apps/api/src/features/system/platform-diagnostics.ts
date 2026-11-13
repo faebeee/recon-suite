@@ -91,6 +91,30 @@ const CHECKS: Record<ToolId, Check> = {
         };
   },
 
+  'network-scan': (h) => {
+    if (h.kali) return kaliCheck(h);
+    if (!h.has('nmap')) {
+      return {
+        status: 'unavailable',
+        reason: '"nmap" is not installed on the API host.',
+        fix:
+          (h.platform === 'darwin'
+            ? 'brew install nmap'
+            : 'Install it, e.g. "sudo apt install nmap"') +
+          ', or run it in the Kali container (pnpm compose:up, KALI_CONTAINER).',
+      };
+    }
+    if (!h.isRoot) {
+      return {
+        status: 'limited',
+        reason:
+          'Without root, nmap discovers hosts with TCP probes instead of ARP: no MAC addresses, and hosts with no open common port are missed.',
+        fix: 'Use the Kali container (KALI_CONTAINER) or run the API as root.',
+      };
+    }
+    return OK;
+  },
+
   'host-scan': (h) => {
     if (h.kali) return kaliCheck(h);
     if (h.platform === 'win32') {

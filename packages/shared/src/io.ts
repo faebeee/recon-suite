@@ -81,6 +81,11 @@ import {
   type NmapOutput,
 } from './features/nmap.js';
 import {
+  networkScanInputSchema,
+  type NetworkScanInput,
+  type NetworkScanOutput,
+} from './features/network-scan.js';
+import {
   emailSecurityInputSchema,
   type EmailSecurityInput,
   type EmailSecurityOutput,
@@ -159,6 +164,7 @@ export const TOOL_INPUT_SCHEMAS = {
   'exposed-files': exposedFilesInputSchema,
   'banner-grab': bannerGrabInputSchema,
   nmap: nmapInputSchema,
+  'network-scan': networkScanInputSchema,
   'http-headers': httpHeadersInputSchema,
   tls: tlsInputSchema,
   ports: portsInputSchema,
@@ -193,6 +199,7 @@ export interface ToolIO {
   'exposed-files': { input: ExposedFilesInput; output: ExposedFilesOutput };
   'banner-grab': { input: BannerGrabInput; output: BannerGrabOutput };
   nmap: { input: NmapInput; output: NmapOutput };
+  'network-scan': { input: NetworkScanInput; output: NetworkScanOutput };
   'http-headers': { input: HttpHeadersInput; output: HttpHeadersOutput };
   tls: { input: TlsInput; output: TlsOutput };
   ports: { input: PortsInput; output: PortsOutput };

@@ -25,6 +25,7 @@ export const TOOL_IDS = [
   'ports',
   'banner-grab',
   'nmap',
+  'network-scan',
   'host-scan',
   'wifi',
   'bluetooth',

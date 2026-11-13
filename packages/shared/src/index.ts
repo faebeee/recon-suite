@@ -28,6 +28,7 @@ export * from './features/js-endpoints.js';
 export * from './features/exposed-files.js';
 export * from './features/banner-grab.js';
 export * from './features/nmap.js';
+export * from './features/network-scan.js';
 export * from './features/http-headers.js';
 export * from './features/tls.js';
 export * from './features/ports.js';

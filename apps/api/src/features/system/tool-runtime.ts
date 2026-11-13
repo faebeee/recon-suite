@@ -65,6 +65,7 @@ const ENGINES: Record<ToolId, (h: HostFacts) => Engine> = {
   ports: () => ({ engine: `TCP connect (${NODE_SOCKETS})` }),
   'banner-grab': () => ({ engine: NODE_SOCKETS }),
   nmap: () => ({ engine: 'nmap (-sT, -sV)', exec: true }),
+  'network-scan': () => ({ engine: 'nmap -sn (ping sweep)', exec: true }),
   'host-scan': () => ({ engine: 'nmap -sn (host sweep)', exec: true }),
   wifi: (h) => {
     switch (h.platform) {

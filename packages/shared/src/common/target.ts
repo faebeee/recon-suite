@@ -61,3 +61,30 @@ export const portSchema = z.coerce.number().int().min(1).max(65535);
 export function isIpLiteral(value: string): boolean {
   return ipSchema.safeParse(value).success;
 }
+
+const CIDR_RE = /^(\d{1,3}(?:\.\d{1,3}){3})\/(\d{1,2})$/;
+
+/** Smallest subnet (largest prefix) accepted: a single host. */
+const MIN_CIDR_PREFIX = 0;
+/** Largest subnet (smallest prefix) accepted: bounded further per-tool. */
+const MAX_CIDR_PREFIX = 32;
+
+/** IPv4 CIDR notation, e.g. "192.168.1.0/24". A bare IPv4 is accepted as a /32. */
+export const cidrSchema = z
+  .string()
+  .trim()
+  .transform((v) => (CIDR_RE.test(v) ? v : `${v}/32`))
+  .pipe(
+    z
+      .string()
+      .regex(CIDR_RE, 'Expected IPv4 CIDR notation, e.g. 192.168.1.0/24')
+      .refine((v) => {
+        const m = CIDR_RE.exec(v)!;
+        const prefix = Number(m[2]);
+        return (
+          z.ipv4().safeParse(m[1]).success &&
+          prefix >= MIN_CIDR_PREFIX &&
+          prefix <= MAX_CIDR_PREFIX
+        );
+      }, 'Expected IPv4 CIDR notation, e.g. 192.168.1.0/24'),
+  );

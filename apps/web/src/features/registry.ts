@@ -88,6 +88,8 @@ export const TOOL_UI: Record<ToolId, ToolUi> = {
   },
   'banner-grab': { icon: Terminal, tone: 'green', accepts: ['domain', 'ip'] },
   nmap: { icon: ScanLine, tone: 'green', accepts: ['domain', 'ip'] },
+  // Target is a CIDR range, not a single domain/IP/URL: not offered as a pivot.
+  'network-scan': { icon: Router, tone: 'green', accepts: [] },
   // Local tool: no target, so it never appears in pivots or quick-target.
   'host-scan': { icon: Router, tone: 'green', accepts: [] },
   wifi: { icon: Wifi, tone: 'cyan', accepts: [] },
