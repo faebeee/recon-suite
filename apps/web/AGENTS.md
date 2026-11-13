@@ -21,6 +21,9 @@ style `new-york`, Radix), lucide-react icons, Zod (shared schemas from `@recon/s
   result meta bar and RAW JSON tab, so do not rebuild these per tool.
 - **`useToolRunner(id, { initialTarget, buildInput })`** handles validation with the shared
   schema, the mutation, and auto-run when the route is opened with `?target=`.
+  It also shows a saved engagement run when the route has `?run=<id>`, and `api-client` adds the
+  active engagement's `x-engagement-id` header to every request, so tool pages need no
+  engagement code.
 - **Pivots:** wherever a result contains a hostname/IP/URL, render `<PivotLinks value=... exclude="<id>" />`
   so the user can jump to other tools. Which tools accept which target kind is configured in
   `TOOL_UI[id].accepts`.

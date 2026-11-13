@@ -8,7 +8,8 @@ flooding third parties. These protections are built in.
 
 Use the tools only against systems you own or have written permission to test.
 
-- **Passive** tools only query public services (DNS resolvers, rdap.org, crt.sh, Team Cymru).
+- **Passive** tools only query public services (DNS resolvers incl. Cloudflare DNS-over-HTTPS,
+  rdap.org, crt.sh, Team Cymru, the Internet Archive, NVD, SecurityTrails).
 - **Active** tools connect to the target. The UI marks them and shows an authorisation notice.
 - The toolkit deliberately stays at the level of standard reconnaissance: no exploitation, no
   credential brute-forcing, no flooding and no evasion features.
@@ -39,6 +40,30 @@ The guard covers more than the first request:
 `ALLOW_PRIVATE_TARGETS=true` disables the range check. Use it only for local, single-user setups
 where you want to scan your own LAN.
 
+## Authentication
+
+- **Password login** (`ADMIN_PASSWORD_HASH` or `ADMIN_PASSWORD`): a single operator account.
+  Passwords are verified with scrypt; sessions are random 256-bit tokens in an HTTP-only,
+  Secure, SameSite=Lax `__Host-sid` cookie, stored hashed in the database, valid for at most
+  7 days and 12 hours of inactivity. Login is limited to 10 attempts per minute.
+- **API token** (`API_TOKEN`): `Authorization: Bearer <token>` for scripts, compared in
+  constant time.
+- **No password configured:** only requests from the API's own machine (loopback) are let in.
+  `X-Forwarded-For` is ignored, so a reverse proxy on the same machine does **not** make remote
+  users "local": set a password before putting a proxy in front.
+- **CSRF:** state-changing requests from browser origins other than `CORS_ORIGIN` are rejected.
+- `/api/health`, `/api/tools` (the catalog) and `/api/auth/*` status/login are the only public
+  endpoints.
+
+## Engagement scope
+
+Inside an engagement, active tools only run against targets in its scope (exact domains,
+`*.` wildcards, IPs, CIDR ranges; exclusions win). This guards against typos and scope creep in
+a real assessment. It is checked on the tool's target (and Subdomain Takeover's extra hosts),
+not on every connection a tool makes afterwards: redirects to other hosts, nameservers found by
+Zone Transfer, and the cloud endpoints of Cloud Storage are not scope-checked. They are still
+subject to the target guard above.
+
 ## Limits
 
 | Limit          | Value                                                                                 |
@@ -60,8 +85,13 @@ actually reported it.
 
 ## Deployment advice
 
-- The API has **no authentication**. Run it on localhost, or put it behind an authenticating
-  reverse proxy or VPN. Never expose it publicly as is.
+- Set `ADMIN_PASSWORD_HASH` for anything beyond a single laptop, serve the UI over HTTPS, and
+  prefer a VPN or private network over exposing it publicly.
 - Keep `ALLOW_PRIVATE_TARGETS=false` and `LOCAL_TOOLS_ENABLED=false` on anything shared.
+- The database (`DATABASE_PATH`) contains assessment results: store and back it up like other
+  confidential engagement data.
+- Third-party API keys (`NVD_API_KEY`, `SECURITYTRAILS_API_KEY`) are only sent to their
+  providers. Reverse IP sends the target IP to SecurityTrails; CVE Lookup sends product names
+  to the NVD.
 - Lower `THROTTLE_LIMIT` for multi-user setups.
 - Set `CORS_ORIGIN` to exactly the origin of your web app.

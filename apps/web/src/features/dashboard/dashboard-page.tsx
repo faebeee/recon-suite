@@ -6,6 +6,7 @@ import { GlitchText, Panel, Tag } from '@/components/cyber';
 import { TOOLS, toolsAccepting, type ToolEntry } from '@/features/registry';
 import { cn } from '@/lib/utils';
 import { toneBorder, toneText } from '@/lib/tones';
+import { EngagementPanel } from './engagement-panel';
 
 const CATEGORIES = Object.keys(CATEGORY_LABELS) as ToolCategory[];
 
@@ -27,6 +28,8 @@ export function DashboardPage() {
       </section>
 
       <QuickTarget />
+
+      <EngagementPanel />
 
       {CATEGORIES.map((cat) => {
         const tools = TOOLS.filter((t) => t.category === cat);

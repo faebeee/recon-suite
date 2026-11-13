@@ -14,6 +14,7 @@ function facts(overrides: Partial<HostFacts> = {}): HostFacts {
     inContainer: false,
     hasIpv4Interface: true,
     netRawAllowed: true,
+    apiKeys: { nvd: true, securityTrails: true },
     ...overrides,
   };
 }
@@ -22,6 +23,13 @@ const byId = (h: HostFacts) =>
   Object.fromEntries(diagnosePlatform(h).map((r) => [r.id, r]));
 
 describe('diagnosePlatform', () => {
+  it('marks key-based tools unavailable without API keys', () => {
+    const r = byId(facts({ apiKeys: { nvd: false, securityTrails: false } }));
+    expect(r['cve-lookup']).toMatchObject({ status: 'unavailable' });
+    expect(r['reverse-ip']).toMatchObject({ status: 'unavailable' });
+    expect(r.dns).toMatchObject({ status: 'ok' });
+  });
+
   it('reports every tool ok on a fully equipped Linux host', () => {
     expect(diagnosePlatform(facts()).every((r) => r.status === 'ok')).toBe(
       true,

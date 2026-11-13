@@ -9,6 +9,7 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
 import { Panel } from '@/components/cyber';
 import { AppShell } from '@/components/layout/app-shell';
+import { AuthGate } from '@/features/auth';
 
 interface RouterContext {
   queryClient: QueryClient;
@@ -21,21 +22,23 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
 function RootComponent() {
   return (
-    <AppShell>
-      <Outlet />
-      {import.meta.env.DEV && (
-        <TanStackDevtools
-          config={{ position: 'bottom-right' }}
-          plugins={[
-            {
-              name: 'TanStack Router',
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-            { name: 'TanStack Query', render: <ReactQueryDevtoolsPanel /> },
-          ]}
-        />
-      )}
-    </AppShell>
+    <AuthGate>
+      <AppShell>
+        <Outlet />
+        {import.meta.env.DEV && (
+          <TanStackDevtools
+            config={{ position: 'bottom-right' }}
+            plugins={[
+              {
+                name: 'TanStack Router',
+                render: <TanStackRouterDevtoolsPanel />,
+              },
+              { name: 'TanStack Query', render: <ReactQueryDevtoolsPanel /> },
+            ]}
+          />
+        )}
+      </AppShell>
+    </AuthGate>
   );
 }
 

@@ -11,6 +11,71 @@ import {
 } from './features/wifi.js';
 import type { ToolId } from './common/tool.js';
 import {
+  zoneTransferInputSchema,
+  type ZoneTransferInput,
+  type ZoneTransferOutput,
+} from './features/zone-transfer.js';
+import {
+  dnssecInputSchema,
+  type DnssecInput,
+  type DnssecOutput,
+} from './features/dnssec.js';
+import {
+  takeoverInputSchema,
+  type TakeoverInput,
+  type TakeoverOutput,
+} from './features/takeover.js';
+import {
+  cveLookupInputSchema,
+  type CveLookupInput,
+  type CveLookupOutput,
+} from './features/cve-lookup.js';
+import {
+  certSearchInputSchema,
+  type CertSearchInput,
+  type CertSearchOutput,
+} from './features/cert-search.js';
+import {
+  reverseIpInputSchema,
+  type ReverseIpInput,
+  type ReverseIpOutput,
+} from './features/reverse-ip.js';
+import {
+  cloudStorageInputSchema,
+  type CloudStorageInput,
+  type CloudStorageOutput,
+} from './features/cloud-storage.js';
+import {
+  waybackInputSchema,
+  type WaybackInput,
+  type WaybackOutput,
+} from './features/wayback.js';
+import {
+  corsInputSchema,
+  type CorsInput,
+  type CorsOutput,
+} from './features/cors.js';
+import {
+  tlsAuditInputSchema,
+  type TlsAuditInput,
+  type TlsAuditOutput,
+} from './features/tls-audit.js';
+import {
+  jsEndpointsInputSchema,
+  type JsEndpointsInput,
+  type JsEndpointsOutput,
+} from './features/js-endpoints.js';
+import {
+  exposedFilesInputSchema,
+  type ExposedFilesInput,
+  type ExposedFilesOutput,
+} from './features/exposed-files.js';
+import {
+  bannerGrabInputSchema,
+  type BannerGrabInput,
+  type BannerGrabOutput,
+} from './features/banner-grab.js';
+import {
   emailSecurityInputSchema,
   type EmailSecurityInput,
   type EmailSecurityOutput,
@@ -75,6 +140,19 @@ export const TOOL_INPUT_SCHEMAS = {
   'ip-intel': ipIntelInputSchema,
   'web-files': webFilesInputSchema,
   'tech-fingerprint': techFingerprintInputSchema,
+  'zone-transfer': zoneTransferInputSchema,
+  dnssec: dnssecInputSchema,
+  takeover: takeoverInputSchema,
+  'cve-lookup': cveLookupInputSchema,
+  'cert-search': certSearchInputSchema,
+  'reverse-ip': reverseIpInputSchema,
+  'cloud-storage': cloudStorageInputSchema,
+  wayback: waybackInputSchema,
+  cors: corsInputSchema,
+  'tls-audit': tlsAuditInputSchema,
+  'js-endpoints': jsEndpointsInputSchema,
+  'exposed-files': exposedFilesInputSchema,
+  'banner-grab': bannerGrabInputSchema,
   'http-headers': httpHeadersInputSchema,
   tls: tlsInputSchema,
   ports: portsInputSchema,
@@ -95,6 +173,19 @@ export interface ToolIO {
     input: TechFingerprintInput;
     output: TechFingerprintOutput;
   };
+  'zone-transfer': { input: ZoneTransferInput; output: ZoneTransferOutput };
+  dnssec: { input: DnssecInput; output: DnssecOutput };
+  takeover: { input: TakeoverInput; output: TakeoverOutput };
+  'cve-lookup': { input: CveLookupInput; output: CveLookupOutput };
+  'cert-search': { input: CertSearchInput; output: CertSearchOutput };
+  'reverse-ip': { input: ReverseIpInput; output: ReverseIpOutput };
+  'cloud-storage': { input: CloudStorageInput; output: CloudStorageOutput };
+  wayback: { input: WaybackInput; output: WaybackOutput };
+  cors: { input: CorsInput; output: CorsOutput };
+  'tls-audit': { input: TlsAuditInput; output: TlsAuditOutput };
+  'js-endpoints': { input: JsEndpointsInput; output: JsEndpointsOutput };
+  'exposed-files': { input: ExposedFilesInput; output: ExposedFilesOutput };
+  'banner-grab': { input: BannerGrabInput; output: BannerGrabOutput };
   'http-headers': { input: HttpHeadersInput; output: HttpHeadersOutput };
   tls: { input: TlsInput; output: TlsOutput };
   ports: { input: PortsInput; output: PortsOutput };

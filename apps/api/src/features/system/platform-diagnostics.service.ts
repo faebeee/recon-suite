@@ -64,6 +64,12 @@ export class PlatformDiagnosticsService implements OnApplicationBootstrap {
         infos?.some((i) => !i.internal && i.family === 'IPv4'),
       ),
       netRawAllowed: netRawInBoundingSet(),
+      apiKeys: {
+        nvd: !!this.config.get('NVD_API_KEY', { infer: true }),
+        securityTrails: !!this.config.get('SECURITYTRAILS_API_KEY', {
+          infer: true,
+        }),
+      },
     };
   }
 }

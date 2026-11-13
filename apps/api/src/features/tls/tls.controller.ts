@@ -6,6 +6,7 @@ import {
   type ToolResult,
 } from '@recon/shared';
 import { runTool } from '../../core/tool-runner.js';
+import { tlsFindings } from './tls.findings.js';
 import { TlsService } from './tls.service.js';
 
 @Controller('tools/tls')
@@ -17,8 +18,11 @@ export class TlsController {
   run(
     @Body({ schema: tlsInputSchema }) input: TlsParams,
   ): Promise<ToolResult<TlsOutput>> {
-    return runTool('tls', `${input.target}:${input.port}`, () =>
-      this.tls.inspect(input),
+    return runTool(
+      'tls',
+      `${input.target}:${input.port}`,
+      () => this.tls.inspect(input),
+      { findings: tlsFindings },
     );
   }
 }

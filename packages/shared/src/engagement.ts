@@ -1,0 +1,256 @@
+import { z } from 'zod';
+import type { Finding, FindingStatus } from './common/finding.js';
+import type { ToolId, ToolResult } from './common/tool.js';
+
+/**
+ * Request header that assigns a tool run to an engagement. When present, the API checks
+ * the scope (active tools) and stores the run in the engagement's history.
+ */
+export const ENGAGEMENT_HEADER = 'x-engagement-id';
+
+// ---------------------------------------------------------------- engagements
+
+export const ENGAGEMENT_STATUSES = ['active', 'archived'] as const;
+export type EngagementStatus = (typeof ENGAGEMENT_STATUSES)[number];
+
+export const engagementInputSchema = z.object({
+  name: z.string().trim().min(1, 'Name is required').max(120),
+  client: z.string().trim().max(120).optional(),
+  description: z.string().trim().max(4000).optional(),
+});
+export type EngagementInput = z.input<typeof engagementInputSchema>;
+
+export const engagementPatchSchema = engagementInputSchema.partial().extend({
+  status: z.enum(ENGAGEMENT_STATUSES).optional(),
+});
+export type EngagementPatch = z.input<typeof engagementPatchSchema>;
+
+export interface FindingCounts {
+  fail: number;
+  warn: number;
+  pass: number;
+  info: number;
+}
+
+export interface Engagement {
+  id: string;
+  name: string;
+  client?: string;
+  description?: string;
+  status: EngagementStatus;
+  createdAt: string;
+  updatedAt: string;
+  counts: {
+    scope: number;
+    runs: number;
+    notes: number;
+    findings: FindingCounts;
+  };
+}
+
+// ---------------------------------------------------------------- scope
+
+export type ScopeKind = 'domain' | 'wildcard' | 'ip' | 'cidr';
+
+export const scopeEntryInputSchema = z.object({
+  /** example.com, *.example.com, 192.0.2.1, 192.0.2.0/24 or a URL (hostname is used). */
+  value: z.string().trim().min(1).max(260),
+  /** Explicitly out of scope; exclusions win over inclusions. */
+  excluded: z.boolean().default(false),
+  note: z.string().trim().max(500).optional(),
+});
+
+export const scopeBulkInputSchema = z.object({
+  entries: z.array(scopeEntryInputSchema).min(1).max(500),
+});
+export type ScopeBulkInput = z.input<typeof scopeBulkInputSchema>;
+
+export interface ScopeEntry {
+  id: string;
+  kind: ScopeKind;
+  value: string;
+  excluded: boolean;
+  note?: string;
+  createdAt: string;
+}
+
+export const scopeCheckInputSchema = z.object({
+  target: z.string().trim().min(1).max(2000),
+});
+
+export interface ScopeCheckResult {
+  inScope: boolean;
+  reason: string;
+  entry?: Pick<ScopeEntry, 'kind' | 'value' | 'excluded'>;
+}
+
+// ---------------------------------------------------------------- runs (history)
+
+export interface RunSummary {
+  id: string;
+  engagementId: string;
+  tool: ToolId;
+  target: string;
+  startedAt: string;
+  durationMs: number;
+  status: 'ok' | 'error';
+  /** HTTP status and message for failed runs. */
+  error?: { status: number; message: string };
+  findingCounts: FindingCounts;
+  tags: string[];
+}
+
+export interface RunDetail extends RunSummary {
+  /** Request body as sent. */
+  input: unknown;
+  /** Full envelope for successful runs. */
+  result?: ToolResult<unknown>;
+}
+
+export const runListQuerySchema = z.object({
+  tool: z.string().optional(),
+  target: z.string().max(260).optional(),
+  tag: z.string().max(40).optional(),
+  limit: z.coerce.number().int().min(1).max(500).default(100),
+  offset: z.coerce.number().int().min(0).default(0),
+});
+
+const tagSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .regex(
+    /^[\p{L}\p{N}_.:-]{1,40}$/u,
+    'Tags are 1-40 letters, digits, "_", "-", ":" or "."',
+  );
+
+export const runPatchSchema = z.object({
+  tags: z.array(tagSchema).max(20),
+});
+export type RunPatch = z.input<typeof runPatchSchema>;
+
+export type RunDiffKind = 'added' | 'removed' | 'changed';
+
+export interface RunDiff {
+  before: RunSummary;
+  after: RunSummary;
+  entries: {
+    path: string;
+    kind: RunDiffKind;
+    before?: unknown;
+    after?: unknown;
+  }[];
+}
+
+// ---------------------------------------------------------------- notes
+
+export const noteInputSchema = z.object({
+  title: z.string().trim().min(1, 'Title is required').max(200),
+  body: z.string().max(50_000).default(''),
+  target: z.string().trim().max(260).optional(),
+  tags: z.array(tagSchema).max(20).default([]),
+});
+export type NoteInput = z.input<typeof noteInputSchema>;
+
+export interface Note {
+  id: string;
+  engagementId: string;
+  title: string;
+  body: string;
+  target?: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ---------------------------------------------------------------- findings & export
+
+export interface EngagementFinding extends Finding {
+  runId: string;
+  tool: ToolId;
+  target: string;
+  observedAt: string;
+}
+
+export const EXPORT_FORMATS = ['md', 'json', 'csv'] as const;
+export type ExportFormat = (typeof EXPORT_FORMATS)[number];
+
+/** Report order of finding statuses (most severe first). */
+export const FINDING_STATUS_ORDER: FindingStatus[] = [
+  'fail',
+  'warn',
+  'info',
+  'pass',
+];
+
+// ---------------------------------------------------------------- auth
+
+export const loginInputSchema = z.object({
+  password: z.string().min(1, 'Password is required').max(1024),
+});
+
+/**
+ * password: a password is configured and the user is signed in (or not).
+ * open:     no password configured; requests from this machine are allowed.
+ */
+export interface AuthStatus {
+  authenticated: boolean;
+  mode: 'password' | 'open';
+}
+
+export const AUTH_ENDPOINTS = {
+  status: '/auth/status',
+  login: '/auth/login',
+  logout: '/auth/logout',
+} as const;
+
+// ---------------------------------------------------------------- endpoints
+
+/**
+ * REST endpoints of the engagement workspace (relative to the API base, e.g. /api).
+ * Responses:
+ *   GET    list                -> Engagement[] (newest first)
+ *   POST   list                -> Engagement            body: EngagementInput
+ *   GET    one(id)             -> Engagement
+ *   PATCH  one(id)             -> Engagement            body: EngagementPatch
+ *   DELETE one(id)             -> 204 (cascades scope, runs, notes)
+ *   GET    scope(id)           -> ScopeEntry[]
+ *   POST   scope(id)           -> ScopeEntry[] (full list after adding) body: ScopeBulkInput; 400 lists invalid values
+ *   DELETE scopeEntry(id, eid) -> 204
+ *   POST   scopeCheck(id)      -> ScopeCheckResult      body: { target }
+ *   GET    runs(id)?tool&target&tag&limit&offset -> RunPage (newest first)
+ *   GET    run(runId)          -> RunDetail
+ *   PATCH  run(runId)          -> RunSummary            body: RunPatch
+ *   DELETE run(runId)          -> 204
+ *   GET    runDiff(a, b)       -> RunDiff (a = before, b = after; same tool required, else 400)
+ *   GET    findings(id)        -> EngagementFinding[] (latest successful run per tool+target, most severe first)
+ *   GET    notes(id)           -> Note[] (newest first)
+ *   POST   notes(id)           -> Note                  body: NoteInput
+ *   PATCH  note(noteId)        -> Note                  body: Partial<NoteInput>
+ *   DELETE note(noteId)        -> 204
+ *   GET    exportFile(id, fmt) -> file download (Content-Disposition attachment)
+ * Tool runs: send ENGAGEMENT_HEADER with POST /tools/<id>. Active tools then require the
+ * target to be in scope (403 "Out of scope ..." otherwise); the run is stored and the
+ * returned ToolResult carries `runId`.
+ */
+export const ENGAGEMENT_API = {
+  list: '/engagements',
+  one: (id: string) => `/engagements/${id}`,
+  scope: (id: string) => `/engagements/${id}/scope`,
+  scopeEntry: (id: string, entryId: string) =>
+    `/engagements/${id}/scope/${entryId}`,
+  scopeCheck: (id: string) => `/engagements/${id}/scope/check`,
+  runs: (id: string) => `/engagements/${id}/runs`,
+  run: (runId: string) => `/runs/${runId}`,
+  runDiff: (before: string, after: string) => `/runs/${before}/diff/${after}`,
+  findings: (id: string) => `/engagements/${id}/findings`,
+  notes: (id: string) => `/engagements/${id}/notes`,
+  note: (noteId: string) => `/notes/${noteId}`,
+  exportFile: (id: string, format: ExportFormat) =>
+    `/engagements/${id}/export?format=${format}`,
+} as const;
+
+export interface RunPage {
+  total: number;
+  items: RunSummary[];
+}

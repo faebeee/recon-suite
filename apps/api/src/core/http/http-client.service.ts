@@ -4,10 +4,12 @@ import {
   GatewayTimeoutException,
   Injectable,
   OnModuleDestroy,
+  PayloadTooLargeException,
 } from '@nestjs/common';
 import { Agent, fetch, type Response } from 'undici';
 import { TargetGuardService } from '../net/target-guard.service.js';
 import { followRedirects, type FollowedResponse } from './follow-redirects.js';
+import { readTextLimited } from './read-limited.js';
 
 export interface RequestOptions {
   method?: string;
@@ -18,6 +20,7 @@ export interface RequestOptions {
 
 const USER_AGENT = 'recon-suite/0.1 (+security-recon)';
 const DEFAULT_TIMEOUT_MS = 10_000;
+const DEFAULT_JSON_LIMIT = 10 * 1024 * 1024;
 
 /**
  * Outbound HTTP for features.
@@ -70,7 +73,11 @@ export class HttpClientService implements OnModuleDestroy {
     return this.send(this.trustedAgent, url, opts);
   }
 
-  async trustedJson<T>(url: string, opts: RequestOptions = {}): Promise<T> {
+  /** GET a JSON API; the body is read with a size limit (default 10 MB). */
+  async trustedJson<T>(
+    url: string,
+    opts: RequestOptions & { maxBytes?: number } = {},
+  ): Promise<T> {
     const res = await this.trusted(url, {
       ...opts,
       headers: { accept: 'application/json', ...opts.headers },
@@ -80,7 +87,24 @@ export class HttpClientService implements OnModuleDestroy {
         `${new URL(url).host} responded ${res.status}`,
       );
     }
-    return (await res.json()) as T;
+    let text: string;
+    try {
+      text = await readTextLimited(res, opts.maxBytes ?? DEFAULT_JSON_LIMIT);
+    } catch (err) {
+      if (err instanceof PayloadTooLargeException) {
+        throw new BadGatewayException(
+          `${new URL(url).host} returned an oversized response`,
+        );
+      }
+      throw err;
+    }
+    try {
+      return JSON.parse(text) as T;
+    } catch {
+      throw new BadGatewayException(
+        `${new URL(url).host} returned invalid JSON`,
+      );
+    }
   }
 
   private async send(

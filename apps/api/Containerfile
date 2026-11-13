@@ -31,6 +31,8 @@ RUN apk add --no-cache arp-scan \
   && setcap cap_net_raw+ep "$(command -v arp-scan)" \
   && apk del .setcap
 COPY --from=builder --chown=node:node /prod/api .
+# SQLite database (engagements, history, notes, sessions); mounted as a volume by compose.
+RUN mkdir -p /app/data && chown node:node /app/data
 USER node
 EXPOSE 4000
 CMD ["node", "dist/main.js"]

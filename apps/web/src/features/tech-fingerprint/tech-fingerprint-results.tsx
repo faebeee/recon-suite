@@ -1,3 +1,5 @@
+import { Link } from '@tanstack/react-router';
+import { Bug } from 'lucide-react';
 import {
   TECH_CATEGORIES,
   type TechCategory,
@@ -77,6 +79,17 @@ export function TechFingerprintResults({
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-sm font-semibold">{t.name}</span>
                     {t.version && <Tag tone="cyan">v{t.version}</Tag>}
+                    {t.version && (
+                      <Link
+                        to="/tools/cve-lookup"
+                        search={{ target: `${t.name} ${t.version}` }}
+                        className="inline-flex items-center gap-1 text-[10px] tracking-[0.15em] text-neon-magenta uppercase hover:underline"
+                        aria-label={`Look up CVEs for ${t.name} ${t.version}`}
+                      >
+                        <Bug className="size-3" aria-hidden />
+                        CVEs
+                      </Link>
+                    )}
                     <Tag tone={t.confidence === 'high' ? 'green' : 'muted'}>
                       {t.confidence}
                     </Tag>

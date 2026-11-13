@@ -1,8 +1,10 @@
-import { AlertTriangle, HardDrive } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
+import { AlertTriangle, FolderKanban, HardDrive } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { ToolId } from '@recon/shared';
 import { Tag } from '@/components/cyber';
 import { getTool } from '@/features/registry';
+import { useActiveEngagement } from '@/lib/engagement';
 import { cn } from '@/lib/utils';
 import { toneText } from '@/lib/tones';
 
@@ -50,7 +52,34 @@ export function ToolPage({
           </p>
         )}
       </header>
+      <EngagementBanner active={tool.mode === 'active'} />
       {children}
+    </div>
+  );
+}
+
+/** Slim notice that runs are recorded to the active engagement. */
+function EngagementBanner({ active }: { active: boolean }) {
+  const { id, engagement } = useActiveEngagement();
+  if (!id) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-l-2 border-primary bg-primary/5 px-3 py-2 text-xs">
+      <FolderKanban className="size-3.5 shrink-0 text-primary" aria-hidden />
+      <span className="text-muted-foreground">
+        Recording to{' '}
+        <Link
+          to="/engagements/$engagementId"
+          params={{ engagementId: id }}
+          className="text-primary underline-offset-4 hover:underline"
+        >
+          {engagement?.name ?? 'engagement'}
+        </Link>
+      </span>
+      {active && (
+        <span className="text-neon-yellow/90">
+          Targets must be in the engagement's scope.
+        </span>
+      )}
     </div>
   );
 }

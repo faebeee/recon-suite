@@ -14,6 +14,14 @@ services:
       # Local tools (WiFi scan) also leak the host's surroundings when shared; off by default.
       # Set to true only if you also enabled the host access below, and understand the tradeoff.
       LOCAL_TOOLS_ENABLED: ${LOCAL_TOOLS_ENABLED:-false}
+      # Login. Requests through nginx are not "local", so set a password (or its hash).
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:-}
+      API_TOKEN: ${API_TOKEN:-}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      # Optional third-party API keys (CVE Lookup, Reverse IP).
+      NVD_API_KEY: ${NVD_API_KEY:-}
+      SECURITYTRAILS_API_KEY: ${SECURITYTRAILS_API_KEY:-}
     ports:
       - '${API_PORT:-4000}:4000'
     # --- WiFi adapter access (R-01), opt-in, all disabled by default ---
@@ -31,6 +39,7 @@ services:
       - NET_ADMIN
       - NET_RAW
     volumes:
+      - recon-data:/app/data
       - /run/dbus:/run/dbus:ro
     healthcheck:
       test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:4000/api/health']
@@ -51,3 +60,6 @@ services:
       api:
         condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  recon-data:

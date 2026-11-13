@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+/** Optional value where an empty string means "not set" (compose passes `${VAR:-}`). */
+const optional = <T extends z.ZodType>(schema: T) =>
+  z.preprocess((v) => (v === '' ? undefined : v), schema.optional());
+
 const bool = z
   .enum(['true', 'false', '1', '0'])
   .transform((v) => v === 'true' || v === '1');
@@ -19,6 +23,34 @@ export const envSchema = z.object({
   LOCAL_TOOLS_ENABLED: bool.default(true),
   /** Requests per minute per client across all tool endpoints. */
   THROTTLE_LIMIT: z.coerce.number().int().positive().default(60),
+  /**
+   * SQLite file for engagements, history, notes and sessions. Relative paths resolve from
+   * the working directory; ":memory:" keeps everything in memory (tests).
+   */
+  DATABASE_PATH: z.string().trim().min(1).default('data/recon.db'),
+  /** Login password (plain). Prefer ADMIN_PASSWORD_HASH outside local use. */
+  ADMIN_PASSWORD: optional(
+    z.string().min(12, 'ADMIN_PASSWORD must be at least 12 characters'),
+  ),
+  /** scrypt hash of the login password (`pnpm --filter @recon/api hash-password`). */
+  ADMIN_PASSWORD_HASH: optional(
+    z
+      .string()
+      .startsWith('$scrypt$', 'ADMIN_PASSWORD_HASH must be a $scrypt$ hash'),
+  ),
+  /** Static bearer token for scripts (Authorization: Bearer <token>), at least 32 characters. */
+  API_TOKEN: optional(
+    z.string().min(32, 'API_TOKEN must be at least 32 characters'),
+  ),
+  /**
+   * Mark the session cookie Secure. Browsers accept Secure cookies on http://localhost; set
+   * false only when serving the UI over plain HTTP on another host name.
+   */
+  COOKIE_SECURE: bool.default(true),
+  /** NVD API key for the CVE Lookup tool (https://nvd.nist.gov/developers/request-an-api-key). */
+  NVD_API_KEY: optional(z.string().trim().min(1)),
+  /** SecurityTrails API key for the Reverse IP tool. */
+  SECURITYTRAILS_API_KEY: optional(z.string().trim().min(1)),
 });
 
 export type Env = z.infer<typeof envSchema>;

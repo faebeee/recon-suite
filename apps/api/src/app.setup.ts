@@ -10,9 +10,15 @@ export function configureApp(app: INestApplication): INestApplication {
   const config = app.get<ConfigService<Env, true>>(ConfigService);
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new StandardSchemaValidationPipe());
-  app.enableCors({
-    origin: config.get('CORS_ORIGIN', { infer: true }).split(','),
-  });
+  const origins = config
+    .get('CORS_ORIGIN', { infer: true })
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+  // Cookies carry the login session, so cross-origin calls need credentials ...
+  app.enableCors({ origin: origins, credentials: true });
+  // ... and state-changing requests from other origins are refused (login CSRF etc.).
+  app.enableCsrfProtection({ trustedOrigins: origins });
   app.enableShutdownHooks();
   return app;
 }

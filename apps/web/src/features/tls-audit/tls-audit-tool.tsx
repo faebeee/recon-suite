@@ -1,0 +1,50 @@
+import { useState } from 'react';
+import { TOOL_CATALOG } from '@recon/shared';
+import { Segmented } from '@/components/cyber';
+import {
+  FormOption,
+  TargetForm,
+  ToolPage,
+  ToolResultView,
+} from '@/components/tool';
+import { useToolRunner } from '@/lib/use-tool-runner';
+import { TlsAuditResults } from './tls-audit-results';
+
+const PORTS = [443, 465, 636, 853, 993, 995, 8443].map((value) => ({ value }));
+
+export function TlsAuditTool({ initialTarget }: { initialTarget?: string }) {
+  const [port, setPort] = useState(443);
+  const runner = useToolRunner('tls-audit', {
+    initialTarget,
+    buildInput: (target) => ({ target, port }),
+  });
+
+  return (
+    <ToolPage toolId="tls-audit">
+      <TargetForm
+        value={runner.target}
+        onChange={runner.setTarget}
+        onSubmit={() => runner.run()}
+        pending={runner.mutation.isPending}
+        placeholder={TOOL_CATALOG['tls-audit'].targetHint}
+        error={runner.validationError}
+        label="Host"
+      >
+        <FormOption label="Port">
+          <Segmented
+            label="Port"
+            options={PORTS}
+            value={port}
+            onChange={setPort}
+          />
+        </FormOption>
+      </TargetForm>
+      <ToolResultView
+        mutation={runner.mutation}
+        loadingLabel="Enumerating protocols and cipher suites (up to 90 s)"
+      >
+        {(data) => <TlsAuditResults data={data} />}
+      </ToolResultView>
+    </ToolPage>
+  );
+}

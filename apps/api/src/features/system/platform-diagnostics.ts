@@ -27,6 +27,8 @@ export interface HostFacts {
   isRoot: boolean;
   inContainer: boolean;
   hasIpv4Interface: boolean;
+  /** Third-party API keys that are configured (env var names). */
+  apiKeys: { nvd: boolean; securityTrails: boolean };
   /** Linux: NET_RAW is in the capability bounding set (always true elsewhere). */
   netRawAllowed: boolean;
 }
@@ -49,6 +51,33 @@ const CHECKS: Record<ToolId, Check> = {
   tls: () => OK,
   'web-files': () => OK,
   'tech-fingerprint': () => OK,
+  'zone-transfer': () => OK,
+  dnssec: () => OK,
+  takeover: () => OK,
+  'cert-search': () => OK,
+  'cloud-storage': () => OK,
+  wayback: () => OK,
+  cors: () => OK,
+  'tls-audit': () => OK,
+  'js-endpoints': () => OK,
+  'exposed-files': () => OK,
+  'banner-grab': () => OK,
+  'cve-lookup': (h) =>
+    h.apiKeys.nvd
+      ? OK
+      : {
+          status: 'unavailable',
+          reason: 'No NVD API key configured.',
+          fix: 'Request a free key at https://nvd.nist.gov/developers/request-an-api-key and set NVD_API_KEY.',
+        },
+  'reverse-ip': (h) =>
+    h.apiKeys.securityTrails
+      ? OK
+      : {
+          status: 'unavailable',
+          reason: 'No SecurityTrails API key configured.',
+          fix: 'Create a key at https://securitytrails.com and set SECURITYTRAILS_API_KEY.',
+        },
   ports: () => OK,
 
   'host-scan': (h) => {

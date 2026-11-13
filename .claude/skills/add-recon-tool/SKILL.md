@@ -56,6 +56,10 @@ Then register it:
 - `index.ts`: `export * from './features/security-txt.js';`
 - `pnpm --filter @recon/shared build`
 
+If the tool grades or flags anything, add `findings: Finding[]` (from `common/finding.ts`) to the
+output and pass it to `runTool` (see step 2); engagements pick it up automatically. Active tools
+are scope-checked inside engagements on `target` (and a `hosts` array) with no extra code.
+
 Rules: always name the target field `target`; bound every array/number (`.max()`); give
 options sensible `.default()`s so `{ target }` alone is a valid request.
 
@@ -109,8 +113,14 @@ export class SecurityTxtController {
   run(
     @Body({ schema: securityTxtInputSchema }) input: SecurityTxtParams,
   ): Promise<ToolResult<SecurityTxtOutput>> {
-    return runTool('security-txt', input.target, () =>
-      this.service.fetch(input),
+    return runTool(
+      'security-txt',
+      input.target,
+      () => this.service.fetch(input),
+      {
+        // Graded results for engagement history and the report export (omit if none).
+        findings: (d) => d.findings,
+      },
     );
   }
 }

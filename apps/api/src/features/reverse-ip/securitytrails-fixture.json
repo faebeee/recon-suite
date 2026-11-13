@@ -1,0 +1,46 @@
+{
+  "records": [
+    {
+      "whois": {
+        "registrar": "MarkMonitor Inc.",
+        "expiresDate": 1726099200000,
+        "createdDate": 1032825600000
+      },
+      "mail_provider": ["Google LLC"],
+      "hostname": "Example.com",
+      "host_provider": ["Edgecast Inc."],
+      "computed": { "company_name": "Example Inc" },
+      "alexa_rank": 5000
+    },
+    {
+      "whois": {},
+      "mail_provider": [],
+      "hostname": "example.net",
+      "host_provider": ["Edgecast Inc."],
+      "computed": {},
+      "alexa_rank": null
+    },
+    {
+      "whois": {},
+      "mail_provider": [],
+      "hostname": "example.com",
+      "host_provider": [],
+      "computed": {},
+      "alexa_rank": null
+    },
+    {
+      "domain": "example.org",
+      "host_provider": ["Edgecast Inc."],
+      "host": null,
+      "alexa_rank": null
+    }
+  ],
+  "record_count": 1234,
+  "meta": {
+    "total_pages": 13,
+    "query": "ipv4 = '93.184.215.14'",
+    "page": 1,
+    "max_page": 100,
+    "limit_reached": false
+  }
+}

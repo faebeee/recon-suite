@@ -2,13 +2,22 @@
 
 ![Recon Suite tool page with the sidebar, parameters panel and theme switcher](screenshot.png)
 
+## Signing in
+
+When a password is configured on the API, the UI starts with a login form; the top bar then has
+a sign-out button. Without a password the UI opens directly, but only on the machine running
+the API. Opened from anywhere else, it explains that `ADMIN_PASSWORD` (or
+`ADMIN_PASSWORD_HASH`) must be set first. See [Configuration](configuration.md#login).
+
 ## Layout
 
-- **Top bar:** logo (back to the dashboard), UTC clock, API status ("uplink") and the theme
-  switcher.
+- **Top bar:** logo (back to the dashboard), UTC clock, API status ("uplink"), the active
+  engagement, the theme switcher and sign-out.
 - **Sidebar:** every tool grouped by category (DNS, Intel, Web, Network, Wireless) with its
   code, e.g. `D-01`. On small screens it becomes a horizontal strip under the top bar.
-- **Dashboard:** tool cards with passive/active badges and a quick-target field.
+- **Dashboard:** tool cards with passive/active badges, a quick-target field and a summary of
+  the active engagement.
+- **Batch** and **Engagements** pages, linked from the sidebar.
 
 ## Tool pages
 
@@ -24,6 +33,46 @@ Every remote tool page has the same structure:
 
 Local tools (WiFi, Bluetooth, Host Scan) have no target field. They show a scan panel instead,
 and options such as the network interface.
+
+Many tools also list **findings**: pass, warning, fail or info, with a short explanation. These
+are what an engagement collects for the report.
+
+## Engagements
+
+An engagement groups everything for one assessment: its scope, every tool run, findings and
+notes.
+
+1. Open **Engagements**, create one (name, client, description). It becomes the active
+   engagement; switch between engagements in the top bar, or pick "No engagement".
+2. **Scope** tab: paste one entry per line: `example.com`, `*.example.com` (all subdomains,
+   not the apex), an IP, a CIDR range like `192.0.2.0/24`, or a URL. Start a line with `!` to
+   exclude it (exclusions win). "Check target" tells you whether a target is in scope and why.
+3. Run tools as usual. While an engagement is active, tool pages show "Recording to ..." and
+   every run is saved. **Active tools refuse targets outside the scope**, so an empty scope
+   blocks them. Passive tools are not restricted.
+
+The engagement page has these tabs:
+
+| Tab      | What it does                                                                                                                                                           |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Overview | Counts and all findings, from the latest run of each tool and target, most severe first                                                                                |
+| Scope    | Add, remove and test scope entries                                                                                                                                     |
+| History  | Every run with filters (tool, target, tag), tags, delete. "Open" shows a saved run on its tool page; select two runs of the same tool and "Compare" shows what changed |
+| Notes    | Free-text notes with optional target and tags                                                                                                                          |
+| Export   | Download a Markdown report (summary, scope, findings, notes, run list), JSON (everything) or CSV (one row per finding)                                                 |
+
+Archive an engagement when it is finished: it stays readable but refuses new runs. Deleting
+removes its scope, history and notes.
+
+## Batch runs
+
+**Batch** runs several tools against several targets in one go. Enter targets (one per line) or
+load the active engagement's in-scope domains and IPs, pick the tools, and start. Each target
+only runs with the tools that accept its kind (domain, IP or URL), with default options, two at
+a time. Up to 300 jobs per batch; when the rate limit is reached the batch waits and retries.
+With an active engagement every result is saved and linked; without one, results are only shown.
+
+Active tools contact every target in the batch: only include systems you may test.
 
 ## Pivots
 
@@ -42,7 +91,8 @@ http://localhost:5173/tools/ip-intel?target=1.1.1.1
 http://localhost:5173/tools/web-files?target=https://example.com
 ```
 
-Use this for bookmarks or to link findings in a report.
+Use this for bookmarks or to link findings in a report. A saved run opens with
+`?run=<run id>` (from the engagement history); "Run again" repeats it with the current form.
 
 ## Themes
 

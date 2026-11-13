@@ -47,7 +47,8 @@ three places. Features never import from other features; shared code goes into t
 
 ```
 packages/shared/src/
-  common/            target schemas (domain/host/url/port), ToolMeta, ToolResult, health
+  common/            target schemas (domain/host/url/port), ToolMeta, ToolResult, Finding/grading, health
+  engagement.ts      engagement/scope/run/note/auth contract + ENGAGEMENT_API endpoint map
   catalog.ts         TOOL_CATALOG: metadata of every tool (name, code, category, mode)
   io.ts              TOOL_INPUT_SCHEMAS + ToolIO type map (id -> input/output types)
   features/<id>.ts   Zod input schema, <X>Input / <X>Params / <X>Output types
@@ -58,9 +59,12 @@ apps/api/src/
     http/            HttpClientService (guarded + trusted undici agents), readTextLimited
     process/         runCommand(): fixed OS commands via execFile (local tools)
     util/            mapConcurrent
-    tool-runner.ts   runTool(): wraps results in the ToolResult envelope
+    db/              Drizzle schema (schema.ts) on node:sqlite; migrations in apps/api/drizzle/
+    auth/            @nestjs/authentication: login, SQLite sessions, API token, local-open mode
+    tool-runner.ts   runTool(id, target, fn, { findings }): ToolResult envelope (+ findings)
   config/env.ts      Zod-validated environment
   features/<id>/     <id>.module.ts, <id>.controller.ts, <id>.service.ts, pure helpers + *.spec.ts
+  features/engagements/  engagement workspace + RunCaptureInterceptor (scope check, run history)
   features/index.ts  FEATURE_MODULES registry
 
 apps/web/src/
@@ -71,6 +75,7 @@ apps/web/src/
   lib/               api-client, useToolRunner, tones, format, tool-search
   features/registry.ts  TOOL_UI: icon, tone, accepted target kinds per tool
   features/<id>/     <id>-tool.tsx (form + state), <id>-results.tsx (rendering), index.ts
+  features/{engagements,batch,auth}/  workspace pages, batch runner, login gate
   routes/tools/<id>.tsx thin file route: validateSearch + render the feature component
 ```
 
@@ -78,7 +83,12 @@ apps/web/src/
 
 - Every tool is `POST /api/tools/<id>` with a JSON body validated by the shared Zod schema
   (`@Body({ schema })`, Nest's `StandardSchemaValidationPipe`, registered in `app.setup.ts`).
-- Every tool responds with `ToolResult<Output>` built by `runTool(id, target, fn)`.
+- Every tool responds with `ToolResult<Output>` built by `runTool(id, target, fn, { findings })`.
+  Tools that grade or flag something pass a `findings` extractor (`Finding[]`, pass/warn/fail/info):
+  that is what engagements collect and export. Prefer a `findings` field in the output type.
+- Engagements are generic: `RunCaptureInterceptor` wraps every `POST /api/tools/<id>`. With the
+  `x-engagement-id` header it enforces the scope for `mode: 'active'` tools (the `target` and a
+  `hosts` array) and stores the run. New tools need no engagement code.
 - The request field holding the target is always called `target`.
 - **Local tools** (`scope: 'local'`, e.g. `wifi`) have no target: their input schema is
   `z.object({})` (or options only), `runTool` gets `os.hostname()` as target, `TOOL_UI.accepts`
@@ -88,7 +98,9 @@ apps/web/src/
 - Errors are Nest HTTP exceptions: 400 invalid input, 403 blocked target, 404 not found/NXDOMAIN,
   502 upstream failure, 504 timeout. The web `ApiError` shows `message` to the user, so write
   messages for humans.
-- `GET /api/tools` returns the catalog, `GET /api/health` is the health check.
+- `GET /api/tools` returns the catalog, `GET /api/health` is the health check. These and
+  `/api/auth/status|login` are the only `@Public()` routes; everything else is authenticated by
+  the global guard from `@nestjs/authentication`.
 - Tools may expose helper sub-resources for their UI as `GET /api/tools/<id>/<name>` (plain
   response, no `ToolResult` envelope), e.g. `GET /api/tools/wifi/interfaces` for the dropdown.
   Put the path constant in the shared feature file (`WIFI_INTERFACES_ENDPOINT`).
@@ -114,8 +126,12 @@ apps/web/src/
    Never build commands from user input and never use a shell. A user-chosen value may only
    become an argument after strict schema validation **and** an allowlist check against what the
    OS reported (see `WifiService.scan`: the interface must be in `listInterfaces()`).
-8. Local tools expose the server's surroundings (e.g. nearby WiFi networks reveal its location):
-   check `LOCAL_TOOLS_ENABLED` in the service. Compose sets it to `false` by default.
+8. Never mark tool, engagement or data endpoints `@Public()`, and never trust `X-Forwarded-For`
+   for the "local requests are open" rule (`core/auth/request-source.ts`).
+9. Database changes only through the Drizzle schema plus a generated migration
+   (`pnpm --filter @recon/api db:generate --name=<change>`); never edit applied migrations.
+10. Local tools expose the server's surroundings (e.g. nearby WiFi networks reveal its location):
+    check `LOCAL_TOOLS_ENABLED` in the service. Compose sets it to `false` by default.
 
 ## Adding a new tool
 
@@ -151,15 +167,22 @@ pure analysis function with tests).
 
 ## Environment
 
-| Variable                | App | Default                 | Purpose                                 |
-| ----------------------- | --- | ----------------------- | --------------------------------------- |
-| `PORT`                  | api | `4000`                  | HTTP port                               |
-| `CORS_ORIGIN`           | api | `http://localhost:5173` | Comma-separated allowed origins         |
-| `ALLOW_PRIVATE_TARGETS` | api | `false`                 | Allow loopback/private/reserved targets |
-| `THROTTLE_LIMIT`        | api | `60`                    | Requests per minute per client          |
-| `LOCAL_TOOLS_ENABLED`   | api | `true`                  | Enable host-local tools (WiFi scan)     |
-| `API_PROXY_TARGET`      | web | `http://localhost:4000` | Vite dev proxy target for `/api`        |
-| `VITE_API_URL`          | web | `/api`                  | API base URL used by the browser        |
+| Variable                 | App | Default                 | Purpose                                 |
+| ------------------------ | --- | ----------------------- | --------------------------------------- |
+| `PORT`                   | api | `4000`                  | HTTP port                               |
+| `CORS_ORIGIN`            | api | `http://localhost:5173` | Comma-separated allowed origins         |
+| `ALLOW_PRIVATE_TARGETS`  | api | `false`                 | Allow loopback/private/reserved targets |
+| `THROTTLE_LIMIT`         | api | `60`                    | Requests per minute per client          |
+| `LOCAL_TOOLS_ENABLED`    | api | `true`                  | Enable host-local tools (WiFi scan)     |
+| `DATABASE_PATH`          | api | `data/recon.db`         | SQLite file (`:memory:` in e2e tests)   |
+| `ADMIN_PASSWORD_HASH`    | api | unset                   | scrypt login hash (`hash-password`)     |
+| `ADMIN_PASSWORD`         | api | unset                   | Plain login password (min. 12 chars)    |
+| `API_TOKEN`              | api | unset                   | Bearer token for scripts (min. 32)      |
+| `COOKIE_SECURE`          | api | `true`                  | Secure session cookie                   |
+| `NVD_API_KEY`            | api | unset                   | Enables CVE Lookup                      |
+| `SECURITYTRAILS_API_KEY` | api | unset                   | Enables Reverse IP                      |
+| `API_PROXY_TARGET`       | web | `http://localhost:4000` | Vite dev proxy target for `/api`        |
+| `VITE_API_URL`           | web | `/api`                  | API base URL used by the browser        |
 
 Port 3000 is often taken by other local projects on dev machines; that is why the API uses 4000.
 

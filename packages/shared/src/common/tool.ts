@@ -1,14 +1,29 @@
+import type { Finding } from './finding.js';
+
 export const TOOL_IDS = [
   'dns',
   'whois',
   'subdomains',
   'email-security',
+  'zone-transfer',
+  'dnssec',
+  'takeover',
   'ip-intel',
+  'cve-lookup',
+  'cert-search',
+  'reverse-ip',
+  'cloud-storage',
   'http-headers',
   'tls',
   'web-files',
   'tech-fingerprint',
+  'wayback',
+  'cors',
+  'tls-audit',
+  'js-endpoints',
+  'exposed-files',
   'ports',
+  'banner-grab',
   'host-scan',
   'wifi',
   'bluetooth',
@@ -52,6 +67,10 @@ export interface ToolResult<T> {
   startedAt: string;
   durationMs: number;
   data: T;
+  /** Graded findings extracted from `data`, for history and the findings export. */
+  findings?: Finding[];
+  /** Id of the stored run when the request was made inside an engagement. */
+  runId?: string;
 }
 
 /**

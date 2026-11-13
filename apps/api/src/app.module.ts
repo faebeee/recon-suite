@@ -3,7 +3,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { validateEnv, type Env } from './config/env.js';
+import { AuthModule } from './core/auth/auth.module.js';
 import { CoreModule } from './core/core.module.js';
+import { DatabaseModule } from './core/db/database.module.js';
 import { FEATURE_MODULES } from './features/index.js';
 
 @Module({
@@ -16,6 +18,8 @@ import { FEATURE_MODULES } from './features/index.js';
       ],
     }),
     CoreModule,
+    DatabaseModule,
+    AuthModule,
     ...FEATURE_MODULES,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

@@ -6,6 +6,7 @@ import {
   type ToolResult,
 } from '@recon/shared';
 import { runTool } from '../../core/tool-runner.js';
+import { httpHeadersFindings } from './http-headers.findings.js';
 import { HttpHeadersService } from './http-headers.service.js';
 
 @Controller('tools/http-headers')
@@ -17,8 +18,11 @@ export class HttpHeadersController {
   run(
     @Body({ schema: httpHeadersInputSchema }) input: HttpHeadersParams,
   ): Promise<ToolResult<HttpHeadersOutput>> {
-    return runTool('http-headers', input.target, () =>
-      this.httpHeaders.inspect(input),
+    return runTool(
+      'http-headers',
+      input.target,
+      () => this.httpHeaders.inspect(input),
+      { findings: httpHeadersFindings },
     );
   }
 }

@@ -10,23 +10,59 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BatchRouteImport } from './routes/batch'
+import { Route as EngagementsIndexRouteImport } from './routes/engagements/index'
+import { Route as EngagementsEngagementIdRouteImport } from './routes/engagements/$engagementId'
+import { Route as ToolsBannerGrabRouteImport } from './routes/tools/banner-grab'
 import { Route as ToolsBluetoothRouteImport } from './routes/tools/bluetooth'
+import { Route as ToolsCertSearchRouteImport } from './routes/tools/cert-search'
+import { Route as ToolsCloudStorageRouteImport } from './routes/tools/cloud-storage'
+import { Route as ToolsCorsRouteImport } from './routes/tools/cors'
+import { Route as ToolsCveLookupRouteImport } from './routes/tools/cve-lookup'
 import { Route as ToolsDnsRouteImport } from './routes/tools/dns'
+import { Route as ToolsDnssecRouteImport } from './routes/tools/dnssec'
 import { Route as ToolsEmailSecurityRouteImport } from './routes/tools/email-security'
+import { Route as ToolsExposedFilesRouteImport } from './routes/tools/exposed-files'
 import { Route as ToolsHostScanRouteImport } from './routes/tools/host-scan'
 import { Route as ToolsHttpHeadersRouteImport } from './routes/tools/http-headers'
 import { Route as ToolsIpIntelRouteImport } from './routes/tools/ip-intel'
+import { Route as ToolsJsEndpointsRouteImport } from './routes/tools/js-endpoints'
 import { Route as ToolsPortsRouteImport } from './routes/tools/ports'
+import { Route as ToolsReverseIpRouteImport } from './routes/tools/reverse-ip'
 import { Route as ToolsSubdomainsRouteImport } from './routes/tools/subdomains'
+import { Route as ToolsTakeoverRouteImport } from './routes/tools/takeover'
 import { Route as ToolsTechFingerprintRouteImport } from './routes/tools/tech-fingerprint'
 import { Route as ToolsTlsRouteImport } from './routes/tools/tls'
+import { Route as ToolsTlsAuditRouteImport } from './routes/tools/tls-audit'
+import { Route as ToolsWaybackRouteImport } from './routes/tools/wayback'
 import { Route as ToolsWebFilesRouteImport } from './routes/tools/web-files'
 import { Route as ToolsWhoisRouteImport } from './routes/tools/whois'
 import { Route as ToolsWifiRouteImport } from './routes/tools/wifi'
+import { Route as ToolsZoneTransferRouteImport } from './routes/tools/zone-transfer'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BatchRoute = BatchRouteImport.update({
+  id: '/batch',
+  path: '/batch',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EngagementsIndexRoute = EngagementsIndexRouteImport.update({
+  id: '/engagements/',
+  path: '/engagements/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EngagementsEngagementIdRoute = EngagementsEngagementIdRouteImport.update({
+  id: '/engagements/$engagementId',
+  path: '/engagements/$engagementId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsBannerGrabRoute = ToolsBannerGrabRouteImport.update({
+  id: '/tools/banner-grab',
+  path: '/tools/banner-grab',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ToolsBluetoothRoute = ToolsBluetoothRouteImport.update({
@@ -34,14 +70,44 @@ const ToolsBluetoothRoute = ToolsBluetoothRouteImport.update({
   path: '/tools/bluetooth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToolsCertSearchRoute = ToolsCertSearchRouteImport.update({
+  id: '/tools/cert-search',
+  path: '/tools/cert-search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsCloudStorageRoute = ToolsCloudStorageRouteImport.update({
+  id: '/tools/cloud-storage',
+  path: '/tools/cloud-storage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsCorsRoute = ToolsCorsRouteImport.update({
+  id: '/tools/cors',
+  path: '/tools/cors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsCveLookupRoute = ToolsCveLookupRouteImport.update({
+  id: '/tools/cve-lookup',
+  path: '/tools/cve-lookup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ToolsDnsRoute = ToolsDnsRouteImport.update({
   id: '/tools/dns',
   path: '/tools/dns',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToolsDnssecRoute = ToolsDnssecRouteImport.update({
+  id: '/tools/dnssec',
+  path: '/tools/dnssec',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ToolsEmailSecurityRoute = ToolsEmailSecurityRouteImport.update({
   id: '/tools/email-security',
   path: '/tools/email-security',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsExposedFilesRoute = ToolsExposedFilesRouteImport.update({
+  id: '/tools/exposed-files',
+  path: '/tools/exposed-files',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ToolsHostScanRoute = ToolsHostScanRouteImport.update({
@@ -59,14 +125,29 @@ const ToolsIpIntelRoute = ToolsIpIntelRouteImport.update({
   path: '/tools/ip-intel',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToolsJsEndpointsRoute = ToolsJsEndpointsRouteImport.update({
+  id: '/tools/js-endpoints',
+  path: '/tools/js-endpoints',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ToolsPortsRoute = ToolsPortsRouteImport.update({
   id: '/tools/ports',
   path: '/tools/ports',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToolsReverseIpRoute = ToolsReverseIpRouteImport.update({
+  id: '/tools/reverse-ip',
+  path: '/tools/reverse-ip',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ToolsSubdomainsRoute = ToolsSubdomainsRouteImport.update({
   id: '/tools/subdomains',
   path: '/tools/subdomains',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsTakeoverRoute = ToolsTakeoverRouteImport.update({
+  id: '/tools/takeover',
+  path: '/tools/takeover',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ToolsTechFingerprintRoute = ToolsTechFingerprintRouteImport.update({
@@ -77,6 +158,16 @@ const ToolsTechFingerprintRoute = ToolsTechFingerprintRouteImport.update({
 const ToolsTlsRoute = ToolsTlsRouteImport.update({
   id: '/tools/tls',
   path: '/tools/tls',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsTlsAuditRoute = ToolsTlsAuditRouteImport.update({
+  id: '/tools/tls-audit',
+  path: '/tools/tls-audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsWaybackRoute = ToolsWaybackRouteImport.update({
+  id: '/tools/wayback',
+  path: '/tools/wayback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ToolsWebFilesRoute = ToolsWebFilesRouteImport.update({
@@ -94,122 +185,239 @@ const ToolsWifiRoute = ToolsWifiRouteImport.update({
   path: '/tools/wifi',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToolsZoneTransferRoute = ToolsZoneTransferRouteImport.update({
+  id: '/tools/zone-transfer',
+  path: '/tools/zone-transfer',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/batch': typeof BatchRoute
+  '/engagements/$engagementId': typeof EngagementsEngagementIdRoute
+  '/tools/banner-grab': typeof ToolsBannerGrabRoute
   '/tools/bluetooth': typeof ToolsBluetoothRoute
+  '/tools/cert-search': typeof ToolsCertSearchRoute
+  '/tools/cloud-storage': typeof ToolsCloudStorageRoute
+  '/tools/cors': typeof ToolsCorsRoute
+  '/tools/cve-lookup': typeof ToolsCveLookupRoute
   '/tools/dns': typeof ToolsDnsRoute
+  '/tools/dnssec': typeof ToolsDnssecRoute
   '/tools/email-security': typeof ToolsEmailSecurityRoute
+  '/tools/exposed-files': typeof ToolsExposedFilesRoute
   '/tools/host-scan': typeof ToolsHostScanRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/ip-intel': typeof ToolsIpIntelRoute
+  '/tools/js-endpoints': typeof ToolsJsEndpointsRoute
   '/tools/ports': typeof ToolsPortsRoute
+  '/tools/reverse-ip': typeof ToolsReverseIpRoute
   '/tools/subdomains': typeof ToolsSubdomainsRoute
+  '/tools/takeover': typeof ToolsTakeoverRoute
   '/tools/tech-fingerprint': typeof ToolsTechFingerprintRoute
   '/tools/tls': typeof ToolsTlsRoute
+  '/tools/tls-audit': typeof ToolsTlsAuditRoute
+  '/tools/wayback': typeof ToolsWaybackRoute
   '/tools/web-files': typeof ToolsWebFilesRoute
   '/tools/whois': typeof ToolsWhoisRoute
   '/tools/wifi': typeof ToolsWifiRoute
+  '/tools/zone-transfer': typeof ToolsZoneTransferRoute
+  '/engagements/': typeof EngagementsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/batch': typeof BatchRoute
+  '/engagements/$engagementId': typeof EngagementsEngagementIdRoute
+  '/tools/banner-grab': typeof ToolsBannerGrabRoute
   '/tools/bluetooth': typeof ToolsBluetoothRoute
+  '/tools/cert-search': typeof ToolsCertSearchRoute
+  '/tools/cloud-storage': typeof ToolsCloudStorageRoute
+  '/tools/cors': typeof ToolsCorsRoute
+  '/tools/cve-lookup': typeof ToolsCveLookupRoute
   '/tools/dns': typeof ToolsDnsRoute
+  '/tools/dnssec': typeof ToolsDnssecRoute
   '/tools/email-security': typeof ToolsEmailSecurityRoute
+  '/tools/exposed-files': typeof ToolsExposedFilesRoute
   '/tools/host-scan': typeof ToolsHostScanRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/ip-intel': typeof ToolsIpIntelRoute
+  '/tools/js-endpoints': typeof ToolsJsEndpointsRoute
   '/tools/ports': typeof ToolsPortsRoute
+  '/tools/reverse-ip': typeof ToolsReverseIpRoute
   '/tools/subdomains': typeof ToolsSubdomainsRoute
+  '/tools/takeover': typeof ToolsTakeoverRoute
   '/tools/tech-fingerprint': typeof ToolsTechFingerprintRoute
   '/tools/tls': typeof ToolsTlsRoute
+  '/tools/tls-audit': typeof ToolsTlsAuditRoute
+  '/tools/wayback': typeof ToolsWaybackRoute
   '/tools/web-files': typeof ToolsWebFilesRoute
   '/tools/whois': typeof ToolsWhoisRoute
   '/tools/wifi': typeof ToolsWifiRoute
+  '/tools/zone-transfer': typeof ToolsZoneTransferRoute
+  '/engagements': typeof EngagementsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/batch': typeof BatchRoute
+  '/engagements/$engagementId': typeof EngagementsEngagementIdRoute
+  '/tools/banner-grab': typeof ToolsBannerGrabRoute
   '/tools/bluetooth': typeof ToolsBluetoothRoute
+  '/tools/cert-search': typeof ToolsCertSearchRoute
+  '/tools/cloud-storage': typeof ToolsCloudStorageRoute
+  '/tools/cors': typeof ToolsCorsRoute
+  '/tools/cve-lookup': typeof ToolsCveLookupRoute
   '/tools/dns': typeof ToolsDnsRoute
+  '/tools/dnssec': typeof ToolsDnssecRoute
   '/tools/email-security': typeof ToolsEmailSecurityRoute
+  '/tools/exposed-files': typeof ToolsExposedFilesRoute
   '/tools/host-scan': typeof ToolsHostScanRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/ip-intel': typeof ToolsIpIntelRoute
+  '/tools/js-endpoints': typeof ToolsJsEndpointsRoute
   '/tools/ports': typeof ToolsPortsRoute
+  '/tools/reverse-ip': typeof ToolsReverseIpRoute
   '/tools/subdomains': typeof ToolsSubdomainsRoute
+  '/tools/takeover': typeof ToolsTakeoverRoute
   '/tools/tech-fingerprint': typeof ToolsTechFingerprintRoute
   '/tools/tls': typeof ToolsTlsRoute
+  '/tools/tls-audit': typeof ToolsTlsAuditRoute
+  '/tools/wayback': typeof ToolsWaybackRoute
   '/tools/web-files': typeof ToolsWebFilesRoute
   '/tools/whois': typeof ToolsWhoisRoute
   '/tools/wifi': typeof ToolsWifiRoute
+  '/tools/zone-transfer': typeof ToolsZoneTransferRoute
+  '/engagements/': typeof EngagementsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/batch'
+    | '/engagements/$engagementId'
+    | '/tools/banner-grab'
     | '/tools/bluetooth'
+    | '/tools/cert-search'
+    | '/tools/cloud-storage'
+    | '/tools/cors'
+    | '/tools/cve-lookup'
     | '/tools/dns'
+    | '/tools/dnssec'
     | '/tools/email-security'
+    | '/tools/exposed-files'
     | '/tools/host-scan'
     | '/tools/http-headers'
     | '/tools/ip-intel'
+    | '/tools/js-endpoints'
     | '/tools/ports'
+    | '/tools/reverse-ip'
     | '/tools/subdomains'
+    | '/tools/takeover'
     | '/tools/tech-fingerprint'
     | '/tools/tls'
+    | '/tools/tls-audit'
+    | '/tools/wayback'
     | '/tools/web-files'
     | '/tools/whois'
     | '/tools/wifi'
+    | '/tools/zone-transfer'
+    | '/engagements/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/batch'
+    | '/engagements/$engagementId'
+    | '/tools/banner-grab'
     | '/tools/bluetooth'
+    | '/tools/cert-search'
+    | '/tools/cloud-storage'
+    | '/tools/cors'
+    | '/tools/cve-lookup'
     | '/tools/dns'
+    | '/tools/dnssec'
     | '/tools/email-security'
+    | '/tools/exposed-files'
     | '/tools/host-scan'
     | '/tools/http-headers'
     | '/tools/ip-intel'
+    | '/tools/js-endpoints'
     | '/tools/ports'
+    | '/tools/reverse-ip'
     | '/tools/subdomains'
+    | '/tools/takeover'
     | '/tools/tech-fingerprint'
     | '/tools/tls'
+    | '/tools/tls-audit'
+    | '/tools/wayback'
     | '/tools/web-files'
     | '/tools/whois'
     | '/tools/wifi'
+    | '/tools/zone-transfer'
+    | '/engagements'
   id:
     | '__root__'
     | '/'
+    | '/batch'
+    | '/engagements/$engagementId'
+    | '/tools/banner-grab'
     | '/tools/bluetooth'
+    | '/tools/cert-search'
+    | '/tools/cloud-storage'
+    | '/tools/cors'
+    | '/tools/cve-lookup'
     | '/tools/dns'
+    | '/tools/dnssec'
     | '/tools/email-security'
+    | '/tools/exposed-files'
     | '/tools/host-scan'
     | '/tools/http-headers'
     | '/tools/ip-intel'
+    | '/tools/js-endpoints'
     | '/tools/ports'
+    | '/tools/reverse-ip'
     | '/tools/subdomains'
+    | '/tools/takeover'
     | '/tools/tech-fingerprint'
     | '/tools/tls'
+    | '/tools/tls-audit'
+    | '/tools/wayback'
     | '/tools/web-files'
     | '/tools/whois'
     | '/tools/wifi'
+    | '/tools/zone-transfer'
+    | '/engagements/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BatchRoute: typeof BatchRoute
+  EngagementsEngagementIdRoute: typeof EngagementsEngagementIdRoute
+  ToolsBannerGrabRoute: typeof ToolsBannerGrabRoute
   ToolsBluetoothRoute: typeof ToolsBluetoothRoute
+  ToolsCertSearchRoute: typeof ToolsCertSearchRoute
+  ToolsCloudStorageRoute: typeof ToolsCloudStorageRoute
+  ToolsCorsRoute: typeof ToolsCorsRoute
+  ToolsCveLookupRoute: typeof ToolsCveLookupRoute
   ToolsDnsRoute: typeof ToolsDnsRoute
+  ToolsDnssecRoute: typeof ToolsDnssecRoute
   ToolsEmailSecurityRoute: typeof ToolsEmailSecurityRoute
+  ToolsExposedFilesRoute: typeof ToolsExposedFilesRoute
   ToolsHostScanRoute: typeof ToolsHostScanRoute
   ToolsHttpHeadersRoute: typeof ToolsHttpHeadersRoute
   ToolsIpIntelRoute: typeof ToolsIpIntelRoute
+  ToolsJsEndpointsRoute: typeof ToolsJsEndpointsRoute
   ToolsPortsRoute: typeof ToolsPortsRoute
+  ToolsReverseIpRoute: typeof ToolsReverseIpRoute
   ToolsSubdomainsRoute: typeof ToolsSubdomainsRoute
+  ToolsTakeoverRoute: typeof ToolsTakeoverRoute
   ToolsTechFingerprintRoute: typeof ToolsTechFingerprintRoute
   ToolsTlsRoute: typeof ToolsTlsRoute
+  ToolsTlsAuditRoute: typeof ToolsTlsAuditRoute
+  ToolsWaybackRoute: typeof ToolsWaybackRoute
   ToolsWebFilesRoute: typeof ToolsWebFilesRoute
   ToolsWhoisRoute: typeof ToolsWhoisRoute
   ToolsWifiRoute: typeof ToolsWifiRoute
+  ToolsZoneTransferRoute: typeof ToolsZoneTransferRoute
+  EngagementsIndexRoute: typeof EngagementsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -221,11 +429,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/batch': {
+      id: '/batch'
+      path: '/batch'
+      fullPath: '/batch'
+      preLoaderRoute: typeof BatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/engagements/': {
+      id: '/engagements/'
+      path: '/engagements'
+      fullPath: '/engagements/'
+      preLoaderRoute: typeof EngagementsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/engagements/$engagementId': {
+      id: '/engagements/$engagementId'
+      path: '/engagements/$engagementId'
+      fullPath: '/engagements/$engagementId'
+      preLoaderRoute: typeof EngagementsEngagementIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/banner-grab': {
+      id: '/tools/banner-grab'
+      path: '/tools/banner-grab'
+      fullPath: '/tools/banner-grab'
+      preLoaderRoute: typeof ToolsBannerGrabRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tools/bluetooth': {
       id: '/tools/bluetooth'
       path: '/tools/bluetooth'
       fullPath: '/tools/bluetooth'
       preLoaderRoute: typeof ToolsBluetoothRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/cert-search': {
+      id: '/tools/cert-search'
+      path: '/tools/cert-search'
+      fullPath: '/tools/cert-search'
+      preLoaderRoute: typeof ToolsCertSearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/cloud-storage': {
+      id: '/tools/cloud-storage'
+      path: '/tools/cloud-storage'
+      fullPath: '/tools/cloud-storage'
+      preLoaderRoute: typeof ToolsCloudStorageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/cors': {
+      id: '/tools/cors'
+      path: '/tools/cors'
+      fullPath: '/tools/cors'
+      preLoaderRoute: typeof ToolsCorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/cve-lookup': {
+      id: '/tools/cve-lookup'
+      path: '/tools/cve-lookup'
+      fullPath: '/tools/cve-lookup'
+      preLoaderRoute: typeof ToolsCveLookupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tools/dns': {
@@ -235,11 +499,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToolsDnsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tools/dnssec': {
+      id: '/tools/dnssec'
+      path: '/tools/dnssec'
+      fullPath: '/tools/dnssec'
+      preLoaderRoute: typeof ToolsDnssecRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tools/email-security': {
       id: '/tools/email-security'
       path: '/tools/email-security'
       fullPath: '/tools/email-security'
       preLoaderRoute: typeof ToolsEmailSecurityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/exposed-files': {
+      id: '/tools/exposed-files'
+      path: '/tools/exposed-files'
+      fullPath: '/tools/exposed-files'
+      preLoaderRoute: typeof ToolsExposedFilesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tools/host-scan': {
@@ -263,6 +541,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToolsIpIntelRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tools/js-endpoints': {
+      id: '/tools/js-endpoints'
+      path: '/tools/js-endpoints'
+      fullPath: '/tools/js-endpoints'
+      preLoaderRoute: typeof ToolsJsEndpointsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tools/ports': {
       id: '/tools/ports'
       path: '/tools/ports'
@@ -270,11 +555,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToolsPortsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tools/reverse-ip': {
+      id: '/tools/reverse-ip'
+      path: '/tools/reverse-ip'
+      fullPath: '/tools/reverse-ip'
+      preLoaderRoute: typeof ToolsReverseIpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tools/subdomains': {
       id: '/tools/subdomains'
       path: '/tools/subdomains'
       fullPath: '/tools/subdomains'
       preLoaderRoute: typeof ToolsSubdomainsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/takeover': {
+      id: '/tools/takeover'
+      path: '/tools/takeover'
+      fullPath: '/tools/takeover'
+      preLoaderRoute: typeof ToolsTakeoverRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tools/tech-fingerprint': {
@@ -289,6 +588,20 @@ declare module '@tanstack/react-router' {
       path: '/tools/tls'
       fullPath: '/tools/tls'
       preLoaderRoute: typeof ToolsTlsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/tls-audit': {
+      id: '/tools/tls-audit'
+      path: '/tools/tls-audit'
+      fullPath: '/tools/tls-audit'
+      preLoaderRoute: typeof ToolsTlsAuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/wayback': {
+      id: '/tools/wayback'
+      path: '/tools/wayback'
+      fullPath: '/tools/wayback'
+      preLoaderRoute: typeof ToolsWaybackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tools/web-files': {
@@ -312,24 +625,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToolsWifiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tools/zone-transfer': {
+      id: '/tools/zone-transfer'
+      path: '/tools/zone-transfer'
+      fullPath: '/tools/zone-transfer'
+      preLoaderRoute: typeof ToolsZoneTransferRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BatchRoute: BatchRoute,
+  EngagementsEngagementIdRoute: EngagementsEngagementIdRoute,
+  ToolsBannerGrabRoute: ToolsBannerGrabRoute,
   ToolsBluetoothRoute: ToolsBluetoothRoute,
+  ToolsCertSearchRoute: ToolsCertSearchRoute,
+  ToolsCloudStorageRoute: ToolsCloudStorageRoute,
+  ToolsCorsRoute: ToolsCorsRoute,
+  ToolsCveLookupRoute: ToolsCveLookupRoute,
   ToolsDnsRoute: ToolsDnsRoute,
+  ToolsDnssecRoute: ToolsDnssecRoute,
   ToolsEmailSecurityRoute: ToolsEmailSecurityRoute,
+  ToolsExposedFilesRoute: ToolsExposedFilesRoute,
   ToolsHostScanRoute: ToolsHostScanRoute,
   ToolsHttpHeadersRoute: ToolsHttpHeadersRoute,
   ToolsIpIntelRoute: ToolsIpIntelRoute,
+  ToolsJsEndpointsRoute: ToolsJsEndpointsRoute,
   ToolsPortsRoute: ToolsPortsRoute,
+  ToolsReverseIpRoute: ToolsReverseIpRoute,
   ToolsSubdomainsRoute: ToolsSubdomainsRoute,
+  ToolsTakeoverRoute: ToolsTakeoverRoute,
   ToolsTechFingerprintRoute: ToolsTechFingerprintRoute,
   ToolsTlsRoute: ToolsTlsRoute,
+  ToolsTlsAuditRoute: ToolsTlsAuditRoute,
+  ToolsWaybackRoute: ToolsWaybackRoute,
   ToolsWebFilesRoute: ToolsWebFilesRoute,
   ToolsWhoisRoute: ToolsWhoisRoute,
   ToolsWifiRoute: ToolsWifiRoute,
+  ToolsZoneTransferRoute: ToolsZoneTransferRoute,
+  EngagementsIndexRoute: EngagementsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

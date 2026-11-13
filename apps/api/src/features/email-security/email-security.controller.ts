@@ -17,8 +17,11 @@ export class EmailSecurityController {
   run(
     @Body({ schema: emailSecurityInputSchema }) input: EmailSecurityParams,
   ): Promise<ToolResult<EmailSecurityOutput>> {
-    return runTool('email-security', input.target, () =>
-      this.service.check(input),
+    return runTool(
+      'email-security',
+      input.target,
+      () => this.service.check(input),
+      { findings: (d) => d.report.findings },
     );
   }
 }

@@ -10,21 +10,39 @@ Turborepo monorepo with a feature-driven architecture.
 
 ## Tools
 
-| Code | Tool              | Mode    | What it does                                                                             |
-| ---- | ----------------- | ------- | ---------------------------------------------------------------------------------------- |
-| D-01 | DNS Recon         | passive | A, AAAA, CNAME, MX, NS, TXT, SOA, CAA via Cloudflare/Google/Quad9/system                 |
-| D-02 | Subdomain Finder  | passive | Subdomains from certificate transparency logs (crt.sh)                                   |
-| D-03 | Email Security    | passive | SPF (nested lookup count), DMARC, DKIM keys, MTA-STS, TLS-RPT, BIMI, with a grade        |
-| I-01 | WHOIS / RDAP      | passive | Registrar, lifecycle, status, nameservers; IP network ownership                          |
-| I-02 | IP Intel          | passive | Reverse DNS + forward confirmation, ASN (Team Cymru), RDAP network, CDN/cloud provider   |
-| W-01 | HTTP Inspector    | active  | Redirect chain, headers, security-header grade, disclosures                              |
-| W-02 | TLS Inspector     | active  | Protocol, cipher, certificate, SANs, chain, expiry                                       |
-| W-03 | Web Files         | active  | robots.txt (notable paths), sitemap.xml, security.txt (RFC 9116 checks), humans.txt      |
-| W-04 | Tech Fingerprint  | active  | Server, language, framework, CMS, CDN, libraries from headers, cookies and HTML          |
-| N-01 | Port Probe        | active  | TCP connect check on preset or custom ports (max 64)                                     |
-| N-02 | Host Scan         | local   | ARP discovery of live hosts and MAC vendors on the API host's subnet (arp-scan)          |
-| R-01 | WiFi Scanner      | local   | Nearby WiFi networks seen by the API host: SSID, band, channel, security, signal         |
-| R-02 | Bluetooth Scanner | local   | BLE advertisements + Classic inquiry: name, vendor, class, RSSI, services (macOS, Linux) |
+| Code | Tool               | Mode    | What it does                                                                             |
+| ---- | ------------------ | ------- | ---------------------------------------------------------------------------------------- |
+| D-01 | DNS Recon          | passive | A, AAAA, CNAME, MX, NS, TXT, SOA, CAA via Cloudflare/Google/Quad9/system                 |
+| D-02 | Subdomain Finder   | passive | Subdomains from certificate transparency logs (crt.sh)                                   |
+| D-03 | Email Security     | passive | SPF (nested lookup count), DMARC, DKIM keys, MTA-STS, TLS-RPT, BIMI, with a grade        |
+| D-04 | Zone Transfer      | active  | AXFR against every nameserver; flags servers that leak the zone                          |
+| D-05 | DNSSEC Check       | passive | DS/DNSKEY/RRSIG, algorithms, signature expiry; secure, insecure or bogus                 |
+| D-06 | Subdomain Takeover | active  | Dangling CNAMEs to deleted cloud resources (S3, Azure, Bitbucket, ...)                   |
+| I-01 | WHOIS / RDAP       | passive | Registrar, lifecycle, status, nameservers; IP network ownership                          |
+| I-02 | IP Intel           | passive | Reverse DNS + forward confirmation, ASN (Team Cymru), RDAP network, CDN/cloud provider   |
+| I-03 | CVE Lookup         | passive | Known CVEs for a product and version from the NVD, CVSS and CISA KEV (needs NVD_API_KEY) |
+| I-04 | Org Cert Search    | passive | Domains of a company from certificate transparency, by organisation name                 |
+| I-05 | Reverse IP         | passive | Other hostnames on the same IP, from SecurityTrails (needs SECURITYTRAILS_API_KEY)       |
+| I-06 | Cloud Storage      | active  | Public or existing S3, GCS and Azure buckets with names derived from the domain          |
+| W-01 | HTTP Inspector     | active  | Redirect chain, headers, security-header grade, disclosures                              |
+| W-02 | TLS Inspector      | active  | Protocol, cipher, certificate, SANs, chain, expiry                                       |
+| W-03 | Web Files          | active  | robots.txt (notable paths), sitemap.xml, security.txt (RFC 9116 checks), humans.txt      |
+| W-04 | Tech Fingerprint   | active  | Server, language, framework, CMS, CDN, libraries from headers, cookies and HTML          |
+| W-05 | Wayback URLs       | passive | Archived URLs: old endpoints, backup/config files, sensitive parameters                  |
+| W-06 | CORS Check         | active  | Reflected, null and look-alike origins with credentials                                  |
+| W-07 | TLS Audit          | active  | Accepted TLS versions and cipher suites, OCSP stapling, CT; graded                       |
+| W-08 | JS Endpoints       | active  | API paths, hosts, exposed source maps and leaked keys in JavaScript                      |
+| W-09 | Exposed Files      | active  | .git, .env, .DS_Store, server-status, actuator, config backups (content-verified)        |
+| N-01 | Port Probe         | active  | TCP connect check on preset or custom ports (max 64)                                     |
+| N-02 | Host Scan          | local   | ARP discovery of live hosts and MAC vendors on the API host's subnet (arp-scan)          |
+| N-03 | Banner Grab        | active  | Service greetings (SSH, SMTP, FTP, IMAP, POP3, MySQL) with product and version           |
+| R-01 | WiFi Scanner       | local   | Nearby WiFi networks seen by the API host: SSID, band, channel, security, signal         |
+| R-02 | Bluetooth Scanner  | local   | BLE advertisements + Classic inquiry: name, vendor, class, RSSI, services (macOS, Linux) |
+
+**Engagements** tie it together for real assessments: a scope list that active tools enforce,
+a history of every run with tags and run-to-run comparison, collected findings, notes, batch
+runs over many targets, and a Markdown/JSON/CSV report export. A single-operator password login
+(plus an API token for scripts) protects the UI and API.
 
 Results link to each other ("pivots"): a hostname found in DNS, CT logs or a certificate
 can be opened in any other compatible tool with one click. Every tool also accepts
@@ -46,11 +64,11 @@ can be opened in any other compatible tool with one click. Every tool also accep
 
 ## Stack
 
-| Path              | Package         | Stack                                                          |
-| ----------------- | --------------- | -------------------------------------------------------------- |
-| `apps/api`        | `@recon/api`    | NestJS 12 (ESM), Zod validation, undici, throttler, Vitest     |
-| `apps/web`        | `@recon/web`    | Vite, React 19, TanStack Router + Query, Tailwind 4, shadcn/ui |
-| `packages/shared` | `@recon/shared` | Zod schemas, types and tool catalog used by both apps          |
+| Path              | Package         | Stack                                                                                                     |
+| ----------------- | --------------- | --------------------------------------------------------------------------------------------------------- |
+| `apps/api`        | `@recon/api`    | NestJS 12 (ESM), Zod validation, undici, throttler, @nestjs/authentication, Drizzle + node:sqlite, Vitest |
+| `apps/web`        | `@recon/web`    | Vite, React 19, TanStack Router + Query, Tailwind 4, shadcn/ui                                            |
+| `packages/shared` | `@recon/shared` | Zod schemas, types and tool catalog used by both apps                                                     |
 
 ## Getting started
 
@@ -81,8 +99,9 @@ Configuration: see `.env.example`, `apps/api/.env.example` and `apps/web/.env.ex
   and against DNS rebinding). Set `ALLOW_PRIVATE_TARGETS=true` only for local, single-user use.
 - Timeouts, response size limits, port count limits and global rate limiting
   (`THROTTLE_LIMIT` requests/min) apply to all tools.
-- The API has no authentication: keep it on localhost or behind an authenticating proxy.
-  See [docs/security.md](docs/security.md).
+- Password login (single operator), API token for scripts; without a password only local
+  requests are accepted. Active tools stay inside the engagement scope. See
+  [docs/security.md](docs/security.md).
 
 ## Architecture & agentic development
 

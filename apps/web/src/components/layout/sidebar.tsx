@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { LayoutGrid } from 'lucide-react';
+import { FolderKanban, LayoutGrid, ListChecks } from 'lucide-react';
 import { CATEGORY_LABELS, type ToolCategory } from '@recon/shared';
 import { TOOLS } from '@/features/registry';
 import { cn } from '@/lib/utils';
@@ -14,15 +14,33 @@ const linkActive = 'border-primary bg-sidebar-accent text-primary text-glow';
 export function Sidebar() {
   return (
     <nav aria-label="Tools" className="space-y-6 py-4">
-      <Link
-        to="/"
-        className={linkBase}
-        activeProps={{ className: linkActive }}
-        activeOptions={{ exact: true }}
-      >
-        <LayoutGrid className="size-4" />
-        Dashboard
-      </Link>
+      <div className="space-y-1">
+        <Link
+          to="/"
+          className={linkBase}
+          activeProps={{ className: linkActive }}
+          activeOptions={{ exact: true }}
+        >
+          <LayoutGrid className="size-4" />
+          Dashboard
+        </Link>
+        <Link
+          to="/batch"
+          className={linkBase}
+          activeProps={{ className: linkActive }}
+        >
+          <ListChecks className="size-4" />
+          Batch
+        </Link>
+        <Link
+          to="/engagements"
+          className={linkBase}
+          activeProps={{ className: linkActive }}
+        >
+          <FolderKanban className="size-4" />
+          Engagements
+        </Link>
+      </div>
       {CATEGORIES.map((cat) => {
         const tools = TOOLS.filter((t) => t.category === cat);
         if (!tools.length) return null;
@@ -71,6 +89,20 @@ export function MobileNav() {
         activeOptions={{ exact: true }}
       >
         Home
+      </Link>
+      <Link
+        to="/batch"
+        className="shrink-0 border border-border px-2 py-1 text-[11px] tracking-wider uppercase"
+        activeProps={{ className: 'border-primary text-primary' }}
+      >
+        Batch
+      </Link>
+      <Link
+        to="/engagements"
+        className="shrink-0 border border-border px-2 py-1 text-[11px] tracking-wider uppercase"
+        activeProps={{ className: 'border-primary text-primary' }}
+      >
+        Engagements
       </Link>
       {TOOLS.map((tool) => (
         <Link

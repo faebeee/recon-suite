@@ -1,3 +1,17 @@
+import { EngagementsModule } from './engagements/engagements.module.js';
+import { ZoneTransferModule } from './zone-transfer/zone-transfer.module.js';
+import { DnssecModule } from './dnssec/dnssec.module.js';
+import { TakeoverModule } from './takeover/takeover.module.js';
+import { CveLookupModule } from './cve-lookup/cve-lookup.module.js';
+import { CertSearchModule } from './cert-search/cert-search.module.js';
+import { ReverseIpModule } from './reverse-ip/reverse-ip.module.js';
+import { CloudStorageModule } from './cloud-storage/cloud-storage.module.js';
+import { WaybackModule } from './wayback/wayback.module.js';
+import { CorsModule } from './cors/cors.module.js';
+import { TlsAuditModule } from './tls-audit/tls-audit.module.js';
+import { JsEndpointsModule } from './js-endpoints/js-endpoints.module.js';
+import { ExposedFilesModule } from './exposed-files/exposed-files.module.js';
+import { BannerGrabModule } from './banner-grab/banner-grab.module.js';
 import { BluetoothModule } from './bluetooth/bluetooth.module.js';
 import { DnsModule } from './dns/dns.module.js';
 import { EmailSecurityModule } from './email-security/email-security.module.js';
@@ -16,6 +30,7 @@ import { WifiModule } from './wifi/wifi.module.js';
 /** Register new feature modules here. */
 export const FEATURE_MODULES = [
   SystemModule,
+  EngagementsModule,
   DnsModule,
   WhoisModule,
   SubdomainsModule,
@@ -25,6 +40,19 @@ export const FEATURE_MODULES = [
   TlsModule,
   WebFilesModule,
   TechFingerprintModule,
+  ZoneTransferModule,
+  DnssecModule,
+  TakeoverModule,
+  CveLookupModule,
+  CertSearchModule,
+  ReverseIpModule,
+  CloudStorageModule,
+  WaybackModule,
+  CorsModule,
+  TlsAuditModule,
+  JsEndpointsModule,
+  ExposedFilesModule,
+  BannerGrabModule,
   PortsModule,
   HostScanModule,
   WifiModule,

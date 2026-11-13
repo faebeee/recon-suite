@@ -1,7 +1,9 @@
+import { Public } from '@nestjs/authentication';
 import { Controller, Get } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import type { HealthResponse } from '@recon/shared';
 
+@Public()
 @SkipThrottle()
 @Controller('health')
 export class HealthController {
