@@ -127,7 +127,7 @@ export class HostScanService {
     if (err instanceof CommandNotFoundError) {
       return new ServiceUnavailableException(
         this.exec.target.kind === 'kali'
-          ? `${err.message} in the Kali container. Rebuild it (pnpm compose:up:kali).`
+          ? `${err.message} in the Kali container. Rebuild it (pnpm compose:up).`
           : `${err.message}. Host scanning needs "arp-scan" installed on the API host ` +
               '(e.g. "apt install arp-scan" / "brew install arp-scan"), or a Kali container (KALI_CONTAINER).',
       );

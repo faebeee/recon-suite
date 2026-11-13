@@ -93,7 +93,7 @@ export class NmapService {
     if (err instanceof CommandNotFoundError) {
       return new ServiceUnavailableException(
         this.exec.target.kind === 'kali'
-          ? 'nmap is not installed in the Kali container. Rebuild it (pnpm compose:up:kali).'
+          ? 'nmap is not installed in the Kali container. Rebuild it (pnpm compose:up).'
           : 'nmap is not installed on the API host. Install it (e.g. "brew install nmap" / ' +
               '"sudo apt install nmap") or run it in a Kali container (KALI_CONTAINER).',
       );

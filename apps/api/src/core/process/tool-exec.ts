@@ -12,6 +12,7 @@ export type ContainerCli = 'docker' | 'podman';
 /** Where tool commands run: on the API host, or via `<cli> exec` in the Kali container. */
 export type ExecTarget =
   { kind: 'local' } | { kind: 'kali'; cli: ContainerCli; container: string };
+export type KaliTarget = Extract<ExecTarget, { kind: 'kali' }>;
 
 /** Container names as Docker/Podman accept them. Validated again here (defense in depth). */
 export const CONTAINER_NAME_RE = /^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$/;
@@ -25,14 +26,12 @@ export const KALI_GRACE_MS = 10_000;
  * the container.
  */
 export function buildKaliExec(
-  target: Extract<ExecTarget, { kind: 'kali' }>,
+  target: KaliTarget,
   command: ExecCommand,
   args: readonly string[],
   timeoutMs: number,
 ): { command: ContainerCli; args: string[] } {
-  if (!CONTAINER_NAME_RE.test(target.container)) {
-    throw new Error(`Invalid container name "${target.container}"`);
-  }
+  assertContainerName(target.container);
   const seconds = Math.max(1, Math.ceil(timeoutMs / 1000));
   return {
     command: target.cli,
@@ -51,10 +50,82 @@ export function buildKaliExec(
 
 /** Appended to user-facing errors when the Kali container can't be used. */
 export const KALI_HINT =
-  'Start it with "pnpm compose:up:kali", or unset KALI_CONTAINER to run tools on the API host.';
+  'Start it with "pnpm compose:up" (or set KALI_IMAGE so the API can create it), or unset KALI_CONTAINER to run tools on the API host.';
+
+/** Image references as Docker/Podman accept them; never starts with "-". */
+export const IMAGE_REF_RE = /^[a-zA-Z0-9][a-zA-Z0-9._/:@-]{0,254}$/;
 
 /** Kali container missing, stopped or the container engine unreachable. */
 export class KaliUnavailableError extends Error {}
+
+/**
+ * Why `<cli> exec` could not reach the container (docker and podman wording):
+ * stopped: exists but not running -> `start` it. missing: no such container -> `run` it.
+ * engine: daemon/socket unreachable or not permitted -> nothing to recover.
+ */
+export type KaliFailure = 'stopped' | 'missing' | 'engine';
+
+export function classifyKaliFailure(err: unknown): KaliFailure | undefined {
+  if (!(err instanceof CommandFailedError)) return undefined;
+  const stderr = err.stderr;
+  if (/no such container|no container with name or id/i.test(stderr)) {
+    return 'missing';
+  }
+  if (/is not running|state improper|is paused|is restarting/i.test(stderr)) {
+    return 'stopped';
+  }
+  if (
+    /cannot connect to the docker daemon|cannot connect to podman|permission denied while trying to connect|is the docker daemon running/i.test(
+      stderr,
+    )
+  ) {
+    return 'engine';
+  }
+  return undefined;
+}
+
+/** `<cli> start <container>`: starts an existing, stopped Kali container. */
+export function buildKaliStart(target: KaliTarget): {
+  command: ContainerCli;
+  args: string[];
+} {
+  assertContainerName(target.container);
+  return { command: target.cli, args: ['start', target.container] };
+}
+
+/**
+ * `<cli> run -d ...`: creates the Kali container when it does not exist. Fixed flags, the same
+ * as the kali service in compose.yaml (init, NET_RAW/NET_ADMIN, default network). `--pull never`: only a
+ * locally built image is used, nothing is downloaded at request time.
+ */
+export function buildKaliRun(
+  target: KaliTarget,
+  image: string,
+): { command: ContainerCli; args: string[] } {
+  assertContainerName(target.container);
+  if (!IMAGE_REF_RE.test(image)) {
+    throw new Error(`Invalid image reference "${image}"`);
+  }
+  return {
+    command: target.cli,
+    args: [
+      'run',
+      '-d',
+      '--name',
+      target.container,
+      '--init',
+      '--cap-add',
+      'NET_RAW',
+      '--cap-add',
+      'NET_ADMIN',
+      '--restart',
+      'unless-stopped',
+      '--pull',
+      'never',
+      image,
+    ],
+  };
+}
 
 /**
  * Translates `<cli> exec` failures into the errors local runs produce, so services handle
@@ -63,7 +134,7 @@ export class KaliUnavailableError extends Error {}
  */
 export function mapKaliError(
   err: unknown,
-  target: Extract<ExecTarget, { kind: 'kali' }>,
+  target: KaliTarget,
   command: ExecCommand,
 ): unknown {
   if (err instanceof CommandNotFoundError) {
@@ -73,11 +144,7 @@ export function mapKaliError(
   }
   if (!(err instanceof CommandFailedError)) return err;
   const stderr = err.stderr;
-  if (
-    /no such container|is not running|cannot connect to the docker daemon|cannot connect to podman|permission denied while trying to connect/i.test(
-      stderr,
-    )
-  ) {
+  if (classifyKaliFailure(err)) {
     return new KaliUnavailableError(
       `Kali container "${target.container}" is not reachable: ${firstLine(stderr)}`,
     );
@@ -95,6 +162,12 @@ export function mapKaliError(
   return new CommandFailedError(command, stderr, false, err.exitCode);
 }
 
-function firstLine(text: string): string {
-  return text.trim().split(/\r?\n/)[0] ?? 'unknown error';
+export function firstLine(text: string): string {
+  return text.trim().split(/\r?\n/)[0] || 'unknown error';
+}
+
+function assertContainerName(name: string) {
+  if (!CONTAINER_NAME_RE.test(name)) {
+    throw new Error(`Invalid container name "${name}"`);
+  }
 }

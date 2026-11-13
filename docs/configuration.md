@@ -76,7 +76,7 @@ of the web app to the API's `CORS_ORIGIN`.
 | `API_TOKEN`, `COOKIE_SECURE`            |         | Passed to the API                                                          |
 | `NVD_API_KEY`, `SECURITYTRAILS_API_KEY` | not set | Passed to the API                                                          |
 
-The Kali setup (`pnpm compose:up:kali`) adds `CONTAINER_SOCKET`, `CONTAINER_SOCKET_GID` and
+The Kali container (part of `pnpm compose:up`) uses `CONTAINER_SOCKET`, `CONTAINER_SOCKET_GID` and
 `KALI_API_USER`; see [Kali container](local-tools.md#kali-container).
 
 The web container serves the built UI and proxies `/api/` to the `api` service, so browsers

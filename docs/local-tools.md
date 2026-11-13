@@ -86,23 +86,31 @@ isolation of the container.
 
 ## Kali container
 
-`compose.kali.yaml` adds a `kali` service (`infra/kali/Containerfile`: kali-rolling with
+`compose.yaml` has a `kali` service (`infra/kali/Containerfile`: kali-rolling with
 `arp-scan`, `nmap`, `iproute2`) and points the API at it with `KALI_CONTAINER=recon-kali`.
 Host Scan and Nmap Scan then run there via `docker exec recon-kali timeout <s> <command> ...`
 instead of on the API host; Host Scan lists the Kali container's interfaces (`ip -j addr`).
 
 ```sh
-pnpm compose:up:kali
-pnpm compose:down:kali
+pnpm compose:up     # builds and starts kali, api and web
+pnpm compose:down
 ```
 
 | Variable               | Default                | Purpose                                                         |
 | ---------------------- | ---------------------- | --------------------------------------------------------------- |
 | `KALI_CONTAINER`       | not set                | Container to `exec` into; unset = run tools on the API host     |
 | `CONTAINER_CLI`        | `docker`               | `docker` or `podman` (the docker CLI also works against Podman) |
+| `KALI_IMAGE`           | not set                | Local image to recreate the container from when it was removed  |
 | `CONTAINER_SOCKET`     | `/var/run/docker.sock` | compose only: engine socket mounted into the API container      |
 | `CONTAINER_SOCKET_GID` | `0`                    | compose only: group the API process needs to use the socket     |
 | `KALI_API_USER`        | `node`                 | compose only: set `0` for rootless Podman sockets               |
+
+**Self-healing:** if the container is stopped, the API runs `<cli> start <container>` and retries
+the command once. If it does not exist (e.g. after `pnpm compose:down`) and `KALI_IMAGE` is set
+(compose sets it), the API creates it with fixed flags (`run -d --init --cap-add NET_RAW
+--cap-add NET_ADMIN --pull never <image>`, default network) and retries. Without `KALI_IMAGE` a
+missing container is reported as 503. The image must already be built locally; nothing is
+pulled at request time.
 
 **Security:** the API needs the container engine socket for `exec`, which is root-equivalent on
 the host. Use this setup only on machines you control, behind the login, never publicly.

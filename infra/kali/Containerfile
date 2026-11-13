@@ -1,4 +1,4 @@
-# Kali toolbox for Recon Suite (see compose.kali.yaml).
+# Kali toolbox for Recon Suite (see the kali service in compose.yaml).
 # The API runs fixed commands in here via `docker|podman exec`; the container itself only idles.
 FROM docker.io/kalilinux/kali-rolling:latest
 

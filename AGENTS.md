@@ -186,6 +186,7 @@ pure analysis function with tests).
 | `SECURITYTRAILS_API_KEY` | api | unset                   | Enables Reverse IP                      |
 | `KALI_CONTAINER`         | api | unset                   | Run arp-scan/nmap via `docker exec`     |
 | `CONTAINER_CLI`          | api | `docker`                | `docker` or `podman` for KALI_CONTAINER |
+| `KALI_IMAGE`             | api | unset                   | Create KALI_CONTAINER if it is missing  |
 | `API_PROXY_TARGET`       | web | `http://localhost:4000` | Vite dev proxy target for `/api`        |
 | `VITE_API_URL`           | web | `/api`                  | API base URL used by the browser        |
 

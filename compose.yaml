@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: infra/kali/Containerfile
     image: localhost/recon-suite/kali:latest
-    # Fixed name: the API addresses the container by it (KALI_CONTAINER above).
+    # Fixed name: the API addresses the container by it (KALI_CONTAINER in the api service).
     container_name: recon-kali
     init: true
     cap_add:
@@ -23,11 +23,23 @@ services:
     build:
       context: .
       dockerfile: apps/api/Containerfile
+      args:
+        # docker CLI for `docker exec recon-kali ...`; it also speaks Podman's Docker API.
+        WITH_DOCKER_CLI: 'true'
     image: localhost/recon-suite/api:latest
     environment:
-      CONTAINER_CLI: podman
+      # Kali container for arp-scan/nmap. SECURITY: the engine socket mounted below is
+      # root-equivalent on the host; keep the API behind the login and never expose it.
+      # Socket path: Docker /var/run/docker.sock (default), Podman rootful/podman machine
+      # /run/podman/podman.sock, rootless /run/user/<uid>/podman/podman.sock
+      # (podman info --format '{{.Host.RemoteSocket.Path}}'). Set CONTAINER_SOCKET_GID to
+      # the socket's group, or KALI_API_USER=0 for rootless Podman.
+      CONTAINER_CLI: docker
       DOCKER_HOST: unix:///run/container-engine.sock
       KALI_CONTAINER: recon-kali
+      # If recon-kali is stopped the API starts it; if it was removed, the API recreates it
+      # from this locally built image before running the command.
+      KALI_IMAGE: localhost/recon-suite/kali:latest
       PORT: 4000
       CORS_ORIGIN: http://localhost:${WEB_PORT:-8080}
       ALLOW_PRIVATE_TARGETS: ${ALLOW_PRIVATE_TARGETS:-false}
@@ -62,6 +74,7 @@ services:
     volumes:
       - recon-data:/app/data
       - /run/dbus:/run/dbus:ro
+      - '${CONTAINER_SOCKET:-/var/run/docker.sock}:/run/container-engine.sock'
     healthcheck:
       test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:4000/api/health']
       interval: 10s
@@ -72,8 +85,6 @@ services:
     user: '${KALI_API_USER:-node}'
     group_add:
       - '${CONTAINER_SOCKET_GID:-0}'
-    volumes:
-      - '${CONTAINER_SOCKET:-/var/run/docker.sock}:/run/container-engine.sock'
     depends_on:
       kali:
         condition: service_started

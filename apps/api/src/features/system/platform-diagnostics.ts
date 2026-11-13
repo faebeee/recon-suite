@@ -93,7 +93,7 @@ const CHECKS: Record<ToolId, Check> = {
             (h.platform === 'darwin'
               ? 'brew install nmap'
               : 'Install it, e.g. "sudo apt install nmap"') +
-            ', or run it in the Kali container (pnpm compose:up:kali, KALI_CONTAINER).',
+            ', or run it in the Kali container (pnpm compose:up, KALI_CONTAINER).',
         };
   },
 

@@ -50,7 +50,7 @@ export const envSchema = z.object({
   /**
    * Name of a running Kali container. When set, arp-scan and nmap run inside it via
    * `<CONTAINER_CLI> exec` instead of on the API host. Needs access to the container
-   * engine socket, which is root-equivalent on the host (see compose.kali.yaml).
+   * engine socket, which is root-equivalent on the host (see compose.yaml).
    */
   KALI_CONTAINER: optional(
     z
@@ -59,6 +59,19 @@ export const envSchema = z.object({
       .regex(
         /^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$/,
         'Invalid KALI_CONTAINER name',
+      ),
+  ),
+  /**
+   * Image to create KALI_CONTAINER from when it does not exist (stopped containers are
+   * always started). Only a local image is used (`--pull never`). Unset: never create.
+   */
+  KALI_IMAGE: optional(
+    z
+      .string()
+      .trim()
+      .regex(
+        /^[a-zA-Z0-9][a-zA-Z0-9._/:@-]{0,254}$/,
+        'Invalid KALI_IMAGE reference',
       ),
   ),
   /** CLI used to reach KALI_CONTAINER (talks to DOCKER_HOST / the default socket). */

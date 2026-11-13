@@ -42,7 +42,7 @@ describe('diagnosePlatform', () => {
     expect(r.wifi!.fix).toContain('network-manager');
     expect(r.bluetooth!.fix).toContain('bluez');
     expect(r['host-scan']!.fix).toContain('arp-scan');
-    expect(r.nmap!.fix).toContain('compose:up:kali');
+    expect(r.nmap!.fix).toContain('compose:up');
     expect(r.dns!.status).toBe('ok');
   });
 

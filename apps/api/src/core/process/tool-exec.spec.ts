@@ -1,6 +1,9 @@
 import { CommandFailedError, CommandNotFoundError } from './run-command.js';
 import {
   buildKaliExec,
+  buildKaliRun,
+  buildKaliStart,
+  classifyKaliFailure,
   KaliUnavailableError,
   mapKaliError,
 } from './tool-exec.js';
@@ -69,5 +72,38 @@ describe('mapKaliError', () => {
     ) as CommandFailedError;
     expect(mapped.timedOut).toBe(true);
     expect(mapped.command).toBe('nmap');
+  });
+});
+
+describe('classifyKaliFailure', () => {
+  const fail = (stderr: string) =>
+    new CommandFailedError('docker', stderr, false, 1);
+  it.each([
+    ['Error response from daemon: No such container: recon-kali', 'missing'],
+    ['Error: no container with name or ID "recon-kali" found', 'missing'],
+    ['Error response from daemon: container 8403 is not running', 'stopped'],
+    [
+      'Error: can only create exec sessions on running containers: container state improper',
+      'stopped',
+    ],
+    ['Cannot connect to the Docker daemon at unix:///run/x.sock', 'engine'],
+    ['nmap: something else', undefined],
+  ])('%s -> %s', (stderr, expected) => {
+    expect(classifyKaliFailure(fail(stderr))).toBe(expected);
+  });
+});
+
+describe('buildKaliRun / buildKaliStart', () => {
+  it('creates the container with fixed flags and no pull', () => {
+    const run = buildKaliRun(kali, 'localhost/recon-suite/kali:latest');
+    expect(run.args.slice(0, 4)).toEqual(['run', '-d', '--name', 'recon-kali']);
+    expect(run.args).toContain('never');
+    expect(run.args.at(-1)).toBe('localhost/recon-suite/kali:latest');
+    expect(run.args).not.toContain('--privileged');
+    expect(buildKaliStart(kali).args).toEqual(['start', 'recon-kali']);
+  });
+
+  it('rejects image references that could be read as options', () => {
+    expect(() => buildKaliRun(kali, '--privileged')).toThrow(/Invalid image/);
   });
 });

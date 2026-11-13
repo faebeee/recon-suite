@@ -83,9 +83,8 @@ pnpm dev        # api http://localhost:4000, web http://localhost:5173
 ```sh
 pnpm build | typecheck | lint | test
 pnpm --filter @recon/api test:e2e
-pnpm compose:up     # web http://localhost:8080 (nginx + api)
+pnpm compose:up     # web http://localhost:8080 (nginx + api + kali)
 pnpm compose:down
-pnpm compose:up:kali  # same, plus a Kali container for arp-scan/nmap (see compose.kali.yaml)
 ```
 
 Configuration: see `.env.example`, `apps/api/.env.example` and `apps/web/.env.example`.
