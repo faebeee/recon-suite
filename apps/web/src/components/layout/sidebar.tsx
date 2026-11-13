@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { FolderKanban, LayoutGrid, ListChecks } from 'lucide-react';
 import { CATEGORY_LABELS, type ToolCategory } from '@recon/shared';
+import { RuntimeBadge } from '@/components/tool';
 import { TOOLS } from '@/features/registry';
 import { cn } from '@/lib/utils';
 import { toneText } from '@/lib/tones';
@@ -62,9 +63,11 @@ export function Sidebar() {
                     className={cn('size-4 shrink-0', toneText[tool.tone])}
                   />
                   <span className="truncate">{tool.name}</span>
-                  <span className="ml-auto text-[10px] opacity-50">
-                    {tool.code}
-                  </span>
+                  <RuntimeBadge
+                    toolId={tool.id}
+                    compact
+                    className="ml-auto shrink-0"
+                  />
                 </Link>
               );
             })}

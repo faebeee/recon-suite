@@ -1,12 +1,6 @@
-import { TOOL_CATALOG, type ToolId } from '@recon/shared';
+import { TOOL_CATALOG, type SupportStatus, type ToolId } from '@recon/shared';
 
-/**
- * ok:          works fully on this host.
- * limited:     works, but with reduced data or only under extra conditions.
- * unavailable: cannot work until something is installed/changed.
- * disabled:    switched off by configuration.
- */
-export type SupportStatus = 'ok' | 'limited' | 'unavailable' | 'disabled';
+export type { SupportStatus };
 
 export interface ToolSupport {
   id: ToolId;

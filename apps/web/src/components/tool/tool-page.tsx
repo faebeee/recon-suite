@@ -7,6 +7,7 @@ import { getTool } from '@/features/registry';
 import { useActiveEngagement } from '@/lib/engagement';
 import { cn } from '@/lib/utils';
 import { toneText } from '@/lib/tones';
+import { RuntimeDetails } from './runtime-badge';
 
 /** Standard layout for a tool: header from the catalog, then form, then results. */
 export function ToolPage({
@@ -37,6 +38,7 @@ export function ToolPage({
         <p className="max-w-2xl text-sm text-muted-foreground">
           {tool.description}
         </p>
+        <RuntimeDetails toolId={toolId} />
         {tool.scope === 'local' && (
           <p className="flex items-start gap-2 text-xs text-primary/90">
             <HardDrive className="mt-px size-3.5 shrink-0" />

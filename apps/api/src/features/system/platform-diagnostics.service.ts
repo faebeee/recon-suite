@@ -9,12 +9,14 @@ import { ConfigService } from '@nestjs/config';
 import type { Env } from '../../config/env.js';
 import { helperInstalled } from '../../core/native/macos-helper.js';
 import { findExecutable } from '../../core/process/find-executable.js';
+import type { RuntimeInfo } from '@recon/shared';
 import {
   diagnosePlatform,
   formatDiagnosis,
   type HostFacts,
   type ToolSupport,
 } from './platform-diagnostics.js';
+import { describeRuntime } from './tool-runtime.js';
 
 /**
  * Checks at boot which tools this host can run and logs why the others can't
@@ -25,11 +27,13 @@ import {
 export class PlatformDiagnosticsService implements OnApplicationBootstrap {
   private readonly logger = new Logger('PlatformDiagnostics');
   private results: ToolSupport[] = [];
+  private facts?: HostFacts;
 
   constructor(private readonly config: ConfigService<Env, true>) {}
 
   onApplicationBootstrap(): void {
-    this.results = diagnosePlatform(this.collectFacts());
+    this.facts = this.collectFacts();
+    this.results = diagnosePlatform(this.facts);
     const lines = formatDiagnosis(this.results);
     const problems = this.results.filter((r) => r.status !== 'ok').length;
     const summary = problems
@@ -38,6 +42,12 @@ export class PlatformDiagnosticsService implements OnApplicationBootstrap {
     const report = [summary, ...lines].join('\n');
     if (problems) this.logger.warn(report);
     else this.logger.log(report);
+  }
+
+  /** Where and with what each tool runs (facts are gathered once, at boot). */
+  get runtime(): RuntimeInfo {
+    this.facts ??= this.collectFacts();
+    return describeRuntime(this.facts);
   }
 
   /** Last diagnosis (empty before bootstrap). */

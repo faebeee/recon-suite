@@ -6,7 +6,9 @@ import { GlitchText, Panel, Tag } from '@/components/cyber';
 import { TOOLS, toolsAccepting, type ToolEntry } from '@/features/registry';
 import { cn } from '@/lib/utils';
 import { toneBorder, toneText } from '@/lib/tones';
+import { RuntimeBadge } from '@/components/tool';
 import { EngagementPanel } from './engagement-panel';
+import { RuntimePanel } from './runtime-panel';
 
 const CATEGORIES = Object.keys(CATEGORY_LABELS) as ToolCategory[];
 
@@ -30,6 +32,8 @@ export function DashboardPage() {
       <QuickTarget />
 
       <EngagementPanel />
+
+      <RuntimePanel />
 
       {CATEGORIES.map((cat) => {
         const tools = TOOLS.filter((t) => t.category === cat);
@@ -80,9 +84,12 @@ function ToolCard({ tool }: { tool: ToolEntry }) {
         <p className="mt-1 text-xs text-muted-foreground">{tool.tagline}</p>
       </div>
       <div className="mt-auto flex items-center justify-between">
-        <Tag tone={tool.mode === 'active' ? 'yellow' : 'green'}>
-          {tool.mode}
-        </Tag>
+        <span className="flex items-center gap-2">
+          <Tag tone={tool.mode === 'active' ? 'yellow' : 'green'}>
+            {tool.mode}
+          </Tag>
+          <RuntimeBadge toolId={tool.id} />
+        </span>
         <ArrowRight className="size-4 -translate-x-1 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100 text-primary" />
       </div>
     </Link>

@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types.js';
+import { TOOL_IDS, type RuntimeInfo } from '@recon/shared';
 import { AppModule } from './../src/app.module.js';
 import { configureApp } from './../src/app.setup.js';
 
@@ -34,6 +35,21 @@ describe('App (e2e)', () => {
       .get('/api/tools')
       .expect(200)
       .expect((res) => expect(res.body.length).toBeGreaterThan(0)));
+
+  it('GET /api/system/runtime describes where every tool runs', () =>
+    request(app.getHttpServer())
+      .get('/api/system/runtime')
+      .expect(200)
+      .expect((res) => {
+        const body = res.body as RuntimeInfo;
+        expect(body.tools.map((t) => t.id).sort()).toEqual(
+          [...TOOL_IDS].sort(),
+        );
+        for (const t of body.tools) {
+          expect(['host', 'container', 'kali']).toContain(t.location);
+          expect(t.engine).toBeTruthy();
+        }
+      }));
 
   it('rejects invalid input with 400', () =>
     request(app.getHttpServer())
