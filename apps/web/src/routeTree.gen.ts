@@ -12,11 +12,15 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ToolsBluetoothRouteImport } from './routes/tools/bluetooth'
 import { Route as ToolsDnsRouteImport } from './routes/tools/dns'
+import { Route as ToolsEmailSecurityRouteImport } from './routes/tools/email-security'
 import { Route as ToolsHostScanRouteImport } from './routes/tools/host-scan'
 import { Route as ToolsHttpHeadersRouteImport } from './routes/tools/http-headers'
+import { Route as ToolsIpIntelRouteImport } from './routes/tools/ip-intel'
 import { Route as ToolsPortsRouteImport } from './routes/tools/ports'
 import { Route as ToolsSubdomainsRouteImport } from './routes/tools/subdomains'
+import { Route as ToolsTechFingerprintRouteImport } from './routes/tools/tech-fingerprint'
 import { Route as ToolsTlsRouteImport } from './routes/tools/tls'
+import { Route as ToolsWebFilesRouteImport } from './routes/tools/web-files'
 import { Route as ToolsWhoisRouteImport } from './routes/tools/whois'
 import { Route as ToolsWifiRouteImport } from './routes/tools/wifi'
 
@@ -35,6 +39,11 @@ const ToolsDnsRoute = ToolsDnsRouteImport.update({
   path: '/tools/dns',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToolsEmailSecurityRoute = ToolsEmailSecurityRouteImport.update({
+  id: '/tools/email-security',
+  path: '/tools/email-security',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ToolsHostScanRoute = ToolsHostScanRouteImport.update({
   id: '/tools/host-scan',
   path: '/tools/host-scan',
@@ -43,6 +52,11 @@ const ToolsHostScanRoute = ToolsHostScanRouteImport.update({
 const ToolsHttpHeadersRoute = ToolsHttpHeadersRouteImport.update({
   id: '/tools/http-headers',
   path: '/tools/http-headers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsIpIntelRoute = ToolsIpIntelRouteImport.update({
+  id: '/tools/ip-intel',
+  path: '/tools/ip-intel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ToolsPortsRoute = ToolsPortsRouteImport.update({
@@ -55,9 +69,19 @@ const ToolsSubdomainsRoute = ToolsSubdomainsRouteImport.update({
   path: '/tools/subdomains',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToolsTechFingerprintRoute = ToolsTechFingerprintRouteImport.update({
+  id: '/tools/tech-fingerprint',
+  path: '/tools/tech-fingerprint',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ToolsTlsRoute = ToolsTlsRouteImport.update({
   id: '/tools/tls',
   path: '/tools/tls',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsWebFilesRoute = ToolsWebFilesRouteImport.update({
+  id: '/tools/web-files',
+  path: '/tools/web-files',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ToolsWhoisRoute = ToolsWhoisRouteImport.update({
@@ -75,11 +99,15 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/tools/bluetooth': typeof ToolsBluetoothRoute
   '/tools/dns': typeof ToolsDnsRoute
+  '/tools/email-security': typeof ToolsEmailSecurityRoute
   '/tools/host-scan': typeof ToolsHostScanRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
+  '/tools/ip-intel': typeof ToolsIpIntelRoute
   '/tools/ports': typeof ToolsPortsRoute
   '/tools/subdomains': typeof ToolsSubdomainsRoute
+  '/tools/tech-fingerprint': typeof ToolsTechFingerprintRoute
   '/tools/tls': typeof ToolsTlsRoute
+  '/tools/web-files': typeof ToolsWebFilesRoute
   '/tools/whois': typeof ToolsWhoisRoute
   '/tools/wifi': typeof ToolsWifiRoute
 }
@@ -87,11 +115,15 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/tools/bluetooth': typeof ToolsBluetoothRoute
   '/tools/dns': typeof ToolsDnsRoute
+  '/tools/email-security': typeof ToolsEmailSecurityRoute
   '/tools/host-scan': typeof ToolsHostScanRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
+  '/tools/ip-intel': typeof ToolsIpIntelRoute
   '/tools/ports': typeof ToolsPortsRoute
   '/tools/subdomains': typeof ToolsSubdomainsRoute
+  '/tools/tech-fingerprint': typeof ToolsTechFingerprintRoute
   '/tools/tls': typeof ToolsTlsRoute
+  '/tools/web-files': typeof ToolsWebFilesRoute
   '/tools/whois': typeof ToolsWhoisRoute
   '/tools/wifi': typeof ToolsWifiRoute
 }
@@ -100,11 +132,15 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/tools/bluetooth': typeof ToolsBluetoothRoute
   '/tools/dns': typeof ToolsDnsRoute
+  '/tools/email-security': typeof ToolsEmailSecurityRoute
   '/tools/host-scan': typeof ToolsHostScanRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
+  '/tools/ip-intel': typeof ToolsIpIntelRoute
   '/tools/ports': typeof ToolsPortsRoute
   '/tools/subdomains': typeof ToolsSubdomainsRoute
+  '/tools/tech-fingerprint': typeof ToolsTechFingerprintRoute
   '/tools/tls': typeof ToolsTlsRoute
+  '/tools/web-files': typeof ToolsWebFilesRoute
   '/tools/whois': typeof ToolsWhoisRoute
   '/tools/wifi': typeof ToolsWifiRoute
 }
@@ -114,11 +150,15 @@ export interface FileRouteTypes {
     | '/'
     | '/tools/bluetooth'
     | '/tools/dns'
+    | '/tools/email-security'
     | '/tools/host-scan'
     | '/tools/http-headers'
+    | '/tools/ip-intel'
     | '/tools/ports'
     | '/tools/subdomains'
+    | '/tools/tech-fingerprint'
     | '/tools/tls'
+    | '/tools/web-files'
     | '/tools/whois'
     | '/tools/wifi'
   fileRoutesByTo: FileRoutesByTo
@@ -126,11 +166,15 @@ export interface FileRouteTypes {
     | '/'
     | '/tools/bluetooth'
     | '/tools/dns'
+    | '/tools/email-security'
     | '/tools/host-scan'
     | '/tools/http-headers'
+    | '/tools/ip-intel'
     | '/tools/ports'
     | '/tools/subdomains'
+    | '/tools/tech-fingerprint'
     | '/tools/tls'
+    | '/tools/web-files'
     | '/tools/whois'
     | '/tools/wifi'
   id:
@@ -138,11 +182,15 @@ export interface FileRouteTypes {
     | '/'
     | '/tools/bluetooth'
     | '/tools/dns'
+    | '/tools/email-security'
     | '/tools/host-scan'
     | '/tools/http-headers'
+    | '/tools/ip-intel'
     | '/tools/ports'
     | '/tools/subdomains'
+    | '/tools/tech-fingerprint'
     | '/tools/tls'
+    | '/tools/web-files'
     | '/tools/whois'
     | '/tools/wifi'
   fileRoutesById: FileRoutesById
@@ -151,11 +199,15 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ToolsBluetoothRoute: typeof ToolsBluetoothRoute
   ToolsDnsRoute: typeof ToolsDnsRoute
+  ToolsEmailSecurityRoute: typeof ToolsEmailSecurityRoute
   ToolsHostScanRoute: typeof ToolsHostScanRoute
   ToolsHttpHeadersRoute: typeof ToolsHttpHeadersRoute
+  ToolsIpIntelRoute: typeof ToolsIpIntelRoute
   ToolsPortsRoute: typeof ToolsPortsRoute
   ToolsSubdomainsRoute: typeof ToolsSubdomainsRoute
+  ToolsTechFingerprintRoute: typeof ToolsTechFingerprintRoute
   ToolsTlsRoute: typeof ToolsTlsRoute
+  ToolsWebFilesRoute: typeof ToolsWebFilesRoute
   ToolsWhoisRoute: typeof ToolsWhoisRoute
   ToolsWifiRoute: typeof ToolsWifiRoute
 }
@@ -183,6 +235,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToolsDnsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tools/email-security': {
+      id: '/tools/email-security'
+      path: '/tools/email-security'
+      fullPath: '/tools/email-security'
+      preLoaderRoute: typeof ToolsEmailSecurityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tools/host-scan': {
       id: '/tools/host-scan'
       path: '/tools/host-scan'
@@ -195,6 +254,13 @@ declare module '@tanstack/react-router' {
       path: '/tools/http-headers'
       fullPath: '/tools/http-headers'
       preLoaderRoute: typeof ToolsHttpHeadersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/ip-intel': {
+      id: '/tools/ip-intel'
+      path: '/tools/ip-intel'
+      fullPath: '/tools/ip-intel'
+      preLoaderRoute: typeof ToolsIpIntelRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tools/ports': {
@@ -211,11 +277,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToolsSubdomainsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tools/tech-fingerprint': {
+      id: '/tools/tech-fingerprint'
+      path: '/tools/tech-fingerprint'
+      fullPath: '/tools/tech-fingerprint'
+      preLoaderRoute: typeof ToolsTechFingerprintRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tools/tls': {
       id: '/tools/tls'
       path: '/tools/tls'
       fullPath: '/tools/tls'
       preLoaderRoute: typeof ToolsTlsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/web-files': {
+      id: '/tools/web-files'
+      path: '/tools/web-files'
+      fullPath: '/tools/web-files'
+      preLoaderRoute: typeof ToolsWebFilesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tools/whois': {
@@ -239,11 +319,15 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ToolsBluetoothRoute: ToolsBluetoothRoute,
   ToolsDnsRoute: ToolsDnsRoute,
+  ToolsEmailSecurityRoute: ToolsEmailSecurityRoute,
   ToolsHostScanRoute: ToolsHostScanRoute,
   ToolsHttpHeadersRoute: ToolsHttpHeadersRoute,
+  ToolsIpIntelRoute: ToolsIpIntelRoute,
   ToolsPortsRoute: ToolsPortsRoute,
   ToolsSubdomainsRoute: ToolsSubdomainsRoute,
+  ToolsTechFingerprintRoute: ToolsTechFingerprintRoute,
   ToolsTlsRoute: ToolsTlsRoute,
+  ToolsWebFilesRoute: ToolsWebFilesRoute,
   ToolsWhoisRoute: ToolsWhoisRoute,
   ToolsWifiRoute: ToolsWifiRoute,
 }

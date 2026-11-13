@@ -1,3 +1,4 @@
+export * from './common/finding.js';
 export * from './common/health.js';
 export * from './common/target.js';
 export * from './common/tool.js';
@@ -7,6 +8,10 @@ export * from './io.js';
 export * from './features/dns.js';
 export * from './features/whois.js';
 export * from './features/subdomains.js';
+export * from './features/email-security.js';
+export * from './features/ip-intel.js';
+export * from './features/web-files.js';
+export * from './features/tech-fingerprint.js';
 export * from './features/http-headers.js';
 export * from './features/tls.js';
 export * from './features/ports.js';

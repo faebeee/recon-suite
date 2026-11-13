@@ -15,7 +15,8 @@ export class WhoisService {
 
   async lookup({ target }: WhoisParams): Promise<WhoisOutput> {
     if (isIpLiteral(target)) {
-      const url = `${RDAP_BOOTSTRAP}/ip/${encodeURIComponent(target)}`;
+      // Validated IP literal; rdap.org rejects percent-encoded IPv6 colons.
+      const url = `${RDAP_BOOTSTRAP}/ip/${target}`;
       const raw = await this.fetchRdap(url);
       if (!raw) throw new NotFoundException(`No RDAP record for ${target}`);
       return parseRdap(raw, 'ip', target, url);

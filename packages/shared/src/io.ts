@@ -11,6 +11,26 @@ import {
 } from './features/wifi.js';
 import type { ToolId } from './common/tool.js';
 import {
+  emailSecurityInputSchema,
+  type EmailSecurityInput,
+  type EmailSecurityOutput,
+} from './features/email-security.js';
+import {
+  ipIntelInputSchema,
+  type IpIntelInput,
+  type IpIntelOutput,
+} from './features/ip-intel.js';
+import {
+  techFingerprintInputSchema,
+  type TechFingerprintInput,
+  type TechFingerprintOutput,
+} from './features/tech-fingerprint.js';
+import {
+  webFilesInputSchema,
+  type WebFilesInput,
+  type WebFilesOutput,
+} from './features/web-files.js';
+import {
   dnsInputSchema,
   type DnsInput,
   type DnsOutput,
@@ -51,6 +71,10 @@ export const TOOL_INPUT_SCHEMAS = {
   dns: dnsInputSchema,
   whois: whoisInputSchema,
   subdomains: subdomainsInputSchema,
+  'email-security': emailSecurityInputSchema,
+  'ip-intel': ipIntelInputSchema,
+  'web-files': webFilesInputSchema,
+  'tech-fingerprint': techFingerprintInputSchema,
   'http-headers': httpHeadersInputSchema,
   tls: tlsInputSchema,
   ports: portsInputSchema,
@@ -64,6 +88,13 @@ export interface ToolIO {
   dns: { input: DnsInput; output: DnsOutput };
   whois: { input: WhoisInput; output: WhoisOutput };
   subdomains: { input: SubdomainsInput; output: SubdomainsOutput };
+  'email-security': { input: EmailSecurityInput; output: EmailSecurityOutput };
+  'ip-intel': { input: IpIntelInput; output: IpIntelOutput };
+  'web-files': { input: WebFilesInput; output: WebFilesOutput };
+  'tech-fingerprint': {
+    input: TechFingerprintInput;
+    output: TechFingerprintOutput;
+  };
   'http-headers': { input: HttpHeadersInput; output: HttpHeadersOutput };
   tls: { input: TlsInput; output: TlsOutput };
   ports: { input: PortsInput; output: PortsOutput };

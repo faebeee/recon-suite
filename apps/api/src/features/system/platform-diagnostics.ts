@@ -43,8 +43,12 @@ const CHECKS: Record<ToolId, Check> = {
   dns: () => OK,
   whois: () => OK,
   subdomains: () => OK,
+  'email-security': () => OK,
+  'ip-intel': () => OK,
   'http-headers': () => OK,
   tls: () => OK,
+  'web-files': () => OK,
+  'tech-fingerprint': () => OK,
   ports: () => OK,
 
   'host-scan': (h) => {

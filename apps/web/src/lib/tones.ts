@@ -32,3 +32,18 @@ export const toneSoftBg: Record<Tone, string> = {
   green: 'bg-neon-green/10',
   muted: 'bg-muted',
 };
+
+/** Tone per graded finding status (`Finding` from @recon/shared). */
+export const FINDING_TONE = {
+  pass: 'green',
+  warn: 'yellow',
+  fail: 'magenta',
+  info: 'cyan',
+} as const satisfies Record<string, Tone>;
+
+/** Tone for letter grades (A+ ... F). */
+export function gradeTone(grade: string): Tone {
+  if (grade.startsWith('A')) return 'green';
+  if (grade === 'B' || grade === 'C') return 'yellow';
+  return 'magenta';
+}

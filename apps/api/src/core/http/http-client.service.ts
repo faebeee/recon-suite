@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Agent, fetch, type Response } from 'undici';
 import { TargetGuardService } from '../net/target-guard.service.js';
+import { followRedirects, type FollowedResponse } from './follow-redirects.js';
 
 export interface RequestOptions {
   method?: string;
@@ -46,6 +47,22 @@ export class HttpClientService implements OnModuleDestroy {
     // Early, readable rejection for IP literals (lookup isn't called for those).
     await this.guard.resolve(hostname.replace(/^\[|\]$/g, ''));
     return this.send(this.guardedAgent, url, opts);
+  }
+
+  /**
+   * Request to a user-supplied URL, following redirects hop by hop so every hop is guarded.
+   * Use this instead of `redirect: 'follow'` for targets.
+   */
+  targetFollow(
+    url: string,
+    opts: Omit<RequestOptions, 'redirect'> & { maxRedirects?: number } = {},
+  ): Promise<FollowedResponse> {
+    const { maxRedirects, ...rest } = opts;
+    return followRedirects(
+      (u) => this.target(u, { ...rest, redirect: 'manual' }),
+      url,
+      maxRedirects,
+    );
   }
 
   /** Request to a fixed, trusted third-party API. */

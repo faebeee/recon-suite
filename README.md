@@ -3,6 +3,8 @@
 A collection of reconnaissance tools with a cyberpunk HUD interface. Built as a
 Turborepo monorepo with a feature-driven architecture.
 
+![Recon Suite: the DNS Recon tool in the default Cyber theme](docs/screenshot.png)
+
 > For authorised security assessments only. Active modules connect directly to the
 > target; only probe systems you own or have permission to test.
 
@@ -12,16 +14,35 @@ Turborepo monorepo with a feature-driven architecture.
 | ---- | ----------------- | ------- | ---------------------------------------------------------------------------------------- |
 | D-01 | DNS Recon         | passive | A, AAAA, CNAME, MX, NS, TXT, SOA, CAA via Cloudflare/Google/Quad9/system                 |
 | D-02 | Subdomain Finder  | passive | Subdomains from certificate transparency logs (crt.sh)                                   |
+| D-03 | Email Security    | passive | SPF (nested lookup count), DMARC, DKIM keys, MTA-STS, TLS-RPT, BIMI, with a grade        |
 | I-01 | WHOIS / RDAP      | passive | Registrar, lifecycle, status, nameservers; IP network ownership                          |
+| I-02 | IP Intel          | passive | Reverse DNS + forward confirmation, ASN (Team Cymru), RDAP network, CDN/cloud provider   |
 | W-01 | HTTP Inspector    | active  | Redirect chain, headers, security-header grade, disclosures                              |
 | W-02 | TLS Inspector     | active  | Protocol, cipher, certificate, SANs, chain, expiry                                       |
+| W-03 | Web Files         | active  | robots.txt (notable paths), sitemap.xml, security.txt (RFC 9116 checks), humans.txt      |
+| W-04 | Tech Fingerprint  | active  | Server, language, framework, CMS, CDN, libraries from headers, cookies and HTML          |
 | N-01 | Port Probe        | active  | TCP connect check on preset or custom ports (max 64)                                     |
+| N-02 | Host Scan         | local   | ARP discovery of live hosts and MAC vendors on the API host's subnet (arp-scan)          |
 | R-01 | WiFi Scanner      | local   | Nearby WiFi networks seen by the API host: SSID, band, channel, security, signal         |
 | R-02 | Bluetooth Scanner | local   | BLE advertisements + Classic inquiry: name, vendor, class, RSSI, services (macOS, Linux) |
 
 Results link to each other ("pivots"): a hostname found in DNS, CT logs or a certificate
 can be opened in any other compatible tool with one click. Every tool also accepts
-`?target=` in the URL, e.g. `/tools/dns?target=example.com`.
+`?target=` in the URL, e.g. `/tools/dns?target=example.com`. Two themes are built in:
+**Cyber** (default) and **Nothing** (monochrome, dot-matrix), switchable in the top bar.
+
+## Documentation
+
+| Page                                       | Contents                                              |
+| ------------------------------------------ | ----------------------------------------------------- |
+| [Getting started](docs/getting-started.md) | Install, development, containers, troubleshooting     |
+| [Using the UI](docs/using-the-ui.md)       | Tool pages, pivots, deep links, themes                |
+| [Tools reference](docs/tools.md)           | Every tool with options, data sources and limits      |
+| [HTTP API](docs/api.md)                    | Endpoints, response envelope, errors, `curl` examples |
+| [Configuration](docs/configuration.md)     | Environment variables                                 |
+| [Local tools setup](docs/local-tools.md)   | WiFi, Bluetooth, Host Scan per OS; macOS helper       |
+| [Security model](docs/security.md)         | Target guard, limits, deployment advice               |
+| [Architecture](docs/architecture.md)       | Monorepo, feature slices, request flow                |
 
 ## Stack
 
@@ -49,19 +70,9 @@ pnpm compose:down
 
 Configuration: see `.env.example`, `apps/api/.env.example` and `apps/web/.env.example`.
 
-> **WiFi Scanner** is a local tool: it lists what the wireless adapter of the machine running
-> the API can see (macOS `system_profiler`, Linux `nmcli`, Windows `netsh`). Use it with
-> `pnpm dev`; it is disabled by default in the Podman setup because the container has no
-> wireless adapter and no view of the host's NetworkManager. To enable it on Linux, set
-> `LOCAL_TOOLS_ENABLED=true` and uncomment the `network_mode: host` / `cap_add` / D-Bus
-> volume lines for the `api` service in `compose.yaml` (see the comments there); this shares
-> the host's network namespace with the container and only works when NetworkManager runs
-> on the host.
->
-> On **macOS** run `pnpm setup:macos-helper` once and click **Allow** twice (Location, then
-> Bluetooth). This builds `ReconHelper` (`apps/api/native/macos`, Swift), which macOS requires for
-> unredacted WiFi names/BSSIDs and for any Bluetooth scan. Without it WiFi names are redacted and
-> Bluetooth only lists paired devices. Your location itself is never read.
+> **Local tools** (WiFi, Bluetooth, Host Scan) inspect the machine running the API and are off
+> by default in containers. On macOS run `pnpm setup:macos-helper` once. Details per OS:
+> [docs/local-tools.md](docs/local-tools.md).
 
 ## Security model
 
@@ -70,6 +81,8 @@ Configuration: see `.env.example`, `apps/api/.env.example` and `apps/web/.env.ex
   and against DNS rebinding). Set `ALLOW_PRIVATE_TARGETS=true` only for local, single-user use.
 - Timeouts, response size limits, port count limits and global rate limiting
   (`THROTTLE_LIMIT` requests/min) apply to all tools.
+- The API has no authentication: keep it on localhost or behind an authenticating proxy.
+  See [docs/security.md](docs/security.md).
 
 ## Architecture & agentic development
 
