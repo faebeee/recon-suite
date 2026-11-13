@@ -27,9 +27,22 @@ style `new-york`, Radix), lucide-react icons, Zod (shared schemas from `@recon/s
 - Server state goes through TanStack Query only. No ad-hoc `fetch` in components; use
   `apiFetch`/`apiPost` from `lib/api-client.ts`.
 
-## Design system: cyberpunk HUD
+## Design system: cyberpunk HUD (+ themes)
 
-Dark-only theme. All tokens are defined in `src/styles.css` (see the header comment there).
+Dark themes only. The default `cyber` theme's tokens are defined in `src/styles.css` (see the
+header comment there). Alternative themes override those tokens under
+`:root[data-theme='<id>']` in `src/themes/<id>.css`:
+
+- `nothing`: Nothing-inspired. True black, white primary, one red accent, dot-matrix `font-dot`
+  (Doto), dot grid, rounded panels, pill buttons, no glow/scanlines/glitch.
+
+Theme switching lives in `lib/theme.ts` (`THEMES`, `useTheme`) and the `ThemeSwitcher` in the
+top bar; the choice is stored in `localStorage` (`recon-theme`) and applied before first paint
+by the inline script in `index.html`. To add a theme: add it to `THEMES`, the inline script's
+allowlist, create `src/themes/<id>.css` and import it in `styles.css`. Theme files target
+components through stable hooks (`data-slot="panel"`, `data-tone`, `.panel-corner`,
+`data-slot="meter-segment"`, `data-slot="button"`), never through Tailwind class names.
+Features stay theme-agnostic: keep using tones and tokens.
 
 **Colour semantics (use the tone, not the hue):**
 
@@ -45,8 +58,9 @@ Map domain states to a `Tone` (see `STATUS_TONE`, `gradeTone`, `expiryTone`) and
 `toneText` / `toneBorder` / `toneBg` / `toneSoftBg` maps from `lib/tones.ts`. **Never** use raw
 colour classes (`text-red-500`, hex values) in features.
 
-**Typography:** `font-sans` is JetBrains Mono (all text). `font-display` (Orbitron) only for
-headings, grades and big numbers. Labels are tiny uppercase with wide tracking:
+**Typography:** `font-sans` is JetBrains Mono (all text). `font-display` (Orbitron) for
+headings. `font-dot` for large hero text, page titles and grades (Orbitron in `cyber`, dot-matrix
+in `nothing`, so never use it below ~20px). Labels are tiny uppercase with wide tracking:
 `text-[10px] tracking-[0.2em] uppercase text-muted-foreground`.
 
 **Primitives (`components/cyber`):**

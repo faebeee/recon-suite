@@ -1,0 +1,154 @@
+/*
+ * NOTHING theme
+ * --------------------------------------------------------------
+ * Inspired by the Nothing design language: true black, white type, one red
+ * accent, dot-matrix display type, dot grids, soft rounded cards, pill buttons,
+ * no glow, no scanlines, no glitch.
+ *
+ * Tone mapping (semantics stay the same, only the hue changes):
+ *   cyan    -> white   primary, focus, info
+ *   magenta -> red     errors, critical (Nothing's signature red, lifted for contrast)
+ *   yellow  -> amber   warnings
+ *   green   -> mint    success / pass
+ *
+ * Everything is scoped to :root[data-theme='nothing']. Token overrides win over
+ * :root by specificity; the rule overrides below are unlayered on purpose so
+ * they beat Tailwind's base/utilities layers without !important.
+ */
+
+:root[data-theme='nothing'] {
+  color-scheme: dark;
+
+  --theme-font-display: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --theme-font-dot: 'Doto Variable', 'JetBrains Mono Variable', monospace;
+
+  --neon-cyan: oklch(0.97 0 0);
+  --neon-magenta: oklch(0.64 0.22 27);
+  --neon-yellow: oklch(0.86 0.13 85);
+  --neon-green: oklch(0.83 0.12 160);
+
+  --radius: 0.75rem;
+  --background: oklch(0 0 0);
+  --foreground: oklch(0.96 0 0);
+  --card: oklch(0.15 0 0);
+  --card-foreground: oklch(0.96 0 0);
+  --popover: oklch(0.17 0 0);
+  --popover-foreground: oklch(0.96 0 0);
+  --primary: var(--neon-cyan);
+  --primary-foreground: oklch(0 0 0);
+  --secondary: oklch(0.22 0 0);
+  --secondary-foreground: oklch(0.96 0 0);
+  --muted: oklch(0.21 0 0);
+  --muted-foreground: oklch(0.7 0 0);
+  --accent: oklch(1 0 0 / 8%);
+  --accent-foreground: oklch(0.96 0 0);
+  --destructive: var(--neon-magenta);
+  --border: oklch(1 0 0 / 13%);
+  --input: oklch(1 0 0 / 20%);
+  --ring: oklch(0.97 0 0);
+  --chart-1: oklch(0.97 0 0);
+  --chart-2: var(--neon-magenta);
+  --chart-3: oklch(0.7 0 0);
+  --chart-4: oklch(0.5 0 0);
+  --chart-5: oklch(0.35 0 0);
+  --sidebar: oklch(0 0 0);
+  --sidebar-foreground: oklch(0.96 0 0);
+  --sidebar-primary: oklch(0.97 0 0);
+  --sidebar-primary-foreground: oklch(0 0 0);
+  --sidebar-accent: oklch(1 0 0 / 7%);
+  --sidebar-accent-foreground: oklch(0.97 0 0);
+  --sidebar-border: oklch(1 0 0 / 13%);
+  --sidebar-ring: oklch(0.97 0 0);
+}
+
+/* ---- Base ------------------------------------------------------------- */
+
+:root[data-theme='nothing'] body {
+  background-image: none;
+}
+:root[data-theme='nothing'] body::after {
+  display: none;
+}
+:root[data-theme='nothing'] ::selection {
+  background: var(--neon-magenta);
+  color: white;
+}
+:root[data-theme='nothing'] h1,
+:root[data-theme='nothing'] h2,
+:root[data-theme='nothing'] h3 {
+  letter-spacing: 0.06em;
+}
+:root[data-theme='nothing'] ::-webkit-scrollbar-thumb {
+  background: oklch(1 0 0 / 20%);
+  border-radius: 9999px;
+}
+
+/* ---- Effects: flat, no neon ----------------------------------------- */
+
+:root[data-theme='nothing'] .text-glow,
+:root[data-theme='nothing'] .group:hover .group-hover\:text-glow {
+  text-shadow: none;
+}
+:root[data-theme='nothing'] .box-glow {
+  box-shadow: 0 0 0 1px currentColor;
+}
+:root[data-theme='nothing'] .animate-flicker {
+  animation: none;
+}
+:root[data-theme='nothing'] .glitch::before,
+:root[data-theme='nothing'] .glitch::after {
+  display: none;
+}
+
+/* Dot grid instead of the HUD line grid. */
+:root[data-theme='nothing'] .bg-grid {
+  background-image: radial-gradient(
+    circle,
+    oklch(1 0 0 / 11%) 1px,
+    transparent 1.5px
+  );
+  background-size: 18px 18px;
+}
+
+/* Rounded shapes instead of clipped corners. */
+:root[data-theme='nothing'] .clip-corner {
+  clip-path: none;
+  border-radius: 1.25rem;
+}
+:root[data-theme='nothing'] .clip-corner-sm {
+  clip-path: none;
+}
+
+/* ---- Components ------------------------------------------------------- */
+
+/* Panels: soft filled cards; neutral (cyan) panels drop the tone border. */
+:root[data-theme='nothing'] [data-slot='panel'] {
+  border-radius: 1.25rem;
+  background-color: var(--card);
+  backdrop-filter: none;
+}
+:root[data-theme='nothing'] [data-slot='panel'][data-tone='cyan'] {
+  border-color: var(--border);
+}
+:root[data-theme='nothing'] .panel-corner {
+  display: none;
+}
+
+/* Pill buttons, no glow on hover. */
+:root[data-theme='nothing'] [data-slot='button'] {
+  border-radius: 9999px;
+}
+:root[data-theme='nothing'] [data-slot='button']:hover {
+  box-shadow: none;
+}
+:root[data-theme='nothing'] [data-slot='button'][data-variant='default']:hover {
+  /* Nothing red (#d71921): darker than the text red so white stays >= 4.5:1. */
+  background-color: oklch(0.56 0.21 27);
+  color: white;
+}
+
+/* Meter: a row of dots/pills instead of glowing bars. */
+:root[data-theme='nothing'] [data-slot='meter-segment'] {
+  border-radius: 9999px;
+  box-shadow: none;
+}

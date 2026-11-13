@@ -75,7 +75,7 @@ export function TlsResults({ data }: { data: TlsOutput }) {
       <Panel title="Validity" tone={tone}>
         <p
           className={cn(
-            'font-display text-4xl font-black text-glow',
+            'font-dot text-4xl font-black text-glow',
             toneText[tone],
           )}
         >

@@ -28,7 +28,7 @@ export function ToolPage({
             {tool.mode}
           </Tag>
         </div>
-        <h1 className="flex items-center gap-3 text-2xl font-bold uppercase sm:text-3xl">
+        <h1 className="flex items-center font-dot gap-3 text-2xl font-bold uppercase sm:text-3xl">
           <Icon className={cn('size-7 shrink-0', toneText[tool.tone])} />
           <span className="text-glow">{tool.name}</span>
         </h1>

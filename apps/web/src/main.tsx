@@ -4,6 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from '@tanstack/react-router';
 import '@fontsource-variable/jetbrains-mono';
 import '@fontsource-variable/orbitron';
+import '@fontsource-variable/doto';
 import './styles.css';
 import { getRouter, queryClient } from './router';
 

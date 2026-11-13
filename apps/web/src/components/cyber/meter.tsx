@@ -25,6 +25,7 @@ export function Meter({
       {Array.from({ length: segments }, (_, i) => (
         <span
           key={i}
+          data-slot="meter-segment"
           className={cn(
             'h-2 flex-1',
             i < filled

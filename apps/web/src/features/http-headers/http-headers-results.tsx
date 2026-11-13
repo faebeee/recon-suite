@@ -41,7 +41,7 @@ export function HttpHeadersResults({ data }: { data: HttpHeadersOutput }) {
       >
         <span
           className={cn(
-            'font-display text-7xl font-black text-glow',
+            'font-dot text-7xl font-black text-glow',
             toneText[tone],
           )}
         >

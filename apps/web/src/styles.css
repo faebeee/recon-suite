@@ -1,16 +1,20 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
+@import './themes/nothing.css';
 
 /*
  * RECON//SUITE design system
  * --------------------------------------------------------------
- * Dark-only cyberpunk theme. Use tokens, never raw colors:
+ * Default theme: cyberpunk HUD (plain :root). Alternative themes override the
+ * tokens under :root[data-theme='<id>'] in src/themes/<id>.css (see lib/theme.ts).
+ * Use tokens, never raw colors:
  *   neon-cyan     primary actions, focus, links, "info"
  *   neon-magenta  accent, danger, errors, "open" findings
  *   neon-yellow   warnings
  *   neon-green    success / pass
- * Fonts: font-sans (JetBrains Mono, all UI text), font-display (Orbitron, headings)
+ * Fonts: font-sans (JetBrains Mono, all UI text), font-display (Orbitron, headings),
+ *        font-dot (large hero text, grades; dot-matrix in the Nothing theme)
  * Effects: text-glow, box-glow, clip-corner(-sm), bg-grid, animate-flicker, glitch
  */
 
@@ -19,7 +23,8 @@
 @theme inline {
   --font-sans: 'JetBrains Mono Variable', ui-monospace, monospace;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
-  --font-display: 'Orbitron Variable', 'JetBrains Mono Variable', sans-serif;
+  --font-display: var(--theme-font-display);
+  --font-dot: var(--theme-font-dot);
 
   --color-neon-cyan: var(--neon-cyan);
   --color-neon-magenta: var(--neon-magenta);
@@ -74,6 +79,10 @@
 
 :root {
   color-scheme: dark;
+
+  --theme-font-display:
+    'Orbitron Variable', 'JetBrains Mono Variable', sans-serif;
+  --theme-font-dot: var(--theme-font-display);
 
   --neon-cyan: oklch(0.87 0.16 195);
   --neon-magenta: oklch(0.67 0.27 355);

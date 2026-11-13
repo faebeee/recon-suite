@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { ApiStatus } from '@/features/system';
+import { ThemeSwitcher } from './theme-switcher';
 
 function Clock() {
   const [now, setNow] = useState(() => new Date());
@@ -34,6 +35,7 @@ export function TopBar() {
           <Clock />
         </span>
         <ApiStatus />
+        <ThemeSwitcher />
       </div>
     </header>
   );

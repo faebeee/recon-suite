@@ -16,7 +16,7 @@ export function DashboardPage() {
         <p className="text-[11px] tracking-[0.4em] text-neon-magenta uppercase">
           {'>'} reconnaissance toolkit
         </p>
-        <h1 className="font-display text-4xl font-black uppercase sm:text-6xl">
+        <h1 className="font-dot text-4xl font-black uppercase sm:text-6xl">
           <GlitchText text="Recon//Suite" className="text-primary text-glow" />
         </h1>
         <p className="max-w-xl text-sm text-muted-foreground">

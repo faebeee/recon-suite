@@ -25,6 +25,8 @@ export function Panel({
 }: PanelProps) {
   return (
     <section
+      data-slot="panel"
+      data-tone={tone}
       className={cn(
         'relative border bg-card/70 backdrop-blur-sm',
         toneBorder[tone],
@@ -51,6 +53,7 @@ export function Panel({
 
 function Corners({ tone }: { tone: Tone }) {
   const base = cn(
+    'panel-corner',
     'pointer-events-none absolute size-2.5 border-current',
     toneText[tone],
   );
