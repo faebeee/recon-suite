@@ -99,3 +99,26 @@ export const sessions = sqliteTable(
   },
   (t) => [index('sessions_user_idx').on(t.userId)],
 );
+
+/**
+ * The most recent run of each tool (one row per tool, replaced by the next run), so tool pages
+ * can show it again later. Inserted as `running` when the request starts and updated when it
+ * finishes; independent of engagements (their history lives in `runs`).
+ */
+export const toolLastRuns = sqliteTable('tool_last_runs', {
+  tool: text().primaryKey(),
+  /** Execution id: a finishing run only updates the row if it is still the latest one. */
+  id: text().notNull(),
+  target: text().notNull(),
+  /** JSON: request body. */
+  input: text().notNull(),
+  status: text({ enum: ['running', 'ok', 'error'] }).notNull(),
+  startedAt: text('started_at').notNull(),
+  finishedAt: text('finished_at'),
+  durationMs: integer('duration_ms'),
+  /** JSON: full ToolResult envelope (ok runs only). */
+  result: text(),
+  errorStatus: integer('error_status'),
+  errorMessage: text('error_message'),
+  engagementId: text('engagement_id'),
+});

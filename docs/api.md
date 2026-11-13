@@ -11,17 +11,18 @@ The web UI is a client of a plain JSON API. You can call it directly from script
 
 ## Endpoints
 
-| Method | Path                                                      | Purpose                                                                   |
-| ------ | --------------------------------------------------------- | ------------------------------------------------------------------------- |
-| GET    | `/api/health`                                             | Health check (`status`, `service`, `version`, `timestamp`), public        |
-| GET    | `/api/tools`                                              | Catalog: id, code, name, description, category, mode, scope of every tool |
-| POST   | `/api/tools/<id>`                                         | Run a tool                                                                |
-| GET    | `/api/tools/wifi/interfaces`                              | WiFi interfaces for the WiFi Scanner's `interface` option                 |
-| GET    | `/api/tools/host-scan/interfaces`                         | Network interfaces for Host Scan's `interface` option                     |
-| GET    | `/api/auth/status`                                        | `{ mode, authenticated }`, public                                         |
-| POST   | `/api/auth/login`                                         | `{ password }`, sets the session cookie, public                           |
-| POST   | `/api/auth/logout`                                        | Ends the session                                                          |
-| ...    | `/api/engagements/...`, `/api/runs/...`, `/api/notes/...` | [Engagement workspace](#engagements)                                      |
+| Method | Path                                                      | Purpose                                                                    |
+| ------ | --------------------------------------------------------- | -------------------------------------------------------------------------- |
+| GET    | `/api/health`                                             | Health check (`status`, `service`, `version`, `timestamp`), public         |
+| GET    | `/api/tools`                                              | Catalog: id, code, name, description, category, mode, scope of every tool  |
+| POST   | `/api/tools/<id>`                                         | Run a tool                                                                 |
+| GET    | `/api/tools/wifi/interfaces`                              | WiFi interfaces for the WiFi Scanner's `interface` option                  |
+| GET    | `/api/tools/host-scan/interfaces`                         | Network interfaces for Host Scan's `interface` option                      |
+| GET    | `/api/last-runs/<id>`                                     | `{ run }`: the tool's most recent run (`running`, `ok` or `error`) or null |
+| GET    | `/api/auth/status`                                        | `{ mode, authenticated }`, public                                          |
+| POST   | `/api/auth/login`                                         | `{ password }`, sets the session cookie, public                            |
+| POST   | `/api/auth/logout`                                        | Ends the session                                                           |
+| ...    | `/api/engagements/...`, `/api/runs/...`, `/api/notes/...` | [Engagement workspace](#engagements)                                       |
 
 Tool ids: `dns`, `subdomains`, `email-security`, `zone-transfer`, `dnssec`, `takeover`, `whois`,
 `ip-intel`, `cve-lookup`, `cert-search`, `reverse-ip`, `cloud-storage`, `http-headers`, `tls`,

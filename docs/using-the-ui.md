@@ -30,6 +30,11 @@ Every remote tool page has the same structure:
 3. **Output:** a loading terminal while the tool runs, then the results. A meta bar shows the
    target, start time and duration. The **Raw JSON** tab shows the full API response, with a
    copy button.
+4. **Last run:** the API stores each tool's most recent run in the database. When you open a
+   tool page again (after navigating away, reloading or from another browser), it shows that
+   run with its target and a **Run again** button. A scan that is still running keeps going
+   when you leave; coming back shows the loading terminal until it finishes. Tool options
+   (ports, resolver, ...) are not restored.
 
 Local tools (WiFi, Bluetooth, Host Scan) have no target field. They show a scan panel instead,
 and options such as the network interface.

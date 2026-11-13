@@ -1,14 +1,22 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { useSearch } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import {
+  lastRunEndpoint,
   TOOL_INPUT_SCHEMAS,
   toolEndpoint,
+  type LastToolRun,
+  type LastToolRunResponse,
   type ToolId,
   type ToolIO,
   type ToolResult,
 } from '@recon/shared';
-import { ApiError, apiPost } from './api-client';
+import { ApiError, apiFetch, apiPost } from './api-client';
 import { ENGAGEMENTS_KEY, runQuery } from './engagement';
 
 interface Options<Id extends ToolId> {
@@ -17,7 +25,7 @@ interface Options<Id extends ToolId> {
   buildInput: (target: string) => ToolIO[Id]['input'];
 }
 
-/** Shown above a result that was loaded from an engagement's history. */
+/** Shown above a result that was loaded from an engagement's history or the last run. */
 export interface SavedRunInfo {
   startedAt: string;
   runAgain: () => void;
@@ -31,10 +39,31 @@ export interface RunView<T> {
   saved?: SavedRunInfo;
 }
 
+/** How often a page polls a run that is still in progress on the API. */
+const RUNNING_POLL_MS = 2_000;
+
+/**
+ * The tool's most recent run, stored by the API (`tool_last_runs`). Polled while it is still
+ * running, e.g. after leaving the page during a long nmap scan and coming back.
+ */
+export function lastRunQuery(id: ToolId) {
+  return queryOptions({
+    queryKey: ['last-run', id],
+    queryFn: () => apiFetch<LastToolRunResponse>(lastRunEndpoint(id)),
+    staleTime: 0,
+    retry: false,
+    refetchInterval: (q) =>
+      q.state.data?.run?.status === 'running' ? RUNNING_POLL_MS : false,
+  });
+}
+
 /**
  * Standard state machine for a tool page: target input, client-side validation
  * with the shared schema, the API mutation, and auto-run when opened with ?target=.
  * When opened with ?run=<id>, the saved run is shown instead (no auto-run).
+ *
+ * Until the user starts a run on this page, it shows the tool's last run from the database
+ * (with its target), so results survive navigation, reloads and browser changes.
  */
 export function useToolRunner<Id extends ToolId>(
   id: Id,
@@ -45,8 +74,14 @@ export function useToolRunner<Id extends ToolId>(
   const search: { run?: string } = useSearch({ strict: false });
   const runId = search.run;
 
-  const [target, setTarget] = useState(initialTarget ?? '');
+  const [target, setTargetState] = useState(initialTarget ?? '');
   const [validationError, setValidationError] = useState<string | null>(null);
+  // Once the user edits the target, a late-loading last run must not overwrite it.
+  const touched = useRef(!!initialTarget);
+  const setTarget = (value: string) => {
+    touched.current = true;
+    setTargetState(value);
+  };
 
   // Whether the user started a run since the saved run was opened.
   const [started, setStarted] = useState(false);
@@ -58,6 +93,9 @@ export function useToolRunner<Id extends ToolId>(
   const showSaved = !!runId && !started;
 
   const saved = useQuery({ ...runQuery(runId ?? ''), enabled: showSaved });
+  const last = useQuery({ ...lastRunQuery(id), enabled: !runId });
+  const lastRun = last.data?.run ?? undefined;
+  const lastTarget = targetOf(lastRun?.input);
 
   const mutation = useMutation<
     ToolResult<Output>,
@@ -71,6 +109,9 @@ export function useToolRunner<Id extends ToolId>(
         void queryClient.invalidateQueries({ queryKey: ENGAGEMENTS_KEY });
       }
     },
+    // The API stored the outcome; refresh it for when the page is opened again.
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: lastRunQuery(id).queryKey }),
   });
 
   const run = (overrideTarget?: string) => {
@@ -85,20 +126,28 @@ export function useToolRunner<Id extends ToolId>(
     mutation.mutate(input);
   };
 
-  // Auto-run once when the page is opened with a target (pivots from other tools),
-  // unless a saved run is being shown.
+  // Auto-run once when the page is opened with a target (pivots from other tools), unless a
+  // saved run is shown or the stored last run already used this target (e.g. the user came
+  // back to the page: show that run instead of starting a new scan). Waits for the last run.
   const autoRan = useRef(false);
+  const lastLoaded = !last.isPending;
   useEffect(() => {
-    if (initialTarget && !runId && !autoRan.current) {
-      autoRan.current = true;
-      run(initialTarget);
+    if (!initialTarget || runId || autoRan.current || !lastLoaded) return;
+    autoRan.current = true;
+    if (initialTarget !== lastTarget) run(initialTarget);
+  }, [initialTarget, lastLoaded]);
+
+  // Put the last run's target into the form (only if the user hasn't typed one).
+  useEffect(() => {
+    if (lastTarget && !touched.current && mutation.isIdle) {
+      setTargetState(lastTarget);
     }
-  }, [initialTarget]);
+  }, [lastTarget]);
 
   // Put the saved run's target into the form.
   const savedRun = showSaved ? saved.data : undefined;
   useEffect(() => {
-    if (savedRun && savedRun.tool === id) setTarget(savedRun.target);
+    if (savedRun && savedRun.tool === id) setTargetState(savedRun.target);
   }, [savedRun, id]);
 
   let view: RunView<Output>;
@@ -124,6 +173,8 @@ export function useToolRunner<Id extends ToolId>(
         ? { startedAt: savedRun.startedAt, runAgain: () => run() }
         : undefined,
     };
+  } else if (mutation.isIdle && lastRun) {
+    view = lastRunView<Output>(lastRun, () => run());
   } else {
     view = {
       isPending: mutation.isPending,
@@ -138,3 +189,24 @@ export function useToolRunner<Id extends ToolId>(
 export type ToolRunner<Id extends ToolId> = ReturnType<
   typeof useToolRunner<Id>
 >;
+
+/** A stored last run as the result view shows it (running ones as a pending scan). */
+function lastRunView<T>(r: LastToolRun, runAgain: () => void): RunView<T> {
+  if (r.status === 'running') {
+    return { isPending: true, error: null, data: undefined };
+  }
+  return {
+    isPending: false,
+    error: r.error ? new ApiError(r.error.status, [r.error.message]) : null,
+    data: r.result as ToolResult<T> | undefined,
+    saved: { startedAt: r.startedAt, runAgain },
+  };
+}
+
+/** The `target` field of a tool input; local tools have none. */
+function targetOf(input: unknown): string | undefined {
+  if (typeof input !== 'object' || input === null || !('target' in input)) {
+    return undefined;
+  }
+  return typeof input.target === 'string' ? input.target : undefined;
+}

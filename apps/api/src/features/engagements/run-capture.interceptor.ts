@@ -12,7 +12,6 @@ import {
 import {
   ENGAGEMENT_HEADER,
   TOOL_CATALOG,
-  TOOL_IDS,
   type ToolId,
   type ToolResult,
 } from '@recon/shared';
@@ -24,21 +23,18 @@ import {
   switchMap,
   throwError,
 } from 'rxjs';
+import {
+  errorOf,
+  targetOf,
+  toolOfRequest,
+  type ToolRequest,
+} from '../../core/tool-request.js';
 import { EngagementsRepository } from './engagements.repository.js';
 import { checkScope } from './scope.js';
 
-const TOOL_PATH = /^\/api\/tools\/([a-z0-9-]+)\/?(?:\?.*)?$/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 /** Failures that say nothing about the target and are not worth keeping in the history. */
 const NOT_RECORDED = new Set([400, 401, 403, 429]);
-
-interface ToolRequest {
-  method: string;
-  url: string;
-  originalUrl?: string;
-  headers: Record<string, string | string[] | undefined>;
-  body?: unknown;
-}
 
 /**
  * Engagement integration for every tool endpoint (POST /api/tools/<id>):
@@ -56,11 +52,10 @@ export class RunCaptureInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     if (context.getType() !== 'http') return next.handle();
     const req = context.switchToHttp().getRequest<ToolRequest>();
-    const tool = TOOL_PATH.exec(req.originalUrl ?? req.url)?.[1];
+    const tool = toolOfRequest(req);
     const header = req.headers[ENGAGEMENT_HEADER];
     const engagementId = Array.isArray(header) ? header[0] : header;
-    if (req.method !== 'POST' || !engagementId || !isToolId(tool))
-      return next.handle();
+    if (!engagementId || !tool) return next.handle();
 
     const startedAt = new Date();
     // Pre-check failures (unknown/archived engagement, out of scope) are not runs: they
@@ -94,7 +89,7 @@ export class RunCaptureInterceptor implements NestInterceptor {
                 startedAt: startedAt.toISOString(),
                 durationMs: Date.now() - startedAt.getTime(),
                 input: req.body,
-                error: { status, message: messageOf(err) },
+                error: errorOf(err),
               }),
             ).pipe(switchMap(() => throwError(() => err)));
           }),
@@ -141,14 +136,6 @@ export class RunCaptureInterceptor implements NestInterceptor {
   }
 }
 
-const isToolId = (id: string | undefined): id is ToolId =>
-  !!id && (TOOL_IDS as readonly string[]).includes(id);
-
-function targetOf(body: unknown): string | undefined {
-  const t = (body as { target?: unknown } | undefined)?.target;
-  return typeof t === 'string' && t.trim() ? t.trim() : undefined;
-}
-
 /** The main target plus extra hosts some tools accept (e.g. takeover `hosts`). */
 export function targetsOf(body: unknown): string[] {
   const out: string[] = [];
@@ -160,17 +147,4 @@ export function targetsOf(body: unknown): string[] {
       if (typeof h === 'string' && h.trim()) out.push(h.trim());
   }
   return out;
-}
-
-function messageOf(err: Error): string {
-  if (err instanceof HttpException) {
-    const res = err.getResponse();
-    const msg =
-      typeof res === 'object' && res
-        ? (res as { message?: unknown }).message
-        : res;
-    if (Array.isArray(msg)) return msg.join('; ');
-    return typeof msg === 'string' ? msg : err.message;
-  }
-  return err.message;
 }

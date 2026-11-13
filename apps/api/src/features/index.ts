@@ -1,4 +1,5 @@
 import { EngagementsModule } from './engagements/engagements.module.js';
+import { LastRunsModule } from './last-runs/last-runs.module.js';
 import { ZoneTransferModule } from './zone-transfer/zone-transfer.module.js';
 import { DnssecModule } from './dnssec/dnssec.module.js';
 import { TakeoverModule } from './takeover/takeover.module.js';
@@ -32,6 +33,8 @@ import { WifiModule } from './wifi/wifi.module.js';
 /** Register new feature modules here. */
 export const FEATURE_MODULES = [
   SystemModule,
+  // Before EngagementsModule: its interceptor must wrap the engagement one (see LastRunInterceptor).
+  LastRunsModule,
   EngagementsModule,
   DnsModule,
   WhoisModule,

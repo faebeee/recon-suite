@@ -66,6 +66,7 @@ apps/api/src/
   config/env.ts      Zod-validated environment
   features/<id>/     <id>.module.ts, <id>.controller.ts, <id>.service.ts, pure helpers + *.spec.ts
   features/engagements/  engagement workspace + RunCaptureInterceptor (scope check, run history)
+  features/last-runs/    LastRunInterceptor: stores each tool's most recent run (tool_last_runs)
   features/index.ts  FEATURE_MODULES registry
 
 apps/web/src/
@@ -90,6 +91,9 @@ apps/web/src/
 - Engagements are generic: `RunCaptureInterceptor` wraps every `POST /api/tools/<id>`. With the
   `x-engagement-id` header it enforces the scope for `mode: 'active'` tools (the `target` and a
   `hosts` array) and stores the run. New tools need no engagement code.
+- `LastRunInterceptor` (registered before the engagement one) stores every tool request as that
+  tool's last run (`running`, then `ok`/`error`); `useToolRunner` shows it when a tool page opens
+  and polls while it is running. Shared helpers for tool requests live in `core/tool-request.ts`.
 - The request field holding the target is always called `target`.
 - **Local tools** (`scope: 'local'`, e.g. `wifi`) have no target: their input schema is
   `z.object({})` (or options only), `runTool` gets `os.hostname()` as target, `TOOL_UI.accepts`
