@@ -45,7 +45,7 @@ describe('networkScanArgs', () => {
     expect(args).toContain('--send-ip');
     expect(args).toContain('-PE');
     expect(args.some((a) => a.startsWith('-PS'))).toBe(true);
-    expect(args.some((a) => a.startsWith('-PA'))).toBe(true);
+    expect(args.some((a) => a.startsWith('-PA'))).toBe(false);
     expect(args.some((a) => a.startsWith('-PU'))).toBe(true);
   });
 });
@@ -53,11 +53,11 @@ describe('networkScanArgs', () => {
 describe('parseNetworkScan', () => {
   it('lists hosts that are up with MAC, vendor and a device guess, sorted by IP', () => {
     const xml = `<nmaprun>
-<host><status state="up" reason="arp-response" reason_ttl="0"/>
+<host><status state="up" reason="echo-reply" reason_ttl="64"/>
 <address addr="10.88.0.7" addrtype="ipv4"/>
 <address addr="DA:C3:1F:97:D0:AF" addrtype="mac" vendor="Apple, Inc."/>
 <hostnames></hostnames></host>
-<host><status state="up" reason="arp-response" reason_ttl="0"/>
+<host><status state="up" reason="port-unreach" reason_ttl="64"/>
 <address addr="10.88.0.1" addrtype="ipv4"/>
 <address addr="00:1A:2B:3C:4D:5E" addrtype="mac" vendor="Ayecom Technology &amp; Co"/>
 </host>
@@ -78,6 +78,16 @@ describe('parseNetworkScan', () => {
       },
       { ip: '10.88.0.20', macAddress: undefined, vendor: undefined },
     ]);
+  });
+
+  it('ignores hosts only "up" through responses a gateway or NAT can fake', () => {
+    const xml = `<nmaprun>
+<host><status state="up" reason="reset" reason_ttl="64"/><address addr="10.88.0.30" addrtype="ipv4"/></host>
+<host><status state="up" reason="arp-response" reason_ttl="0"/><address addr="10.88.0.31" addrtype="ipv4"/></host>
+<host><status state="up"/><address addr="10.88.0.32" addrtype="ipv4"/></host>
+<host><status state="up" reason="syn-ack" reason_ttl="64"/><address addr="10.88.0.33" addrtype="ipv4"/></host>
+</nmaprun>`;
+    expect(parseNetworkScan(xml).map((h) => h.ip)).toEqual(['10.88.0.33']);
   });
 
   it('returns an empty list when nothing is up', () => {

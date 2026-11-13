@@ -40,7 +40,7 @@ const exec = (
 };
 
 const XML =
-  '<nmaprun><host><status state="up"/><address addr="10.0.0.1" addrtype="ipv4"/></host></nmaprun>';
+  '<nmaprun><host><status state="up" reason="echo-reply"/><address addr="10.0.0.1" addrtype="ipv4"/></host></nmaprun>';
 
 describe('NetworkScanService', () => {
   it('scans the requested range and reports hosts that are up', async () => {

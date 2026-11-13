@@ -23,30 +23,40 @@ export function parseCidr(cidr: string): ParsedCidr {
  * (ICMP/TCP) instead of its default ARP ping on local Ethernet segments: many routers/APs
  * answer ARP requests on behalf of every address in the subnet (proxy ARP), which otherwise
  * makes Nmap report every address as "up" regardless of whether a real host is there.
- * `-PE` (ICMP echo), `-PS`/`-PA` (TCP SYN/ACK to common ports) and `-PU` (UDP) are combined
- * so a host that only answers one probe type (ICMP blocked, or vice versa) is still found.
- * The range comes from the caller, already validated and bounded.
+ * `-PE` (ICMP echo), `-PS` (TCP SYN to common ports) and `-PU` (UDP to a closed port) are
+ * combined so a host that only answers one probe type (ICMP blocked, or vice versa) is still
+ * found. No `-PA`: a TCP ACK probe can only ever be answered with an RST, which is not proof
+ * of a live host (see LIVE_HOST_REASONS). The range comes from the caller, already validated
+ * and bounded.
  */
 export function networkScanArgs(range: string): string[] {
   return [
     '-sn',
-    '-n',
-    '-T4',
-    '--max-retries',
-    '2',
-    '--send-ip',
-    '-PE',
-    '-PS21,22,23,25,80,443,3389,8080',
-    '-PA80,443',
-    '-PU40125',
-    '-oX',
-    '-',
     range,
   ];
 }
 
 /**
- * Parses `nmap -sn -oX -`: hosts that are up. MAC address and vendor are only present when
+ * nmap `<status reason>` values that only a real, online host produces. nmap also marks a host
+ * "up" on a TCP RST (`reset`), but RSTs are routinely generated on behalf of every address in a
+ * range by NAT layers (the Docker Desktop / podman machine network stack the Kali container
+ * runs behind), stateful firewalls and gateways, which made every address appear online.
+ * `arp-response` is excluded for the same reason (proxy ARP); `--send-ip` avoids it anyway.
+ */
+export const LIVE_HOST_REASONS: ReadonlySet<string> = new Set([
+  'echo-reply',
+  'timestamp-reply',
+  'addressmask-reply',
+  'syn-ack',
+  'udp-response',
+  'port-unreach',
+  'proto-unreach',
+  'localhost-response',
+]);
+
+/**
+ * Parses `nmap -sn -oX -`: hosts that are up and answered with a response that proves a
+ * live host (LIVE_HOST_REASONS). MAC address and vendor are only present when
  * Nmap could resolve them from its own ARP cache (same Ethernet segment); `--send-ip`
  * (see networkScanArgs) means this is the exception rather than the rule.
  */
@@ -55,7 +65,8 @@ export function parseNetworkScan(xml: string): NetworkScanHost[] {
   for (const m of xml.matchAll(/<host\b[^>]*>([\s\S]*?)<\/host>/g)) {
     const body = m[1] ?? '';
     const status = xmlAttrs(/<status\b([^>]*?)\/?>/.exec(body)?.[1]);
-    if (status.state !== 'up') continue;
+    if (status.state !== 'up' || !LIVE_HOST_REASONS.has(status.reason ?? ''))
+      continue;
     let ip: string | undefined;
     let mac: Record<string, string | undefined> | undefined;
     for (const a of body.matchAll(/<address\b([^>]*?)\/?>/g)) {
@@ -128,7 +139,7 @@ export function networkScanFindings(
         : `No hosts responded on ${network}`,
       message: hosts.length
         ? 'Hosts that answered the ping sweep.'
-        : 'No host answered ARP/ICMP/TCP probes in this range.',
+        : 'No host answered the ICMP/TCP/UDP probes in this range.',
       value: hosts.map((h) => h.ip).join(', ') || undefined,
     },
   ];

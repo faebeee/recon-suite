@@ -304,7 +304,7 @@ export const TOOL_CATALOG: Record<ToolId, ToolMeta> = {
     name: 'Network Scan',
     tagline: 'Discover live hosts on a network',
     description:
-      'Runs an nmap ping sweep (-sn, IP-level ICMP/TCP/UDP probes) over a user-supplied network/IP/subnet (up to a /22) and lists only the hosts that actually respond, with MAC address, vendor and a best-effort device guess (router, printer, IoT, virtual machine, ...) when available. Runs in the Kali container when configured.',
+      'Runs an nmap ping sweep (-sn, IP-level ICMP/TCP/UDP probes) over a user-supplied network/IP/subnet (up to a /22) and lists only the hosts that are online (answers a NAT layer or gateway can fake, such as TCP resets or proxy ARP, are ignored), with MAC address, vendor and a best-effort device guess (router, printer, IoT, virtual machine, ...) when available. Runs in the Kali container when configured.',
     category: 'network',
     mode: 'active',
     scope: 'remote',
