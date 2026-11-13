@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
-import type { RuntimeInfo, SystemOverview } from '@recon/shared';
+import type { HostStats, RuntimeInfo, SystemOverview } from '@recon/shared';
+import { HostStatsService } from './host-stats.service.js';
 import { PlatformDiagnosticsService } from './platform-diagnostics.service.js';
 import { SystemOverviewService } from './system-overview.service.js';
 
@@ -13,6 +14,7 @@ export class RuntimeController {
   constructor(
     private readonly diagnostics: PlatformDiagnosticsService,
     private readonly overviewService: SystemOverviewService,
+    private readonly hostStats: HostStatsService,
   ) {}
 
   @Get('runtime')
@@ -23,5 +25,10 @@ export class RuntimeController {
   @Get('overview')
   overview(): Promise<SystemOverview> {
     return this.overviewService.overview();
+  }
+
+  @Get('host')
+  host(): Promise<HostStats> {
+    return this.hostStats.stats();
   }
 }

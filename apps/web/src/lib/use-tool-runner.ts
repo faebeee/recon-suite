@@ -16,8 +16,10 @@ import {
   type ToolIO,
   type ToolResult,
 } from '@recon/shared';
+import { targetForTool } from '@/features/registry';
 import { ApiError, apiFetch, apiPost } from './api-client';
 import { ENGAGEMENTS_KEY, runQuery } from './engagement';
+import { useSessionTarget } from './session-target';
 
 interface Options<Id extends ToolId> {
   initialTarget?: string;
@@ -64,6 +66,10 @@ export function lastRunQuery(id: ToolId) {
  *
  * Until the user starts a run on this page, it shows the tool's last run from the database
  * (with its target), so results survive navigation, reloads and browser changes.
+ *
+ * Target prefill, first match wins: `?target=` (pivots), the session target (adapted to what
+ * the tool accepts), the last run's target. With a session target, a last run against another
+ * target is not shown, so the page never mixes two targets.
  */
 export function useToolRunner<Id extends ToolId>(
   id: Id,
@@ -74,10 +80,17 @@ export function useToolRunner<Id extends ToolId>(
   const search: { run?: string } = useSearch({ strict: false });
   const runId = search.run;
 
-  const [target, setTargetState] = useState(initialTarget ?? '');
+  const sessionTarget = useSessionTarget();
+  const sessionValue = sessionTarget
+    ? targetForTool(id, sessionTarget)
+    : undefined;
+
+  const [target, setTargetState] = useState(
+    initialTarget ?? sessionValue ?? '',
+  );
   const [validationError, setValidationError] = useState<string | null>(null);
   // Once the user edits the target, a late-loading last run must not overwrite it.
-  const touched = useRef(!!initialTarget);
+  const touched = useRef(!!(initialTarget ?? sessionValue));
   const setTarget = (value: string) => {
     touched.current = true;
     setTargetState(value);
@@ -94,8 +107,13 @@ export function useToolRunner<Id extends ToolId>(
 
   const saved = useQuery({ ...runQuery(runId ?? ''), enabled: showSaved });
   const last = useQuery({ ...lastRunQuery(id), enabled: !runId });
-  const lastRun = last.data?.run ?? undefined;
-  const lastTarget = targetOf(lastRun?.input);
+  const lastTarget = targetOf(last.data?.run?.input);
+  // The target this page is about; a last run against another one stays hidden.
+  const focusTarget = initialTarget ?? sessionValue;
+  const lastRun =
+    focusTarget && lastTarget !== undefined && lastTarget !== focusTarget
+      ? undefined
+      : (last.data?.run ?? undefined);
 
   const mutation = useMutation<
     ToolResult<Output>,
@@ -136,6 +154,18 @@ export function useToolRunner<Id extends ToolId>(
     autoRan.current = true;
     if (initialTarget !== lastTarget) run(initialTarget);
   }, [initialTarget, lastLoaded]);
+
+  // A session target set or changed while this page is open replaces the form's target.
+  const prevSession = useRef(sessionValue);
+  useEffect(() => {
+    if (sessionValue === prevSession.current) return;
+    prevSession.current = sessionValue;
+    if (sessionValue) {
+      touched.current = true;
+      setTargetState(sessionValue);
+      setValidationError(null);
+    }
+  }, [sessionValue]);
 
   // Put the last run's target into the form (only if the user hasn't typed one).
   useEffect(() => {

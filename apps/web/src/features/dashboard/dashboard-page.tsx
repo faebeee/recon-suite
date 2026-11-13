@@ -1,12 +1,14 @@
 import { Link } from '@tanstack/react-router';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Pin, PinOff } from 'lucide-react';
 import { useState } from 'react';
 import { CATEGORY_LABELS, type ToolCategory } from '@recon/shared';
 import { GlitchText, Panel, Tag } from '@/components/cyber';
 import { TOOLS, toolsAccepting, type ToolEntry } from '@/features/registry';
+import { setSessionTarget, useSessionTarget } from '@/lib/session-target';
 import { cn } from '@/lib/utils';
 import { toneBorder, toneText } from '@/lib/tones';
 import { RuntimeBadge } from '@/components/tool';
+import { HostPanel } from '@/features/system';
 import { EngagementPanel } from './engagement-panel';
 import { RuntimePanel } from './runtime-panel';
 
@@ -30,6 +32,8 @@ export function DashboardPage() {
       </section>
 
       <QuickTarget />
+
+      <HostPanel />
 
       <EngagementPanel />
 
@@ -98,9 +102,11 @@ function ToolCard({ tool }: { tool: ToolEntry }) {
 
 /** Type a target once, then launch any compatible tool with it. */
 function QuickTarget() {
-  const [target, setTarget] = useState('');
+  const sessionTarget = useSessionTarget();
+  const [target, setTarget] = useState(sessionTarget ?? '');
   const value = target.trim();
   const tools = value ? toolsAccepting(value) : [];
+  const pinned = !!value && value === sessionTarget;
 
   return (
     <Panel title="Quick target" tone="magenta">
@@ -117,6 +123,28 @@ function QuickTarget() {
           spellCheck={false}
           className="h-10 w-full bg-transparent px-3 text-sm outline-none placeholder:text-muted-foreground/50"
         />
+        {value && (
+          <button
+            type="button"
+            onClick={() => setSessionTarget(pinned ? null : value)}
+            aria-pressed={pinned}
+            className={cn(
+              'flex h-10 shrink-0 items-center gap-1.5 px-3 text-[11px] tracking-[0.15em] uppercase whitespace-nowrap transition-colors hover:text-neon-magenta',
+              pinned ? 'text-neon-magenta' : 'text-muted-foreground',
+            )}
+            title="Tool pages prefill the session target"
+          >
+            {pinned ? (
+              <Pin className="size-3.5 fill-current" aria-hidden />
+            ) : (
+              <PinOff className="size-3.5" aria-hidden />
+            )}
+            <span className="hidden sm:inline">
+              {pinned ? 'Session target' : 'Pin for session'}
+            </span>
+            <span className="sm:hidden">{pinned ? 'Pinned' : 'Pin'}</span>
+          </button>
+        )}
       </div>
       <div className="mt-3 flex min-h-8 flex-wrap gap-2">
         {value ? (

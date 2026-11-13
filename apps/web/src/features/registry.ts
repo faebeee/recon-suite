@@ -128,3 +128,27 @@ export function toolsAccepting(value: string, exclude?: ToolId): ToolEntry[] {
   const kind = detectTargetKind(value);
   return TOOLS.filter((t) => t.id !== exclude && t.accepts.includes(kind));
 }
+
+/**
+ * The session target in the form a tool accepts, or undefined when it can't take it:
+ * a URL becomes its host for domain/IP tools, a domain or IP becomes `https://<host>` for
+ * URL-only tools. Tools without target kinds (free text, CIDR, local) get nothing.
+ */
+export function targetForTool(id: ToolId, value: string): string | undefined {
+  const { accepts } = TOOL_UI[id];
+  const v = value.trim();
+  if (!v || !accepts.length) return undefined;
+  const kind = detectTargetKind(v);
+  if (accepts.includes(kind)) return v;
+  if (kind === 'url') {
+    let host: string;
+    try {
+      host = new URL(v).hostname.replace(/^\[|\]$/g, '');
+    } catch {
+      return undefined;
+    }
+    const hostKind = detectTargetKind(host);
+    return accepts.includes(hostKind) ? host : undefined;
+  }
+  return accepts.includes('url') ? `https://${v}` : undefined;
+}

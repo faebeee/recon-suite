@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { LogoutButton } from '@/features/auth';
 import { ApiStatus } from '@/features/system';
 import { EngagementSwitcher } from './engagement-switcher';
+import { SessionTargetControl } from './session-target-control';
 import { ThemeSwitcher } from './theme-switcher';
 
 function Clock() {
@@ -37,6 +38,7 @@ export function TopBar() {
           <Clock />
         </span>
         <ApiStatus />
+        <SessionTargetControl />
         <EngagementSwitcher />
         <ThemeSwitcher />
         <LogoutButton />

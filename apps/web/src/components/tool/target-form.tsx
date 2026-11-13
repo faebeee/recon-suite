@@ -1,7 +1,9 @@
-import { CornerDownLeft, Loader2 } from 'lucide-react';
+import { CornerDownLeft, Loader2, Pin, PinOff } from 'lucide-react';
 import { useId, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Panel } from '@/components/cyber';
+import { setSessionTarget, useSessionTarget } from '@/lib/session-target';
+import { cn } from '@/lib/utils';
 
 interface TargetFormProps {
   value: string;
@@ -27,6 +29,9 @@ export function TargetForm({
   children,
 }: TargetFormProps) {
   const id = useId();
+  const sessionTarget = useSessionTarget();
+  const trimmed = value.trim();
+  const pinned = !!trimmed && trimmed === sessionTarget;
   return (
     <Panel title="Parameters" bodyClassName="space-y-4">
       <form
@@ -63,6 +68,33 @@ export function TargetForm({
                 aria-describedby={error ? `${id}-error` : undefined}
                 className="h-10 w-full min-w-0 bg-transparent px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/50"
               />
+              {trimmed && (
+                <button
+                  type="button"
+                  onClick={() => setSessionTarget(pinned ? null : trimmed)}
+                  className={cn(
+                    'flex h-10 shrink-0 items-center px-3 transition-colors hover:text-primary',
+                    pinned ? 'text-primary' : 'text-muted-foreground',
+                  )}
+                  aria-pressed={pinned}
+                  aria-label={
+                    pinned
+                      ? 'Unpin session target'
+                      : `Pin ${trimmed} as session target`
+                  }
+                  title={
+                    pinned
+                      ? 'Session target: other tools prefill it. Click to unpin.'
+                      : 'Pin as session target: other tools prefill it'
+                  }
+                >
+                  {pinned ? (
+                    <Pin className="size-4 fill-current" />
+                  ) : (
+                    <PinOff className="size-4" />
+                  )}
+                </button>
+              )}
             </div>
             <Button type="submit" disabled={pending} className="h-10 px-5">
               {pending ? (

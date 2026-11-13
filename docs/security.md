@@ -96,6 +96,9 @@ actually reported it.
 - Third-party API keys (`NVD_API_KEY`, `SECURITYTRAILS_API_KEY`) are only sent to their
   providers. Reverse IP sends the target IP to SecurityTrails; CVE Lookup sends product names
   to the NVD.
+- The dashboard's internet check (`GET /api/system/host`, cached 30 s) resolves
+  `cloudflare.com` and requests `https://1.1.1.1/cdn-cgi/trace`, which reveals the API host's
+  public IP to Cloudflare. It also shows the host's IPs, MACs and gateway, so it requires sign-in.
 - There is no rate limit on tool requests and no time or parallelism limit on nmap scans:
   don't expose the API to untrusted users.
 - Set `CORS_ORIGIN` to exactly the origin of your web app.

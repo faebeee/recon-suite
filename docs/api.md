@@ -18,6 +18,9 @@ The web UI is a client of a plain JSON API. You can call it directly from script
 | POST   | `/api/tools/<id>`                                         | Run a tool                                                                 |
 | GET    | `/api/tools/wifi/interfaces`                              | WiFi interfaces for the WiFi Scanner's `interface` option                  |
 | GET    | `/api/tools/host-scan/interfaces`                         | Network interfaces for Host Scan's `interface` option                      |
+| GET    | `/api/system/runtime`                                     | Where and with what each tool runs                                         |
+| GET    | `/api/system/overview`                                    | Status checks, database, tool support, settings (no secret values)         |
+| GET    | `/api/system/host`                                        | OS, CPU, memory, interfaces (IP, MAC), gateway, DNS, internet check        |
 | GET    | `/api/last-runs/<id>`                                     | `{ run }`: the tool's most recent run (`running`, `ok` or `error`) or null |
 | GET    | `/api/auth/status`                                        | `{ mode, authenticated }`, public                                          |
 | POST   | `/api/auth/login`                                         | `{ password }`, sets the session cookie, public                            |

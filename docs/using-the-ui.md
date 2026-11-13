@@ -15,8 +15,18 @@ the API. Opened from anywhere else, it explains that `ADMIN_PASSWORD` (or
   engagement, the theme switcher and sign-out.
 - **Sidebar:** every tool grouped by category (DNS, Intel, Web, Network, Wireless) with its
   code, e.g. `D-01`. On small screens it becomes a horizontal strip under the top bar.
-- **Dashboard:** tool cards with passive/active badges, a quick-target field and a summary of
-  the active engagement.
+- **Dashboard:** tool cards with passive/active badges, a quick-target field, a **Host** panel
+  (internet status with public IP, DNS/HTTPS latency; network interfaces with IP and MAC,
+  default gateway, DNS servers; OS, CPU, memory, load, uptime of the machine running the API)
+  and a summary of the active engagement.
+- **System:** status checks, database, tool support and all settings (secrets only as set/unset).
+- **Session target** (crosshair in the top bar): set a URL, domain or IP once and every tool
+  page prefills it in the form it accepts (`https://example.com/login` becomes `example.com` for
+  DNS or Port Probe and stays a URL for the HTTP Inspector; tools with free-text, CIDR or no
+  target ignore it). Set it in the top bar, with **Pin for session** under Quick target, or
+  with the pin icon in any tool's target field. Nothing runs automatically: press **Execute** on
+  each tool. A stored last run against another target is hidden while a session target is set.
+  It lasts until you clear it or close the browser tab (`sessionStorage`).
 - **Batch** and **Engagements** pages, linked from the sidebar.
 
 ## Tool pages
