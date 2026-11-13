@@ -1,12 +1,33 @@
 name: recon-suite
 
 services:
+  kali:
+    build:
+      context: .
+      dockerfile: infra/kali/Containerfile
+    image: localhost/recon-suite/kali:latest
+    # Fixed name: the API addresses the container by it (KALI_CONTAINER above).
+    container_name: recon-kali
+    init: true
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+    # Without host networking, nmap reaches internet targets through NAT, but arp-scan only
+    # sees the compose bridge network. To ARP-scan your LAN (Linux hosts only; Docker
+    # Desktop and podman machine on macOS/Windows run inside a VM and never see the LAN),
+    # uncomment:
+    # network_mode: host
+    restart: unless-stopped
+
   api:
     build:
       context: .
       dockerfile: apps/api/Containerfile
     image: localhost/recon-suite/api:latest
     environment:
+      CONTAINER_CLI: podman
+      DOCKER_HOST: unix:///run/container-engine.sock
+      KALI_CONTAINER: recon-kali
       PORT: 4000
       CORS_ORIGIN: http://localhost:${WEB_PORT:-8080}
       ALLOW_PRIVATE_TARGETS: ${ALLOW_PRIVATE_TARGETS:-false}
@@ -48,6 +69,14 @@ services:
       retries: 5
       start_period: 5s
     restart: unless-stopped
+    user: '${KALI_API_USER:-node}'
+    group_add:
+      - '${CONTAINER_SOCKET_GID:-0}'
+    volumes:
+      - '${CONTAINER_SOCKET:-/var/run/docker.sock}:/run/container-engine.sock'
+    depends_on:
+      kali:
+        condition: service_started
 
   web:
     build:
