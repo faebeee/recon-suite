@@ -4,7 +4,7 @@ import { CommandFailedError, CommandNotFoundError } from './run-command.js';
  * Commands that may run in the Kali container (or locally as a fallback). This is a closed
  * list: the executor never accepts any other program name.
  */
-export const EXEC_COMMANDS = ['arp-scan', 'nmap', 'ip'] as const;
+export const EXEC_COMMANDS = ['nmap', 'ip'] as const;
 export type ExecCommand = (typeof EXEC_COMMANDS)[number];
 
 export type ContainerCli = 'docker' | 'podman';

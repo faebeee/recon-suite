@@ -1,4 +1,8 @@
 import type { Finding, NmapOutput, NmapPort } from '@recon/shared';
+import {
+  decodeXmlEntities as decode,
+  xmlAttrs as attrs,
+} from '../../core/util/xml-attrs.js';
 
 export interface NmapArgsOptions {
   /** Resolved and guard-checked IP literal. Never a hostname. */
@@ -104,37 +108,5 @@ export function nmapFindings(ports: NmapPort[]): Finding[] {
         : 'Open port; no version information.',
       value: product || p.service,
     };
-  });
-}
-
-function attrs(text: string | undefined): Record<string, string | undefined> {
-  const out: Record<string, string | undefined> = {};
-  if (!text) return out;
-  for (const m of text.matchAll(/([\w:-]+)="([^"]*)"/g)) {
-    out[m[1]!] = decode(m[2]!);
-  }
-  return out;
-}
-
-const ENTITIES: Record<string, string> = {
-  amp: '&',
-  lt: '<',
-  gt: '>',
-  quot: '"',
-  apos: "'",
-};
-
-function decode(text: string): string {
-  return text.replace(/&(#x[0-9a-f]+|#\d+|\w+);/gi, (whole, ref: string) => {
-    if (ref[0] === '#') {
-      const code =
-        ref[1] === 'x' || ref[1] === 'X'
-          ? parseInt(ref.slice(2), 16)
-          : parseInt(ref.slice(1), 10);
-      return Number.isFinite(code) && code <= 0x10ffff
-        ? String.fromCodePoint(code)
-        : whole;
-    }
-    return ENTITIES[ref] ?? whole;
   });
 }

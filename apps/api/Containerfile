@@ -23,14 +23,8 @@ WORKDIR /app
 # nmcli client for the WiFi tool (R-01). It is a no-op unless the container is also granted
 # access to the host's wireless adapter and NetworkManager D-Bus socket (see compose.yaml).
 RUN apk add --no-cache networkmanager-cli
-# arp-scan for the Host Scan tool (N-02). It needs raw sockets; the app runs as "node", so the
-# binary gets the cap_net_raw file capability. The container must still be granted NET_RAW
-# (cap_add) and use the host network to see the LAN (see compose.yaml).
-RUN apk add --no-cache arp-scan \
-  && apk add --no-cache --virtual .setcap libcap-setcap \
-  && setcap cap_net_raw+ep "$(command -v arp-scan)" \
-  && apk del .setcap
-# docker CLI for the Kali container (compose.yaml sets WITH_DOCKER_CLI=true): runs `docker exec recon-kali ...`.
+# docker CLI for the Kali container (compose.yaml sets WITH_DOCKER_CLI=true): Host Scan and
+# Nmap Scan run as `docker exec recon-kali nmap ...`; this image has no scanning tools itself.
 ARG WITH_DOCKER_CLI=false
 RUN if [ "$WITH_DOCKER_CLI" = "true" ]; then apk add --no-cache docker-cli; fi
 COPY --from=builder --chown=node:node /prod/api .

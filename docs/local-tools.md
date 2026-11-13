@@ -13,11 +13,11 @@ the status of every tool on this host, with a fix for each one that is unavailab
 
 ## Support matrix
 
-| Tool              | macOS                                     | Linux                             | Windows               |
-| ----------------- | ----------------------------------------- | --------------------------------- | --------------------- |
-| WiFi Scanner      | ReconHelper (CoreWLAN)                    | `nmcli` (NetworkManager)          | `netsh wlan`          |
-| Bluetooth Scanner | ReconHelper (CoreBluetooth + IOBluetooth) | `bluetoothctl` (BlueZ)            | not implemented (503) |
-| Host Scan         | `arp-scan`, root                          | `arp-scan`, `cap_net_raw` or root | not available         |
+| Tool              | macOS                                     | Linux                    | Windows               |
+| ----------------- | ----------------------------------------- | ------------------------ | --------------------- |
+| WiFi Scanner      | ReconHelper (CoreWLAN)                    | `nmcli` (NetworkManager) | `netsh wlan`          |
+| Bluetooth Scanner | ReconHelper (CoreBluetooth + IOBluetooth) | `bluetoothctl` (BlueZ)   | not implemented (503) |
+| Host Scan         | `nmap`, root                              | `nmap`, root             | Kali container only   |
 
 ## macOS
 
@@ -54,17 +54,14 @@ inquiry only finds devices that are discoverable.
 
 - **WiFi:** Windows 11 24H2 and later also require Location permission for `netsh wlan show
 networks`: _Settings > Privacy & security > Location_, allow desktop apps.
-- **Bluetooth** and **Host Scan** are not available.
+- **Bluetooth** is not available; **Host Scan** only through the Kali container.
 
 ## Host Scan
 
-Host Scan uses [`arp-scan`](https://github.com/royhills/arp-scan), which needs raw socket
-access.
-
-| Platform | Install                                                    | Permission                                                            |
-| -------- | ---------------------------------------------------------- | --------------------------------------------------------------------- |
-| macOS    | `brew install arp-scan`                                    | Run the API as root (macOS needs root to open `/dev/bpf*`)            |
-| Linux    | `sudo apt install arp-scan` or `sudo dnf install arp-scan` | `sudo setcap cap_net_raw+ep "$(which arp-scan)"` once, or run as root |
+Host Scan runs an `nmap -sn` host sweep, preferably in the [Kali container](#kali-container),
+which runs nmap as root with `NET_RAW`. Natively the API needs `nmap` (`brew install nmap`,
+`sudo apt install nmap`); without root nmap can't send ARP and falls back to TCP probes, so MAC
+addresses and hosts without open common ports are missing.
 
 It scans the subnet of one interface. Pick the interface in the UI; the list comes from
 `GET /api/tools/host-scan/interfaces`.
@@ -75,11 +72,10 @@ By default the API container has no wireless adapter, no view of the host's Netw
 and only its own bridge network, so local tools are off. To enable them on a Linux host:
 
 1. Set `LOCAL_TOOLS_ENABLED=true` in `.env`.
-2. In `compose.yaml`, enable host networking for the `api` service (`network_mode: host`).
-   This shares the host's network namespace with the container: Host Scan then sees your LAN.
-3. Keep the `NET_RAW` / `NET_ADMIN` capabilities and the `/run/dbus` volume for the `api`
-   service. `nmcli` reaches the host's NetworkManager over D-Bus; the wireless device stays on
-   the host. Docker grants `NET_RAW` by default, Podman does not.
+2. For Host Scan, enable host networking for the `kali` service (`network_mode: host`) so
+   its nmap sweep sees your LAN (see [Kali container](#kali-container)).
+3. Keep the `/run/dbus` volume for the `api` service: `nmcli` reaches the host's
+   NetworkManager over D-Bus; the wireless device stays on the host.
 
 Read the comments in `compose.yaml` before enabling this: host networking removes the network
 isolation of the container.
@@ -87,8 +83,8 @@ isolation of the container.
 ## Kali container
 
 `compose.yaml` has a `kali` service (`infra/kali/Containerfile`: kali-rolling with
-`arp-scan`, `nmap`, `iproute2`) and points the API at it with `KALI_CONTAINER=recon-kali`.
-Host Scan and Nmap Scan then run there via `docker exec recon-kali timeout <s> <command> ...`
+`nmap`, `iproute2`) and points the API at it with `KALI_CONTAINER=recon-kali`.
+Host Scan and Nmap Scan then run nmap there via `docker exec recon-kali timeout <s> nmap ...`
 instead of on the API host; Host Scan lists the Kali container's interfaces (`ip -j addr`).
 
 ```sh
@@ -115,7 +111,7 @@ pulled at request time.
 **Security:** the API needs the container engine socket for `exec`, which is root-equivalent on
 the host. Use this setup only on machines you control, behind the login, never publicly.
 
-**Networks:** nmap reaches internet targets from the default bridge network. arp-scan only sees
+**Networks:** nmap reaches internet targets from the default bridge network. The Host Scan sweep only sees
 the LAN with `network_mode: host` on the `kali` service, which works on Linux hosts only (Docker
 Desktop and podman machine run containers in a VM). Host Scan also still needs
 `LOCAL_TOOLS_ENABLED=true`.

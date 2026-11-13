@@ -2,17 +2,16 @@
 # The API runs fixed commands in here via `docker|podman exec`; the container itself only idles.
 FROM docker.io/kalilinux/kali-rolling:latest
 
-# arp-scan: Host Scan (N-02). nmap: Nmap Scan (N-04). iproute2: interface list (`ip -j`).
+# nmap: Host Scan (N-02, `nmap -sn`) and Nmap Scan (N-04). iproute2: interface list (`ip -j`).
 # coreutils provides `timeout`, which bounds every command inside the container.
 RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    arp-scan \
     nmap \
     iproute2 \
     coreutils \
     ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
-# Runs as root so arp-scan can open raw sockets; compose grants only NET_RAW/NET_ADMIN on top
+# Runs as root so nmap can use raw sockets (ARP discovery); compose grants only NET_RAW/NET_ADMIN on top
 # of the default capability set. compose's `init: true` reaps children and handles SIGTERM.
 CMD ["sleep", "infinity"]

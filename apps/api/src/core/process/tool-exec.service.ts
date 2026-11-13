@@ -21,7 +21,7 @@ const START_TIMEOUT_MS = 30_000;
 const RUN_TIMEOUT_MS = 60_000;
 
 /**
- * Runs security tooling (arp-scan, nmap, ...) either on the API host or, when
+ * Runs security tooling (nmap, ip) either on the API host or, when
  * KALI_CONTAINER is set, inside the Kali container via `docker|podman exec`.
  * Same rules as runCommand(): fixed command names, arguments as an array, no shell.
  *

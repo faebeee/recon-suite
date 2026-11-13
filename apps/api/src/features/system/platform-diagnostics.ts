@@ -31,7 +31,7 @@ export interface HostFacts {
   apiKeys: { nvd: boolean; securityTrails: boolean };
   /** Linux: NET_RAW is in the capability bounding set (always true elsewhere). */
   netRawAllowed: boolean;
-  /** KALI_CONTAINER: arp-scan and nmap run there via `<cli> exec`. */
+  /** KALI_CONTAINER: nmap (Host Scan, Nmap Scan) runs there via `<cli> exec`. */
   kali?: { container: string; cli: 'docker' | 'podman' };
 }
 
@@ -102,18 +102,19 @@ const CHECKS: Record<ToolId, Check> = {
     if (h.platform === 'win32') {
       return {
         status: 'unavailable',
-        reason: 'arp-scan is not available on Windows.',
-        fix: 'Run the API on Linux or macOS.',
+        reason: 'Host Scan is not supported on Windows.',
+        fix: 'Run the API on Linux or macOS, or use the Kali container (KALI_CONTAINER).',
       };
     }
-    if (!h.has('arp-scan')) {
+    if (!h.has('nmap')) {
       return {
         status: 'unavailable',
-        reason: '"arp-scan" is not installed.',
+        reason: '"nmap" is not installed.',
         fix:
-          h.platform === 'darwin'
-            ? 'brew install arp-scan'
-            : 'Install it, e.g. "sudo apt install arp-scan" or "sudo dnf install arp-scan".',
+          (h.platform === 'darwin'
+            ? 'brew install nmap'
+            : 'Install it, e.g. "sudo apt install nmap"') +
+          ', or use the Kali container (pnpm compose:up, KALI_CONTAINER).',
       };
     }
     if (!h.hasIpv4Interface) {
@@ -121,6 +122,14 @@ const CHECKS: Record<ToolId, Check> = {
         status: 'unavailable',
         reason: 'No non-loopback IPv4 network interface found.',
         fix: 'Connect the host to a network.',
+      };
+    }
+    if (!h.isRoot) {
+      return {
+        status: 'limited',
+        reason:
+          'Without root, nmap discovers hosts with TCP probes instead of ARP: no MAC addresses, and hosts with no open common port are missed.',
+        fix: 'Use the Kali container (KALI_CONTAINER) or run the API as root.',
       };
     }
     if (!h.netRawAllowed) {
@@ -131,18 +140,6 @@ const CHECKS: Record<ToolId, Check> = {
         fix: h.inContainer
           ? 'Start the container with the NET_RAW capability (compose: cap_add: [NET_RAW], podman/docker: --cap-add NET_RAW).'
           : 'Run the API without dropping the NET_RAW capability.',
-      };
-    }
-    // The container image gives arp-scan the cap_net_raw file capability itself.
-    if (!h.isRoot && !h.inContainer) {
-      return {
-        status: 'limited',
-        reason:
-          'arp-scan needs raw socket access and the API is not running as root.',
-        fix:
-          h.platform === 'linux'
-            ? 'Grant the capability once: sudo setcap cap_net_raw+ep "$(which arp-scan)"'
-            : 'Run the API with root privileges (macOS needs root to open /dev/bpf*).',
       };
     }
     return OK;

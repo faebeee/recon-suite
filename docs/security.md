@@ -78,9 +78,9 @@ subject to the target guard above.
 
 ## Local commands
 
-Local tools and Nmap Scan run fixed OS commands (`arp-scan`, `nmap`, `nmcli`, `netsh`,
+Local tools and Nmap Scan run fixed OS commands (`nmap`, `ip`, `nmcli`, `netsh`,
 `bluetoothctl`, the macOS helper) with hard-coded argument lists and never through a shell.
-With `KALI_CONTAINER`, `arp-scan`, `nmap` and `ip` run as `docker exec <container> timeout ...`
+With `KALI_CONTAINER`, `nmap` and `ip` run as `docker exec <container> timeout ...`
 from a closed command list; this needs the engine socket in the API container, which is
 root-equivalent on the host (see [Kali container](local-tools.md#kali-container)). A user-chosen value, such as
 an interface name, becomes an argument only after strict validation and a check that the OS

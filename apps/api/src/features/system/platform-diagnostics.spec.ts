@@ -41,7 +41,7 @@ describe('diagnosePlatform', () => {
     expect(r.wifi).toMatchObject({ status: 'unavailable' });
     expect(r.wifi!.fix).toContain('network-manager');
     expect(r.bluetooth!.fix).toContain('bluez');
-    expect(r['host-scan']!.fix).toContain('arp-scan');
+    expect(r['host-scan']!.fix).toContain('nmap');
     expect(r.nmap!.fix).toContain('compose:up');
     expect(r.dns!.status).toBe('ok');
   });
@@ -51,15 +51,10 @@ describe('diagnosePlatform', () => {
     expect(r.wifi!.reason).toContain('container');
   });
 
-  it('flags arp-scan without root as limited', () => {
+  it('flags a non-root host scan as limited (no ARP)', () => {
     const r = byId(facts({ isRoot: false }));
     expect(r['host-scan']).toMatchObject({ status: 'limited' });
-    expect(r['host-scan']!.fix).toContain('setcap');
-  });
-
-  it('trusts the image file capability inside a container', () => {
-    const r = byId(facts({ isRoot: false, inContainer: true }));
-    expect(r['host-scan']!.status).toBe('ok');
+    expect(r['host-scan']!.fix).toContain('KALI_CONTAINER');
   });
 
   it('reports a missing NET_RAW capability', () => {
@@ -68,7 +63,7 @@ describe('diagnosePlatform', () => {
     expect(r['host-scan']!.fix).toContain('NET_RAW');
   });
 
-  it('delegates arp-scan and nmap to the Kali container', () => {
+  it('delegates host scan and nmap to the Kali container', () => {
     const kali = { container: 'recon-kali', cli: 'docker' } as const;
     const r = byId(
       facts({ platform: 'win32', kali, has: (c) => c === 'docker' }),
@@ -84,7 +79,7 @@ describe('diagnosePlatform', () => {
     const r = byId(facts({ platform: 'darwin', isRoot: false }));
     expect(r.wifi).toMatchObject({ status: 'limited' });
     expect(r.bluetooth!.fix).toContain('pnpm setup:macos-helper');
-    expect(r['host-scan']!.fix).toContain('root');
+    expect(r['host-scan']!.status).toBe('limited');
   });
 
   it('reports macOS wireless tools ok with the helper installed', () => {

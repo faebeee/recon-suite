@@ -10,7 +10,19 @@ export function HostScanResults({ data }: { data: HostScanOutput }) {
           className="lg:grid-cols-4"
           items={[
             { label: 'Interface', value: data.interface },
-            { label: 'Network', value: data.network },
+            {
+              label: 'Network',
+              value: data.limitedFrom ? (
+                <span className="flex flex-col gap-0.5">
+                  <span>{data.network}</span>
+                  <span className="text-[11px] text-muted-foreground">
+                    part of {data.limitedFrom} (too large to sweep whole)
+                  </span>
+                </span>
+              ) : (
+                data.network
+              ),
+            },
             { label: 'Hosts found', value: data.hosts.length },
             {
               label: 'Method',
@@ -23,7 +35,7 @@ export function HostScanResults({ data }: { data: HostScanOutput }) {
       <Panel title={`${data.hosts.length} hosts`} bodyClassName="p-0">
         {data.hosts.length === 0 ? (
           <p className="px-4 py-6 text-sm text-muted-foreground">
-            No hosts responded to the ARP sweep.
+            No hosts responded to the nmap host sweep.
           </p>
         ) : (
           <ul className="divide-y divide-border">
@@ -35,7 +47,7 @@ export function HostScanResults({ data }: { data: HostScanOutput }) {
                 <span className="min-w-0 flex-1 font-mono text-sm font-semibold">
                   {h.ip}
                 </span>
-                <Tag tone="muted">{h.macAddress}</Tag>
+                {h.macAddress && <Tag tone="muted">{h.macAddress}</Tag>}
                 {h.vendor && <Tag tone="cyan">{h.vendor}</Tag>}
                 <CopyButton value={h.ip} />
                 <PivotLinks value={h.ip} exclude="host-scan" />

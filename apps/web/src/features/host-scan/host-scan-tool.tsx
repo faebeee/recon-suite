@@ -27,10 +27,11 @@ export function HostScanTool() {
     <ToolPage toolId="host-scan">
       <Panel title="Scan" bodyClassName="space-y-3">
         <p className="text-xs text-muted-foreground">
-          Sends ARP requests over the chosen interface's subnet to discover live
-          hosts and MAC addresses. Requires the API to run natively with the{' '}
-          <code className="text-foreground">arp-scan</code> command installed,
-          and usually root or the cap_net_raw capability.
+          Runs an <code className="text-foreground">nmap -sn</code> host sweep
+          over the chosen interface's subnet (subnets larger than /22 only the
+          surrounding /24) to discover live hosts, MAC addresses and vendors.
+          Runs in the Kali container when the API is configured for it; ARP and
+          MAC addresses need root there or on the API host.
         </p>
         <div className="space-y-1.5">
           <label

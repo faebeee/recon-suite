@@ -34,7 +34,7 @@ Turborepo monorepo with a feature-driven architecture.
 | W-08 | JS Endpoints       | active  | API paths, hosts, exposed source maps and leaked keys in JavaScript                      |
 | W-09 | Exposed Files      | active  | .git, .env, .DS_Store, server-status, actuator, config backups (content-verified)        |
 | N-01 | Port Probe         | active  | TCP connect check on preset or custom ports (max 64)                                     |
-| N-02 | Host Scan          | local   | ARP discovery of live hosts and MAC vendors on the API host's subnet (arp-scan)          |
+| N-02 | Host Scan          | local   | Live hosts, MACs and vendors on the scanner's subnet (`nmap -sn`, in the Kali container) |
 | N-03 | Banner Grab        | active  | Service greetings (SSH, SMTP, FTP, IMAP, POP3, MySQL) with product and version           |
 | N-04 | Nmap Scan          | active  | nmap TCP scan (top 100/1000 or custom ports) with service/version detection, via Kali    |
 | R-01 | WiFi Scanner       | local   | Nearby WiFi networks seen by the API host: SSID, band, channel, security, signal         |

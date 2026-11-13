@@ -22,18 +22,21 @@ import {
 } from '../../core/process/tool-exec.js';
 import { ToolExecService } from '../../core/process/tool-exec.service.js';
 import {
-  ARP_SCAN_ARGS,
+  hostScanRange,
   listHostScanInterfaces,
-  parseArpScan,
+  nmapDiscoveryArgs,
   parseIpAddrJson,
+  parseNmapDiscovery,
   pickDefaultHostScanInterface,
 } from './host-scan.parsers.js';
 
 /**
- * ARP-discovers hosts on the subnet of a chosen network interface, via `arp-scan`.
- * Runs on the API host (root or cap_net_raw), or inside the Kali container when
- * KALI_CONTAINER is set; interfaces are then those of the Kali container.
+ * Discovers live hosts on the subnet of a chosen network interface with an nmap ping sweep
+ * (`nmap -sn`: ARP as root, with MAC + vendor). Runs inside the Kali container when
+ * KALI_CONTAINER is set (interfaces are then those of the Kali container), else on the API host.
  */
+const SCAN_TIMEOUT_MS = 90_000;
+
 @Injectable()
 export class HostScanService {
   private readonly enabled: boolean;
@@ -89,18 +92,19 @@ export class HostScanService {
     iface: string,
     cidr: string,
   ): Promise<HostScanOutput> {
+    const { range, limitedFrom } = hostScanRange(cidr);
+    const args = nmapDiscoveryArgs(iface, range);
     try {
-      const text = await this.exec.run(
-        'arp-scan',
-        [...ARP_SCAN_ARGS, `--interface=${iface}`],
-        { timeoutMs: 30_000 },
-      );
-      const method = `arp-scan --localnet --interface=${iface}`;
+      const xml = await this.exec.run('nmap', args, {
+        timeoutMs: SCAN_TIMEOUT_MS,
+      });
+      const method = `nmap ${args.join(' ')}`;
       return {
         interface: iface,
-        network: cidr,
+        network: range,
+        limitedFrom,
         method: this.exec.via ? `${this.exec.via} ${method}` : method,
-        hosts: parseArpScan(text),
+        hosts: parseNmapDiscovery(xml),
       };
     } catch (err) {
       throw this.toHttpError(err);
@@ -128,22 +132,21 @@ export class HostScanService {
       return new ServiceUnavailableException(
         this.exec.target.kind === 'kali'
           ? `${err.message} in the Kali container. Rebuild it (pnpm compose:up).`
-          : `${err.message}. Host scanning needs "arp-scan" installed on the API host ` +
-              '(e.g. "apt install arp-scan" / "brew install arp-scan"), or a Kali container (KALI_CONTAINER).',
+          : `${err.message}. Host scanning needs "nmap" on the API host ` +
+              '(e.g. "sudo apt install nmap" / "brew install nmap"), or a Kali container (KALI_CONTAINER).',
       );
     }
     if (err instanceof CommandFailedError && err.timedOut) {
       return new GatewayTimeoutException(
-        'arp-scan did not finish within 30 s. Large subnets (e.g. a /16 container bridge) take ' +
-          'too long; scan an interface with a smaller subnet.',
+        `The nmap host sweep did not finish within ${SCAN_TIMEOUT_MS / 1000} s.`,
       );
     }
     if (err instanceof CommandFailedError) {
       return new ServiceUnavailableException(
-        this.exec.target.kind === 'kali'
-          ? `${err.message}. The Kali container needs the NET_RAW capability (cap_add).`
-          : `arp-scan failed: ${err.message}. It usually needs root privileges or the ` +
-              'cap_net_raw capability (sudo setcap cap_net_raw+ep "$(which arp-scan)").',
+        `nmap failed: ${err.stderr.trim().split(/\r?\n/)[0] || 'unknown error'}` +
+          (this.exec.target.kind === 'kali'
+            ? '. The Kali container needs the NET_RAW capability (cap_add).'
+            : '. ARP discovery needs root (sudo) or the cap_net_raw capability.'),
       );
     }
     return err;

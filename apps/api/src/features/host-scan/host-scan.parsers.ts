@@ -1,8 +1,9 @@
 import { networkInterfaces, type NetworkInterfaceInfo } from 'node:os';
 import type { HostScanHost, HostScanInterface } from '@recon/shared';
+import { xmlAttrs } from '../../core/util/xml-attrs.js';
 
 /**
- * Lists non-internal IPv4 interfaces with a known subnet (what `arp-scan --localnet` needs).
+ * Lists non-internal IPv4 interfaces with a known subnet (the subnet nmap sweeps).
  * Pure wrapper around `os.networkInterfaces()` so it can be unit-tested with fixtures.
  */
 export function listHostScanInterfaces(
@@ -91,29 +92,72 @@ export function pickDefaultHostScanInterface(
   return (interfaces.find((i) => i.macAddress) ?? interfaces[0])?.name;
 }
 
-export const ARP_SCAN_ARGS = ['--localnet', '--retry=1', '--timeout=500'];
+/** Larger subnets are not swept whole: a /16 takes minutes. */
+export const MAX_SCAN_PREFIX = 22;
+/** What is swept instead when the interface subnet is larger than MAX_SCAN_PREFIX. */
+export const FALLBACK_PREFIX = 24;
 
-const HOST_LINE =
-  /^(\d{1,3}(?:\.\d{1,3}){3})\s+([0-9a-f]{2}(?::[0-9a-f]{2}){5})(?:\s+(.*))?$/i;
+/**
+ * Range to sweep for an interface CIDR (e.g. "10.88.0.6/16"). Subnets up to /22 (1024
+ * addresses) are scanned whole; larger ones only as the /24 around the interface address,
+ * with `limitedFrom` naming the full subnet.
+ */
+export function hostScanRange(cidr: string): {
+  range: string;
+  limitedFrom?: string;
+} {
+  const m = /^(\d{1,3}(?:\.\d{1,3}){3})\/(\d{1,2})$/.exec(cidr);
+  if (!m) throw new Error(`Invalid IPv4 CIDR "${cidr}"`);
+  const ip = ipToNumber(m[1]!);
+  const prefix = Number(m[2]);
+  if (prefix >= MAX_SCAN_PREFIX) {
+    return { range: `${numberToIp(networkOf(ip, prefix))}/${prefix}` };
+  }
+  return {
+    range: `${numberToIp(networkOf(ip, FALLBACK_PREFIX))}/${FALLBACK_PREFIX}`,
+    limitedFrom: `${numberToIp(networkOf(ip, prefix))}/${prefix}`,
+  };
+}
 
-/** Parses `arp-scan --localnet --interface=<iface>` output: "ip\tmac\tvendor" lines. */
-export function parseArpScan(text: string): HostScanHost[] {
+/**
+ * nmap host discovery without port scan. As root on a local Ethernet segment nmap uses ARP
+ * (and reports MAC + vendor); unprivileged it falls back to TCP connect probes (no MAC).
+ * `-e` pins the interface; the range comes from the OS-reported interface, never from input.
+ */
+export function nmapDiscoveryArgs(iface: string, range: string): string[] {
+  return [
+    '-sn',
+    '-n',
+    '-T4',
+    '--max-retries',
+    '1',
+    '-e',
+    iface,
+    '-oX',
+    '-',
+    range,
+  ];
+}
+
+/** Parses `nmap -sn -oX -`: hosts that are up, with MAC address and vendor when known. */
+export function parseNmapDiscovery(xml: string): HostScanHost[] {
   const hosts: HostScanHost[] = [];
-  for (const raw of text.split(/\r?\n/)) {
-    const line = raw.trim();
-    const m = HOST_LINE.exec(line);
-    if (!m) continue;
-    const [, ip, mac, vendor] = m as unknown as [
-      string,
-      string,
-      string,
-      string?,
-    ];
-    const v = vendor?.trim();
+  for (const m of xml.matchAll(/<host\b[^>]*>([\s\S]*?)<\/host>/g)) {
+    const body = m[1] ?? '';
+    const status = xmlAttrs(/<status\b([^>]*?)\/?>/.exec(body)?.[1]);
+    if (status.state !== 'up') continue;
+    let ip: string | undefined;
+    let mac: Record<string, string | undefined> | undefined;
+    for (const a of body.matchAll(/<address\b([^>]*?)\/?>/g)) {
+      const attrs = xmlAttrs(a[1]);
+      if (attrs.addrtype === 'ipv4') ip = attrs.addr;
+      else if (attrs.addrtype === 'mac') mac = attrs;
+    }
+    if (!ip) continue;
     hosts.push({
       ip,
-      macAddress: mac.toLowerCase(),
-      vendor: v && v !== '(Unknown)' ? v : undefined,
+      macAddress: mac?.addr?.toLowerCase(),
+      vendor: mac?.vendor || undefined,
     });
   }
   return hosts.sort((a, b) => ipToNumber(a.ip) - ipToNumber(b.ip));
@@ -121,4 +165,13 @@ export function parseArpScan(text: string): HostScanHost[] {
 
 function ipToNumber(ip: string): number {
   return ip.split('.').reduce((acc, octet) => acc * 256 + Number(octet), 0);
+}
+
+function numberToIp(n: number): string {
+  return [24, 16, 8, 0].map((shift) => (n >>> shift) & 0xff).join('.');
+}
+
+function networkOf(ip: number, prefix: number): number {
+  const mask = prefix <= 0 ? 0 : (0xffffffff << (32 - prefix)) >>> 0;
+  return (ip & mask) >>> 0;
 }

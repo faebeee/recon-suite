@@ -28,7 +28,7 @@ login. Set `ADMIN_PASSWORD` in `apps/api/.env` to require one (see
 `apps/api/data/recon.db`, created on first start.
 
 At startup the API logs which tools this machine can run and, for the ones it can't, why and
-how to fix it (missing `arp-scan`, missing permission, running in a container, ...).
+how to fix it (missing `nmap`, missing permission, running in a container, ...).
 
 ## Your first scan
 

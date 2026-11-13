@@ -58,10 +58,10 @@ describe('mapKaliError', () => {
     const mapped = mapKaliError(
       new CommandFailedError('docker', '', false, 127),
       kali,
-      'arp-scan',
+      'nmap',
     );
     expect(mapped).toBeInstanceOf(CommandNotFoundError);
-    expect((mapped as CommandNotFoundError).command).toBe('arp-scan');
+    expect((mapped as CommandNotFoundError).command).toBe('nmap');
   });
 
   it('maps exit 124 to a timeout of the inner command', () => {

@@ -36,15 +36,18 @@ export const HOST_SCAN_INTERFACES_ENDPOINT = '/tools/host-scan/interfaces';
 
 export interface HostScanHost {
   ip: string;
-  macAddress: string;
-  /** NIC vendor from the MAC's OUI, when arp-scan's database has it. */
+  /** Only from ARP discovery (nmap as root on the same segment). */
+  macAddress?: string;
+  /** NIC vendor from the MAC's OUI, when nmap's database has it. */
   vendor?: string;
 }
 
 export interface HostScanOutput {
   interface: string;
-  /** Subnet that was scanned, in CIDR notation. */
+  /** Range that was scanned, in CIDR notation. */
   network: string;
+  /** Interface subnet when it was too large to sweep and only `network` (a /24) was scanned. */
+  limitedFrom?: string;
   /** The OS command used for the scan. */
   method: string;
   hosts: HostScanHost[];

@@ -48,7 +48,7 @@ export const envSchema = z.object({
    */
   COOKIE_SECURE: bool.default(true),
   /**
-   * Name of a running Kali container. When set, arp-scan and nmap run inside it via
+   * Name of a running Kali container. When set, nmap (Host Scan, Nmap Scan) runs inside it via
    * `<CONTAINER_CLI> exec` instead of on the API host. Needs access to the container
    * engine socket, which is root-equivalent on the host (see compose.yaml).
    */

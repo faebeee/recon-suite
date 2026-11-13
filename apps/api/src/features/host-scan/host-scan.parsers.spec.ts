@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
   listHostScanInterfaces,
   parseIpAddrJson,
-  parseArpScan,
+  hostScanRange,
+  nmapDiscoveryArgs,
+  parseNmapDiscovery,
   pickDefaultHostScanInterface,
 } from './host-scan.parsers.js';
 
@@ -75,30 +77,65 @@ describe('pickDefaultHostScanInterface', () => {
   });
 });
 
-describe('parseArpScan', () => {
-  it('parses host lines and ignores banner/summary lines', () => {
-    const text = [
-      'Interface: eth0, type: EN10MB, MAC: aa:bb:cc:dd:ee:ff, IPv4: 192.168.1.5',
-      'Starting arp-scan 1.9.7 with 256 hosts (https://github.com/royhills/arp-scan)',
-      '192.168.1.10\t11:22:33:44:55:66\tDell Inc.',
-      '192.168.1.1\taa:bb:cc:11:22:33\t(Unknown)',
-      '',
-      '2 packets received by filter, 0 packets dropped by kernel',
-      'Ending arp-scan 1.9.7: 256 hosts scanned in 1.234 seconds (207.46 hosts/sec). 2 responded',
-    ].join('\n');
+describe('hostScanRange', () => {
+  it('scans subnets up to /22 whole', () => {
+    expect(hostScanRange('192.168.1.5/24')).toEqual({
+      range: '192.168.1.0/24',
+    });
+    expect(hostScanRange('10.0.5.9/22')).toEqual({ range: '10.0.4.0/22' });
+  });
 
-    expect(parseArpScan(text)).toEqual([
-      { ip: '192.168.1.1', macAddress: 'aa:bb:cc:11:22:33', vendor: undefined },
+  it('limits larger subnets to the /24 around the interface address', () => {
+    expect(hostScanRange('10.88.0.6/16')).toEqual({
+      range: '10.88.0.0/24',
+      limitedFrom: '10.88.0.0/16',
+    });
+  });
+
+  it('rejects anything that is not an IPv4 CIDR', () => {
+    expect(() => hostScanRange('fe80::1/64')).toThrow();
+  });
+});
+
+describe('nmapDiscoveryArgs', () => {
+  it('pins the interface and only does host discovery', () => {
+    const args = nmapDiscoveryArgs('eth0', '10.88.0.0/24');
+    expect(args).toContain('-sn');
+    expect(args.slice(args.indexOf('-e'), args.indexOf('-e') + 2)).toEqual([
+      '-e',
+      'eth0',
+    ]);
+    expect(args.at(-1)).toBe('10.88.0.0/24');
+  });
+});
+
+describe('parseNmapDiscovery', () => {
+  it('lists hosts that are up with MAC and vendor, sorted by IP', () => {
+    const xml = `<nmaprun>
+<host><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="10.88.0.7" addrtype="ipv4"/>
+<address addr="DA:C3:1F:97:D0:AF" addrtype="mac"/>
+<hostnames></hostnames></host>
+<host><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="10.88.0.1" addrtype="ipv4"/>
+<address addr="00:1A:2B:3C:4D:5E" addrtype="mac" vendor="Ayecom Technology &amp; Co"/>
+</host>
+<host><status state="down" reason="no-response"/><address addr="10.88.0.9" addrtype="ipv4"/></host>
+<host><status state="up" reason="syn-ack"/><address addr="10.88.0.20" addrtype="ipv4"/></host>
+</nmaprun>`;
+    expect(parseNmapDiscovery(xml)).toEqual([
       {
-        ip: '192.168.1.10',
-        macAddress: '11:22:33:44:55:66',
-        vendor: 'Dell Inc.',
+        ip: '10.88.0.1',
+        macAddress: '00:1a:2b:3c:4d:5e',
+        vendor: 'Ayecom Technology & Co',
       },
+      { ip: '10.88.0.7', macAddress: 'da:c3:1f:97:d0:af', vendor: undefined },
+      { ip: '10.88.0.20', macAddress: undefined, vendor: undefined },
     ]);
   });
 
-  it('returns an empty list when nothing responded', () => {
-    expect(parseArpScan('0 responded')).toEqual([]);
+  it('returns an empty list when nothing is up', () => {
+    expect(parseNmapDiscovery('<nmaprun></nmaprun>')).toEqual([]);
   });
 });
 

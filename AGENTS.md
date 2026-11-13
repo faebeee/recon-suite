@@ -58,7 +58,7 @@ apps/api/src/
     net/             TargetGuardService: SSRF protection, blocked IP ranges
     http/            HttpClientService (guarded + trusted undici agents), readTextLimited
     process/         runCommand(): fixed OS commands via execFile (local tools)
-                     ToolExecService: arp-scan/nmap/ip locally or in the Kali container
+                     ToolExecService: nmap/ip locally or in the Kali container
     util/            mapConcurrent
     db/              Drizzle schema (schema.ts) on node:sqlite; migrations in apps/api/drizzle/
     auth/            @nestjs/authentication: login, SQLite sessions, API token, local-open mode
@@ -184,7 +184,7 @@ pure analysis function with tests).
 | `COOKIE_SECURE`          | api | `true`                  | Secure session cookie                   |
 | `NVD_API_KEY`            | api | unset                   | Enables CVE Lookup                      |
 | `SECURITYTRAILS_API_KEY` | api | unset                   | Enables Reverse IP                      |
-| `KALI_CONTAINER`         | api | unset                   | Run arp-scan/nmap via `docker exec`     |
+| `KALI_CONTAINER`         | api | unset                   | Run nmap via `docker exec`              |
 | `CONTAINER_CLI`          | api | `docker`                | `docker` or `podman` for KALI_CONTAINER |
 | `KALI_IMAGE`             | api | unset                   | Create KALI_CONTAINER if it is missing  |
 | `API_PROXY_TARGET`       | web | `http://localhost:4000` | Vite dev proxy target for `/api`        |

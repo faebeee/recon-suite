@@ -12,8 +12,8 @@ services:
     cap_add:
       - NET_RAW
       - NET_ADMIN
-    # Without host networking, nmap reaches internet targets through NAT, but arp-scan only
-    # sees the compose bridge network. To ARP-scan your LAN (Linux hosts only; Docker
+    # Without host networking, nmap reaches internet targets through NAT, but the Host Scan
+    # sweep only sees the compose bridge network. To sweep your LAN (Linux hosts only; Docker
     # Desktop and podman machine on macOS/Windows run inside a VM and never see the LAN),
     # uncomment:
     # network_mode: host
@@ -28,7 +28,7 @@ services:
         WITH_DOCKER_CLI: 'true'
     image: localhost/recon-suite/api:latest
     environment:
-      # Kali container for arp-scan/nmap. SECURITY: the engine socket mounted below is
+      # Kali container for nmap (Host Scan, Nmap Scan). SECURITY: the engine socket mounted below is
       # root-equivalent on the host; keep the API behind the login and never expose it.
       # Socket path: Docker /var/run/docker.sock (default), Podman rootful/podman machine
       # /run/podman/podman.sock, rootless /run/user/<uid>/podman/podman.sock
@@ -64,13 +64,8 @@ services:
     # (nmcli talks to it over D-Bus; the wireless device itself stays on the host, it is
     # never moved into the container network namespace).
     #
-    # --- Host Scan (N-02) ---
-    # arp-scan needs NET_RAW (Docker grants it by default, Podman does not). Without
-    # network_mode: host it only sees the container's own bridge network, not your LAN.
-    # network_mode: host
-    cap_add:
-      - NET_ADMIN
-      - NET_RAW
+    # Host Scan (N-02) and Nmap Scan (N-04) run nmap in the kali service, which holds the
+    # NET_RAW/NET_ADMIN capabilities; the api container needs none.
     volumes:
       - recon-data:/app/data
       - /run/dbus:/run/dbus:ro

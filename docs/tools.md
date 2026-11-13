@@ -335,14 +335,18 @@ timeout).
 
 ### N-02 Host Scan
 
-Local tool. Sends ARP requests with `arp-scan` on one network interface of the API host and
-lists live hosts on that subnet with IP, MAC address and NIC vendor.
+Local tool. Runs an `nmap -sn` host sweep (no port scan) on one network interface and lists
+live hosts with IP, MAC address and NIC vendor. Subnets up to /22 are swept whole; for larger
+ones only the /24 around the interface address (`limitedFrom` names the full subnet). Runs in
+the Kali container when `KALI_CONTAINER` is set (the interfaces are then the container's),
+otherwise on the API host.
 
 | Option      | Default                          | Values                                                  |
 | ----------- | -------------------------------- | ------------------------------------------------------- |
 | `interface` | first non-virtual IPv4 interface | an interface from `GET /api/tools/host-scan/interfaces` |
 
-Linux and macOS only. Needs `arp-scan` and raw socket access; see
+As root (Kali container, or a root API) nmap uses ARP and reports MAC addresses; unprivileged
+it falls back to TCP probes without MACs. See
 [Local tools setup](local-tools.md#host-scan).
 
 ### N-03 Banner Grab
