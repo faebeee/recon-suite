@@ -47,6 +47,22 @@ export const envSchema = z.object({
    * false only when serving the UI over plain HTTP on another host name.
    */
   COOKIE_SECURE: bool.default(true),
+  /**
+   * Name of a running Kali container. When set, arp-scan and nmap run inside it via
+   * `<CONTAINER_CLI> exec` instead of on the API host. Needs access to the container
+   * engine socket, which is root-equivalent on the host (see compose.kali.yaml).
+   */
+  KALI_CONTAINER: optional(
+    z
+      .string()
+      .trim()
+      .regex(
+        /^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$/,
+        'Invalid KALI_CONTAINER name',
+      ),
+  ),
+  /** CLI used to reach KALI_CONTAINER (talks to DOCKER_HOST / the default socket). */
+  CONTAINER_CLI: z.enum(['docker', 'podman']).default('docker'),
   /** NVD API key for the CVE Lookup tool (https://nvd.nist.gov/developers/request-an-api-key). */
   NVD_API_KEY: optional(z.string().trim().min(1)),
   /** SecurityTrails API key for the Reverse IP tool. */

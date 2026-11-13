@@ -250,6 +250,18 @@ export const TOOL_CATALOG: Record<ToolId, ToolMeta> = {
     scope: 'remote',
     targetHint: 'example.com',
   },
+  nmap: {
+    id: 'nmap',
+    code: 'N-04',
+    name: 'Nmap Scan',
+    tagline: 'TCP scan with service detection',
+    description:
+      "Runs nmap (in the Kali container when configured) against the target's resolved IP: TCP connect scan of the most common ports, with optional service and version detection. No NSE scripts.",
+    category: 'network',
+    mode: 'active',
+    scope: 'remote',
+    targetHint: 'scanme.nmap.org',
+  },
   'http-headers': {
     id: 'http-headers',
     code: 'W-01',

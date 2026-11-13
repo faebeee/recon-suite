@@ -359,6 +359,24 @@ SSH, FTP, SMTP, IMAP, POP3 and MySQL/MariaDB products and versions, with a link 
 States: `banner`, `silent` (connected, but the service waits for the client, e.g. HTTP),
 `closed`, `filtered`, `error`.
 
+### N-04 Nmap Scan
+
+Runs `nmap` against the target's resolved, guard-checked IP (the hostname never reaches nmap):
+TCP connect scan (`-sT -Pn -n --open`) with optional service and version detection (`-sV`). No
+NSE scripts. Lists open ports with service, product, version, extra info and CPEs, links
+versions to CVE Lookup and records one `info` finding per open port.
+
+| Option             | Default | Values                                         |
+| ------------------ | ------- | ---------------------------------------------- |
+| `topPorts`         | `100`   | `100` or `1000` (nmap's most common TCP ports) |
+| `ports`            | not set | 1-1000 explicit ports; replaces `topPorts`     |
+| `serviceDetection` | `true`  | `false` for a plain port scan (faster)         |
+
+Runs in the Kali container when `KALI_CONTAINER` is set (see
+[Kali container](local-tools.md#kali-container)), otherwise needs `nmap` on the API host. At
+most 2 scans run at the same time (429 otherwise); a scan is bounded by nmap's
+`--host-timeout` (60 s, or 150 s with version detection or more than 100 ports).
+
 ## Wireless
 
 ### R-01 WiFi Scanner

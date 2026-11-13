@@ -36,6 +36,7 @@ Turborepo monorepo with a feature-driven architecture.
 | N-01 | Port Probe         | active  | TCP connect check on preset or custom ports (max 64)                                     |
 | N-02 | Host Scan          | local   | ARP discovery of live hosts and MAC vendors on the API host's subnet (arp-scan)          |
 | N-03 | Banner Grab        | active  | Service greetings (SSH, SMTP, FTP, IMAP, POP3, MySQL) with product and version           |
+| N-04 | Nmap Scan          | active  | nmap TCP scan (top 100/1000 or custom ports) with service/version detection, via Kali    |
 | R-01 | WiFi Scanner       | local   | Nearby WiFi networks seen by the API host: SSID, band, channel, security, signal         |
 | R-02 | Bluetooth Scanner  | local   | BLE advertisements + Classic inquiry: name, vendor, class, RSSI, services (macOS, Linux) |
 
@@ -84,6 +85,7 @@ pnpm build | typecheck | lint | test
 pnpm --filter @recon/api test:e2e
 pnpm compose:up     # web http://localhost:8080 (nginx + api)
 pnpm compose:down
+pnpm compose:up:kali  # same, plus a Kali container for arp-scan/nmap (see compose.kali.yaml)
 ```
 
 Configuration: see `.env.example`, `apps/api/.env.example` and `apps/web/.env.example`.

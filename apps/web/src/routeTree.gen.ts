@@ -27,6 +27,7 @@ import { Route as ToolsHostScanRouteImport } from './routes/tools/host-scan'
 import { Route as ToolsHttpHeadersRouteImport } from './routes/tools/http-headers'
 import { Route as ToolsIpIntelRouteImport } from './routes/tools/ip-intel'
 import { Route as ToolsJsEndpointsRouteImport } from './routes/tools/js-endpoints'
+import { Route as ToolsNmapRouteImport } from './routes/tools/nmap'
 import { Route as ToolsPortsRouteImport } from './routes/tools/ports'
 import { Route as ToolsReverseIpRouteImport } from './routes/tools/reverse-ip'
 import { Route as ToolsSubdomainsRouteImport } from './routes/tools/subdomains'
@@ -130,6 +131,11 @@ const ToolsJsEndpointsRoute = ToolsJsEndpointsRouteImport.update({
   path: '/tools/js-endpoints',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToolsNmapRoute = ToolsNmapRouteImport.update({
+  id: '/tools/nmap',
+  path: '/tools/nmap',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ToolsPortsRoute = ToolsPortsRouteImport.update({
   id: '/tools/ports',
   path: '/tools/ports',
@@ -209,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/ip-intel': typeof ToolsIpIntelRoute
   '/tools/js-endpoints': typeof ToolsJsEndpointsRoute
+  '/tools/nmap': typeof ToolsNmapRoute
   '/tools/ports': typeof ToolsPortsRoute
   '/tools/reverse-ip': typeof ToolsReverseIpRoute
   '/tools/subdomains': typeof ToolsSubdomainsRoute
@@ -241,6 +248,7 @@ export interface FileRoutesByTo {
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/ip-intel': typeof ToolsIpIntelRoute
   '/tools/js-endpoints': typeof ToolsJsEndpointsRoute
+  '/tools/nmap': typeof ToolsNmapRoute
   '/tools/ports': typeof ToolsPortsRoute
   '/tools/reverse-ip': typeof ToolsReverseIpRoute
   '/tools/subdomains': typeof ToolsSubdomainsRoute
@@ -274,6 +282,7 @@ export interface FileRoutesById {
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/ip-intel': typeof ToolsIpIntelRoute
   '/tools/js-endpoints': typeof ToolsJsEndpointsRoute
+  '/tools/nmap': typeof ToolsNmapRoute
   '/tools/ports': typeof ToolsPortsRoute
   '/tools/reverse-ip': typeof ToolsReverseIpRoute
   '/tools/subdomains': typeof ToolsSubdomainsRoute
@@ -308,6 +317,7 @@ export interface FileRouteTypes {
     | '/tools/http-headers'
     | '/tools/ip-intel'
     | '/tools/js-endpoints'
+    | '/tools/nmap'
     | '/tools/ports'
     | '/tools/reverse-ip'
     | '/tools/subdomains'
@@ -340,6 +350,7 @@ export interface FileRouteTypes {
     | '/tools/http-headers'
     | '/tools/ip-intel'
     | '/tools/js-endpoints'
+    | '/tools/nmap'
     | '/tools/ports'
     | '/tools/reverse-ip'
     | '/tools/subdomains'
@@ -372,6 +383,7 @@ export interface FileRouteTypes {
     | '/tools/http-headers'
     | '/tools/ip-intel'
     | '/tools/js-endpoints'
+    | '/tools/nmap'
     | '/tools/ports'
     | '/tools/reverse-ip'
     | '/tools/subdomains'
@@ -405,6 +417,7 @@ export interface RootRouteChildren {
   ToolsHttpHeadersRoute: typeof ToolsHttpHeadersRoute
   ToolsIpIntelRoute: typeof ToolsIpIntelRoute
   ToolsJsEndpointsRoute: typeof ToolsJsEndpointsRoute
+  ToolsNmapRoute: typeof ToolsNmapRoute
   ToolsPortsRoute: typeof ToolsPortsRoute
   ToolsReverseIpRoute: typeof ToolsReverseIpRoute
   ToolsSubdomainsRoute: typeof ToolsSubdomainsRoute
@@ -548,6 +561,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToolsJsEndpointsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tools/nmap': {
+      id: '/tools/nmap'
+      path: '/tools/nmap'
+      fullPath: '/tools/nmap'
+      preLoaderRoute: typeof ToolsNmapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tools/ports': {
       id: '/tools/ports'
       path: '/tools/ports'
@@ -653,6 +673,7 @@ const rootRouteChildren: RootRouteChildren = {
   ToolsHttpHeadersRoute: ToolsHttpHeadersRoute,
   ToolsIpIntelRoute: ToolsIpIntelRoute,
   ToolsJsEndpointsRoute: ToolsJsEndpointsRoute,
+  ToolsNmapRoute: ToolsNmapRoute,
   ToolsPortsRoute: ToolsPortsRoute,
   ToolsReverseIpRoute: ToolsReverseIpRoute,
   ToolsSubdomainsRoute: ToolsSubdomainsRoute,

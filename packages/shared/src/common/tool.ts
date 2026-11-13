@@ -24,6 +24,7 @@ export const TOOL_IDS = [
   'exposed-files',
   'ports',
   'banner-grab',
+  'nmap',
   'host-scan',
   'wifi',
   'bluetooth',

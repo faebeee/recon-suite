@@ -31,6 +31,8 @@ export interface HostFacts {
   apiKeys: { nvd: boolean; securityTrails: boolean };
   /** Linux: NET_RAW is in the capability bounding set (always true elsewhere). */
   netRawAllowed: boolean;
+  /** KALI_CONTAINER: arp-scan and nmap run there via `<cli> exec`. */
+  kali?: { container: string; cli: 'docker' | 'podman' };
 }
 
 const OK = { status: 'ok' } as const;
@@ -80,7 +82,23 @@ const CHECKS: Record<ToolId, Check> = {
         },
   ports: () => OK,
 
+  nmap: (h) => {
+    if (h.kali) return kaliCheck(h);
+    return h.has('nmap')
+      ? OK
+      : {
+          status: 'unavailable',
+          reason: '"nmap" is not installed on the API host.',
+          fix:
+            (h.platform === 'darwin'
+              ? 'brew install nmap'
+              : 'Install it, e.g. "sudo apt install nmap"') +
+            ', or run it in the Kali container (pnpm compose:up:kali, KALI_CONTAINER).',
+        };
+  },
+
   'host-scan': (h) => {
+    if (h.kali) return kaliCheck(h);
     if (h.platform === 'win32') {
       return {
         status: 'unavailable',
@@ -241,6 +259,18 @@ export function formatDiagnosis(results: ToolSupport[]): string[] {
     if (r.fix) lines.push(`         fix: ${r.fix}`);
   }
   return lines;
+}
+
+/** Only checks the CLI; whether the container runs is seen on the first call (503 then). */
+function kaliCheck(h: HostFacts): Omit<ToolSupport, 'id'> {
+  const { cli, container } = h.kali!;
+  return h.has(cli)
+    ? OK
+    : {
+        status: 'unavailable',
+        reason: `KALI_CONTAINER is set but the "${cli}" CLI is missing, so "${container}" can't be reached.`,
+        fix: `Install the ${cli} CLI on the API host, or unset KALI_CONTAINER.`,
+      };
 }
 
 function containerHint(h: HostFacts): string {

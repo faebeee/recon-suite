@@ -42,6 +42,7 @@ describe('diagnosePlatform', () => {
     expect(r.wifi!.fix).toContain('network-manager');
     expect(r.bluetooth!.fix).toContain('bluez');
     expect(r['host-scan']!.fix).toContain('arp-scan');
+    expect(r.nmap!.fix).toContain('compose:up:kali');
     expect(r.dns!.status).toBe('ok');
   });
 
@@ -65,6 +66,18 @@ describe('diagnosePlatform', () => {
     const r = byId(facts({ inContainer: true, netRawAllowed: false }));
     expect(r['host-scan']).toMatchObject({ status: 'unavailable' });
     expect(r['host-scan']!.fix).toContain('NET_RAW');
+  });
+
+  it('delegates arp-scan and nmap to the Kali container', () => {
+    const kali = { container: 'recon-kali', cli: 'docker' } as const;
+    const r = byId(
+      facts({ platform: 'win32', kali, has: (c) => c === 'docker' }),
+    );
+    expect(r['host-scan']!.status).toBe('ok');
+    expect(r.nmap!.status).toBe('ok');
+    const missing = byId(facts({ kali, has: () => false }));
+    expect(missing.nmap).toMatchObject({ status: 'unavailable' });
+    expect(missing.nmap!.reason).toContain('docker');
   });
 
   it('suggests the macOS helper when it is not built', () => {

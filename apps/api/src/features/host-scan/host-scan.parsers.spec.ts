@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   listHostScanInterfaces,
+  parseIpAddrJson,
   parseArpScan,
   pickDefaultHostScanInterface,
 } from './host-scan.parsers.js';
@@ -98,5 +99,52 @@ describe('parseArpScan', () => {
 
   it('returns an empty list when nothing responded', () => {
     expect(parseArpScan('0 responded')).toEqual([]);
+  });
+});
+
+describe('parseIpAddrJson', () => {
+  it('lists non-loopback IPv4 interfaces from ip -j output', () => {
+    const json = JSON.stringify([
+      {
+        ifname: 'lo',
+        flags: ['LOOPBACK', 'UP'],
+        link_type: 'loopback',
+        address: '00:00:00:00:00:00',
+        addr_info: [{ family: 'inet', local: '127.0.0.1', prefixlen: 8 }],
+      },
+      {
+        ifname: 'eth0@if12',
+        flags: ['BROADCAST', 'UP'],
+        link_type: 'ether',
+        address: 'AA:BB:CC:DD:EE:FF',
+        addr_info: [{ family: 'inet', local: '10.89.0.4', prefixlen: 24 }],
+      },
+      {
+        ifname: 'wg0',
+        flags: ['POINTOPOINT', 'UP'],
+        link_type: 'none',
+        addr_info: [{ family: 'inet', local: '10.8.0.2', prefixlen: 32 }],
+      },
+    ]);
+    expect(parseIpAddrJson(json)).toEqual([
+      {
+        name: 'eth0',
+        address: '10.89.0.4',
+        netmask: '255.255.255.0',
+        cidr: '10.89.0.4/24',
+        macAddress: 'aa:bb:cc:dd:ee:ff',
+      },
+      {
+        name: 'wg0',
+        address: '10.8.0.2',
+        netmask: '255.255.255.255',
+        cidr: '10.8.0.2/32',
+        macAddress: undefined,
+      },
+    ]);
+  });
+
+  it('returns an empty list for invalid JSON', () => {
+    expect(parseIpAddrJson('nope')).toEqual([]);
   });
 });

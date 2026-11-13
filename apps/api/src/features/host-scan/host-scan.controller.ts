@@ -16,7 +16,7 @@ export class HostScanController {
 
   /** Helper endpoint for the interface dropdown (plain response, no ToolResult envelope). */
   @Get('interfaces')
-  interfaces(): HostScanInterfacesOutput {
+  interfaces(): Promise<HostScanInterfacesOutput> {
     return this.hostScan.listInterfaces();
   }
 

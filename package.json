@@ -17,7 +17,9 @@
     "setup:wifi-macos": "pnpm setup:macos-helper",
     "compose:up": "podman compose up --build -d",
     "compose:down": "podman compose down",
-    "compose:logs": "podman compose logs -f"
+    "compose:logs": "podman compose logs -f",
+    "compose:up:kali": "podman compose -f compose.yaml -f compose.kali.yaml up --build -d",
+    "compose:down:kali": "podman compose -f compose.yaml -f compose.kali.yaml down"
   },
   "devDependencies": {
     "prettier": "^3.10.1",

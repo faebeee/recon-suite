@@ -58,6 +58,7 @@ apps/api/src/
     net/             TargetGuardService: SSRF protection, blocked IP ranges
     http/            HttpClientService (guarded + trusted undici agents), readTextLimited
     process/         runCommand(): fixed OS commands via execFile (local tools)
+                     ToolExecService: arp-scan/nmap/ip locally or in the Kali container
     util/            mapConcurrent
     db/              Drizzle schema (schema.ts) on node:sqlite; migrations in apps/api/drizzle/
     auth/            @nestjs/authentication: login, SQLite sessions, API token, local-open mode
@@ -122,7 +123,9 @@ apps/web/src/
    authorisation notice automatically.
 6. Rate limiting is global (`@nestjs/throttler`, `THROTTLE_LIMIT`). Only system endpoints use
    `@SkipThrottle()`.
-7. OS commands only through `runCommand()` with a hard-coded command and argument array.
+7. OS commands only through `runCommand()` (or `ToolExecService.run()` for the closed
+   `EXEC_COMMANDS` list that may run in the Kali container) with a hard-coded command and
+   argument array.
    Never build commands from user input and never use a shell. A user-chosen value may only
    become an argument after strict schema validation **and** an allowlist check against what the
    OS reported (see `WifiService.scan`: the interface must be in `listInterfaces()`).
@@ -181,6 +184,8 @@ pure analysis function with tests).
 | `COOKIE_SECURE`          | api | `true`                  | Secure session cookie                   |
 | `NVD_API_KEY`            | api | unset                   | Enables CVE Lookup                      |
 | `SECURITYTRAILS_API_KEY` | api | unset                   | Enables Reverse IP                      |
+| `KALI_CONTAINER`         | api | unset                   | Run arp-scan/nmap via `docker exec`     |
+| `CONTAINER_CLI`          | api | `docker`                | `docker` or `podman` for KALI_CONTAINER |
 | `API_PROXY_TARGET`       | web | `http://localhost:4000` | Vite dev proxy target for `/api`        |
 | `VITE_API_URL`           | web | `/api`                  | API base URL used by the browser        |
 

@@ -64,6 +64,7 @@ export class PlatformDiagnosticsService implements OnApplicationBootstrap {
         infos?.some((i) => !i.internal && i.family === 'IPv4'),
       ),
       netRawAllowed: netRawInBoundingSet(),
+      kali: this.kali(),
       apiKeys: {
         nvd: !!this.config.get('NVD_API_KEY', { infer: true }),
         securityTrails: !!this.config.get('SECURITYTRAILS_API_KEY', {
@@ -71,6 +72,13 @@ export class PlatformDiagnosticsService implements OnApplicationBootstrap {
         }),
       },
     };
+  }
+
+  private kali(): HostFacts['kali'] {
+    const container = this.config.get('KALI_CONTAINER', { infer: true });
+    return container
+      ? { container, cli: this.config.get('CONTAINER_CLI', { infer: true }) }
+      : undefined;
   }
 }
 

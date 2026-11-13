@@ -76,6 +76,11 @@ import {
   type BannerGrabOutput,
 } from './features/banner-grab.js';
 import {
+  nmapInputSchema,
+  type NmapInput,
+  type NmapOutput,
+} from './features/nmap.js';
+import {
   emailSecurityInputSchema,
   type EmailSecurityInput,
   type EmailSecurityOutput,
@@ -153,6 +158,7 @@ export const TOOL_INPUT_SCHEMAS = {
   'js-endpoints': jsEndpointsInputSchema,
   'exposed-files': exposedFilesInputSchema,
   'banner-grab': bannerGrabInputSchema,
+  nmap: nmapInputSchema,
   'http-headers': httpHeadersInputSchema,
   tls: tlsInputSchema,
   ports: portsInputSchema,
@@ -186,6 +192,7 @@ export interface ToolIO {
   'js-endpoints': { input: JsEndpointsInput; output: JsEndpointsOutput };
   'exposed-files': { input: ExposedFilesInput; output: ExposedFilesOutput };
   'banner-grab': { input: BannerGrabInput; output: BannerGrabOutput };
+  nmap: { input: NmapInput; output: NmapOutput };
   'http-headers': { input: HttpHeadersInput; output: HttpHeadersOutput };
   tls: { input: TlsInput; output: TlsOutput };
   ports: { input: PortsInput; output: PortsOutput };

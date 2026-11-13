@@ -25,6 +25,65 @@ export function listHostScanInterfaces(
   return result;
 }
 
+interface IpAddrEntry {
+  ifname?: unknown;
+  address?: unknown;
+  link_type?: unknown;
+  flags?: unknown;
+  addr_info?: { family?: unknown; local?: unknown; prefixlen?: unknown }[];
+}
+
+/**
+ * Parses `ip -j addr show` (iproute2 JSON), used when interfaces live in the Kali
+ * container instead of the API process. Same filter as listHostScanInterfaces().
+ */
+export function parseIpAddrJson(text: string): HostScanInterface[] {
+  let entries: unknown;
+  try {
+    entries = JSON.parse(text);
+  } catch {
+    return [];
+  }
+  if (!Array.isArray(entries)) return [];
+  const result: HostScanInterface[] = [];
+  for (const entry of entries as IpAddrEntry[]) {
+    if (typeof entry?.ifname !== 'string') continue;
+    const loopback =
+      entry.link_type === 'loopback' ||
+      (Array.isArray(entry.flags) && entry.flags.includes('LOOPBACK'));
+    if (loopback) continue;
+    const mac =
+      typeof entry.address === 'string' &&
+      /^[0-9a-f]{2}(:[0-9a-f]{2}){5}$/i.test(entry.address) &&
+      entry.address !== '00:00:00:00:00:00'
+        ? entry.address.toLowerCase()
+        : undefined;
+    for (const info of entry.addr_info ?? []) {
+      if (
+        info.family !== 'inet' ||
+        typeof info.local !== 'string' ||
+        typeof info.prefixlen !== 'number'
+      ) {
+        continue;
+      }
+      result.push({
+        name: entry.ifname.split('@')[0]!,
+        address: info.local,
+        netmask: prefixToNetmask(info.prefixlen),
+        cidr: `${info.local}/${info.prefixlen}`,
+        macAddress: mac,
+      });
+    }
+  }
+  return result;
+}
+
+function prefixToNetmask(prefix: number): string {
+  const bits =
+    prefix <= 0 ? 0 : (0xffffffff << (32 - Math.min(prefix, 32))) >>> 0;
+  return [24, 16, 8, 0].map((shift) => (bits >>> shift) & 0xff).join('.');
+}
+
 /** Prefers an interface with a real (non-zero) MAC address over virtual/tunnel ones. */
 export function pickDefaultHostScanInterface(
   interfaces: HostScanInterface[],

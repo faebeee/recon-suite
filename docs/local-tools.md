@@ -83,3 +83,34 @@ and only its own bridge network, so local tools are off. To enable them on a Lin
 
 Read the comments in `compose.yaml` before enabling this: host networking removes the network
 isolation of the container.
+
+## Kali container
+
+`compose.kali.yaml` adds a `kali` service (`infra/kali/Containerfile`: kali-rolling with
+`arp-scan`, `nmap`, `iproute2`) and points the API at it with `KALI_CONTAINER=recon-kali`.
+Host Scan and Nmap Scan then run there via `docker exec recon-kali timeout <s> <command> ...`
+instead of on the API host; Host Scan lists the Kali container's interfaces (`ip -j addr`).
+
+```sh
+pnpm compose:up:kali
+pnpm compose:down:kali
+```
+
+| Variable               | Default                | Purpose                                                         |
+| ---------------------- | ---------------------- | --------------------------------------------------------------- |
+| `KALI_CONTAINER`       | not set                | Container to `exec` into; unset = run tools on the API host     |
+| `CONTAINER_CLI`        | `docker`               | `docker` or `podman` (the docker CLI also works against Podman) |
+| `CONTAINER_SOCKET`     | `/var/run/docker.sock` | compose only: engine socket mounted into the API container      |
+| `CONTAINER_SOCKET_GID` | `0`                    | compose only: group the API process needs to use the socket     |
+| `KALI_API_USER`        | `node`                 | compose only: set `0` for rootless Podman sockets               |
+
+**Security:** the API needs the container engine socket for `exec`, which is root-equivalent on
+the host. Use this setup only on machines you control, behind the login, never publicly.
+
+**Networks:** nmap reaches internet targets from the default bridge network. arp-scan only sees
+the LAN with `network_mode: host` on the `kali` service, which works on Linux hosts only (Docker
+Desktop and podman machine run containers in a VM). Host Scan also still needs
+`LOCAL_TOOLS_ENABLED=true`.
+
+The same works with a natively running API (`pnpm dev`): start the `kali` service, then set
+`KALI_CONTAINER=recon-kali` (and `CONTAINER_CLI=podman` if you use Podman) in `apps/api/.env`.

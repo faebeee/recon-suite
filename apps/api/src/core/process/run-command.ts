@@ -11,6 +11,8 @@ export class CommandFailedError extends Error {
     readonly command: string,
     readonly stderr: string,
     readonly timedOut: boolean,
+    /** Process exit code, when it exited on its own. */
+    readonly exitCode?: number,
   ) {
     super(
       timedOut
@@ -36,10 +38,20 @@ export function runCommand(
       { timeout: timeoutMs, maxBuffer, windowsHide: true },
       (err, stdout, stderr) => {
         if (!err) return resolve(stdout);
-        const e = err as NodeJS.ErrnoException & { killed?: boolean };
+        const e = err as Omit<NodeJS.ErrnoException, 'code'> & {
+          code?: string | number;
+          killed?: boolean;
+        };
         if (e.code === 'ENOENT')
           return reject(new CommandNotFoundError(command));
-        reject(new CommandFailedError(command, String(stderr), !!e.killed));
+        reject(
+          new CommandFailedError(
+            command,
+            String(stderr),
+            !!e.killed,
+            typeof e.code === 'number' ? e.code : undefined,
+          ),
+        );
       },
     );
   });

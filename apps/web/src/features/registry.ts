@@ -18,6 +18,7 @@ import {
   Network,
   Radar,
   Router,
+  ScanLine,
   ScanSearch,
   Server,
   Share2,
@@ -86,6 +87,7 @@ export const TOOL_UI: Record<ToolId, ToolUi> = {
     accepts: ['domain', 'url'],
   },
   'banner-grab': { icon: Terminal, tone: 'green', accepts: ['domain', 'ip'] },
+  nmap: { icon: ScanLine, tone: 'green', accepts: ['domain', 'ip'] },
   // Local tool: no target, so it never appears in pivots or quick-target.
   'host-scan': { icon: Router, tone: 'green', accepts: [] },
   wifi: { icon: Wifi, tone: 'cyan', accepts: [] },

@@ -30,6 +30,9 @@ RUN apk add --no-cache arp-scan \
   && apk add --no-cache --virtual .setcap libcap-setcap \
   && setcap cap_net_raw+ep "$(command -v arp-scan)" \
   && apk del .setcap
+# docker CLI only for the Kali setup (compose.kali.yaml): runs `docker exec recon-kali ...`.
+ARG WITH_DOCKER_CLI=false
+RUN if [ "$WITH_DOCKER_CLI" = "true" ]; then apk add --no-cache docker-cli; fi
 COPY --from=builder --chown=node:node /prod/api .
 # SQLite database (engagements, history, notes, sessions); mounted as a volume by compose.
 RUN mkdir -p /app/data && chown node:node /app/data

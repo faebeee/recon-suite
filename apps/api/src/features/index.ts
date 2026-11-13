@@ -12,6 +12,7 @@ import { TlsAuditModule } from './tls-audit/tls-audit.module.js';
 import { JsEndpointsModule } from './js-endpoints/js-endpoints.module.js';
 import { ExposedFilesModule } from './exposed-files/exposed-files.module.js';
 import { BannerGrabModule } from './banner-grab/banner-grab.module.js';
+import { NmapModule } from './nmap/nmap.module.js';
 import { BluetoothModule } from './bluetooth/bluetooth.module.js';
 import { DnsModule } from './dns/dns.module.js';
 import { EmailSecurityModule } from './email-security/email-security.module.js';
@@ -53,6 +54,7 @@ export const FEATURE_MODULES = [
   JsEndpointsModule,
   ExposedFilesModule,
   BannerGrabModule,
+  NmapModule,
   PortsModule,
   HostScanModule,
   WifiModule,
