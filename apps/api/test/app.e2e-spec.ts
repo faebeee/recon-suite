@@ -66,6 +66,23 @@ describe('App (e2e)', () => {
         }
       }));
 
+  it('only rate-limits login attempts', async () => {
+    const server = app.getHttpServer();
+    for (let i = 0; i < 80; i++) {
+      await request(server).get('/api/system/runtime').expect(200);
+    }
+    for (let i = 0; i < 10; i++) {
+      await request(server)
+        .post('/api/auth/login')
+        .send({ password: 'wrong password!' })
+        .expect((res) => expect(res.status).not.toBe(429));
+    }
+    await request(server)
+      .post('/api/auth/login')
+      .send({ password: 'wrong password!' })
+      .expect(429);
+  });
+
   it('rejects invalid input with 400', () =>
     request(app.getHttpServer())
       .post('/api/tools/dns')

@@ -61,7 +61,8 @@ export class ToolExecService {
   async run(
     command: ExecCommand,
     args: readonly string[],
-    { timeoutMs = 20_000 }: { timeoutMs?: number } = {},
+    /** `null`: no time limit (long nmap scans). */
+    { timeoutMs = 20_000 }: { timeoutMs?: number | null } = {},
   ): Promise<string> {
     const target = this.target;
     if (target.kind === 'local') {
@@ -69,7 +70,11 @@ export class ToolExecService {
     }
     const exec = buildKaliExec(target, command, args, timeoutMs);
     const once = () =>
-      this.command(exec.command, exec.args, timeoutMs + KALI_GRACE_MS);
+      this.command(
+        exec.command,
+        exec.args,
+        timeoutMs === null ? null : timeoutMs + KALI_GRACE_MS,
+      );
     try {
       return await once();
     } catch (err) {
@@ -103,9 +108,9 @@ export class ToolExecService {
   protected command(
     command: string,
     args: readonly string[],
-    timeoutMs: number,
+    timeoutMs: number | null,
   ): Promise<string> {
-    return runCommand(command, args, { timeoutMs });
+    return runCommand(command, args, { timeoutMs: timeoutMs ?? 0 });
   }
 
   private ensureRunning(

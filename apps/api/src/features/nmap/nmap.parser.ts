@@ -11,13 +11,13 @@ export interface NmapArgsOptions {
   topPorts: number;
   ports?: number[];
   serviceDetection: boolean;
-  hostTimeoutSeconds: number;
 }
 
 /**
  * Fixed nmap flags. -sT works without raw sockets (same result locally and in Kali),
  * -Pn skips host discovery (many hosts drop ICMP), -n disables reverse DNS so nmap does no
- * lookups of its own, --open keeps the output to open ports. No NSE scripts.
+ * lookups of its own, --open keeps the output to open ports. No NSE scripts and no
+ * --host-timeout: the scan runs until nmap is done.
  */
 export function buildNmapArgs(o: NmapArgsOptions): string[] {
   const portArgs = o.ports?.length
@@ -31,8 +31,6 @@ export function buildNmapArgs(o: NmapArgsOptions): string[] {
     '-T4',
     '--max-retries',
     '2',
-    '--host-timeout',
-    `${o.hostTimeoutSeconds}s`,
     ...(o.serviceDetection ? ['-sV', '--version-intensity', '5'] : []),
     ...(o.family === 6 ? ['-6'] : []),
     ...portArgs,

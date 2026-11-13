@@ -18,7 +18,6 @@ values count as "not set".
 | `PORT`                   | `4000`                  | HTTP port                                                                                    |
 | `CORS_ORIGIN`            | `http://localhost:5173` | Allowed browser origins, comma separated (also trusted for cookie-authenticated writes)      |
 | `ALLOW_PRIVATE_TARGETS`  | `false`                 | Allow loopback, private, link-local and reserved targets. Keep `false` when shared.          |
-| `THROTTLE_LIMIT`         | `60`                    | Requests per minute per client across all tool endpoints                                     |
 | `LOCAL_TOOLS_ENABLED`    | `true`                  | Enable WiFi, Bluetooth and Host Scan (they expose the server's surroundings)                 |
 | `DATABASE_PATH`          | `data/recon.db`         | SQLite file for engagements, history, notes and sessions (relative to the working directory) |
 | `ADMIN_PASSWORD_HASH`    | not set                 | scrypt hash of the login password (preferred), see below                                     |
@@ -70,7 +69,6 @@ of the web app to the API's `CORS_ORIGIN`.
 | `API_PORT`                              | `4000`  | Host port for the API container                                            |
 | `WEB_PORT`                              | `8080`  | Host port for the web container (nginx); also sets the API's `CORS_ORIGIN` |
 | `ALLOW_PRIVATE_TARGETS`                 | `false` | Passed to the API                                                          |
-| `THROTTLE_LIMIT`                        | `60`    | Passed to the API                                                          |
 | `LOCAL_TOOLS_ENABLED`                   | `false` | Passed to the API. Off by default in containers                            |
 | `ADMIN_PASSWORD_HASH`, `ADMIN_PASSWORD` | not set | Passed to the API. **Required**: requests through nginx are not local      |
 | `API_TOKEN`, `COOKIE_SECURE`            |         | Passed to the API                                                          |

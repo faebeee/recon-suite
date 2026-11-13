@@ -23,28 +23,27 @@ export const KALI_GRACE_MS = 10_000;
 /**
  * Builds `<cli> exec <container> timeout -k 5 <s> <command> <args...>`. The in-container
  * `timeout` matters: killing the local CLI process would leave the command running inside
- * the container.
+ * the container. `timeoutMs: null` runs the command without a time limit.
  */
 export function buildKaliExec(
   target: KaliTarget,
   command: ExecCommand,
   args: readonly string[],
-  timeoutMs: number,
+  timeoutMs: number | null,
 ): { command: ContainerCli; args: string[] } {
   assertContainerName(target.container);
-  const seconds = Math.max(1, Math.ceil(timeoutMs / 1000));
+  const limit =
+    timeoutMs === null
+      ? []
+      : [
+          'timeout',
+          '-k',
+          '5',
+          String(Math.max(1, Math.ceil(timeoutMs / 1000))),
+        ];
   return {
     command: target.cli,
-    args: [
-      'exec',
-      target.container,
-      'timeout',
-      '-k',
-      '5',
-      String(seconds),
-      command,
-      ...args,
-    ],
+    args: ['exec', target.container, ...limit, command, ...args],
   };
 }
 

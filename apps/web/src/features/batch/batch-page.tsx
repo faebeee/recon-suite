@@ -36,11 +36,8 @@ import {
   countFindings,
   JOB_TONE,
   MAX_BATCH_JOBS,
-  MAX_RATE_LIMIT_RETRIES,
   parseTargets,
   planJobs,
-  RATE_LIMIT_WAIT_MS,
-  sleep,
   type Job,
 } from './batch-jobs';
 
@@ -95,43 +92,24 @@ export function BatchPage() {
 
   async function runJob(job: Job, signal: AbortSignal) {
     update(job.key, { status: 'running', note: undefined });
-    for (let attempt = 0; ; attempt++) {
-      try {
-        const result = await apiPost<ToolResult<unknown>>(
-          toolEndpoint(job.tool),
-          job.input,
-          { signal },
-        );
-        update(job.key, { status: 'ok', note: undefined, result });
-        return;
-      } catch (err) {
-        if (signal.aborted) {
-          update(job.key, { status: 'cancelled', note: undefined });
-          return;
-        }
-        if (
-          err instanceof ApiError &&
-          err.status === 429 &&
-          attempt < MAX_RATE_LIMIT_RETRIES
-        ) {
-          update(job.key, {
-            note: `rate limited, waiting (retry ${attempt + 1}/${MAX_RATE_LIMIT_RETRIES})`,
-          });
-          await sleep(RATE_LIMIT_WAIT_MS, signal);
-          if (signal.aborted) {
-            update(job.key, { status: 'cancelled', note: undefined });
-            return;
-          }
-          update(job.key, { note: undefined });
-          continue;
-        }
-        update(job.key, {
-          status: 'error',
-          note: undefined,
-          error: err instanceof Error ? err.message : 'Request failed',
-        });
-        return;
-      }
+    try {
+      const result = await apiPost<ToolResult<unknown>>(
+        toolEndpoint(job.tool),
+        job.input,
+        { signal },
+      );
+      update(job.key, { status: 'ok', note: undefined, result });
+    } catch (err) {
+      update(
+        job.key,
+        signal.aborted
+          ? { status: 'cancelled', note: undefined }
+          : {
+              status: 'error',
+              note: undefined,
+              error: err instanceof Error ? err.message : 'Request failed',
+            },
+      );
     }
   }
 

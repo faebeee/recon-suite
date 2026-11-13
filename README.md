@@ -98,8 +98,8 @@ Configuration: see `.env.example`, `apps/api/.env.example` and `apps/web/.env.ex
 - Every connection to a user-supplied target passes `TargetGuardService`, which blocks
   loopback, private, link-local, CGNAT, multicast and reserved ranges (including on redirects
   and against DNS rebinding). Set `ALLOW_PRIVATE_TARGETS=true` only for local, single-user use.
-- Timeouts, response size limits, port count limits and global rate limiting
-  (`THROTTLE_LIMIT` requests/min) apply to all tools.
+- Timeouts (except nmap scans), response size limits and port count limits apply to all
+  tools. There is no global rate limit; only login attempts are limited (10/min).
 - Password login (single operator), API token for scripts; without a password only local
   requests are accepted. Active tools stay inside the engagement scope. See
   [docs/security.md](docs/security.md).

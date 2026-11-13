@@ -11,6 +11,13 @@ import {
 const kali = { kind: 'kali', cli: 'docker', container: 'recon-kali' } as const;
 
 describe('buildKaliExec', () => {
+  it('runs without an in-container timeout when the limit is null', () => {
+    expect(buildKaliExec(kali, 'nmap', ['-sn', '192.0.2.0/24'], null)).toEqual({
+      command: 'docker',
+      args: ['exec', 'recon-kali', 'nmap', '-sn', '192.0.2.0/24'],
+    });
+  });
+
   it('wraps the command in an in-container timeout', () => {
     expect(buildKaliExec(kali, 'nmap', ['-sT', '192.0.2.1'], 30_500)).toEqual({
       command: 'docker',

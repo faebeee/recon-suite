@@ -1,7 +1,6 @@
 import {
   ForbiddenException,
-  GatewayTimeoutException,
-  HttpException,
+  BadGatewayException,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import type { TargetGuardService } from '../../core/net/target-guard.service.js';
@@ -17,7 +16,11 @@ const guard = (resolve: (host: string) => Promise<{ addresses: string[] }>) =>
   ({ resolve: vi.fn(resolve) }) as unknown as TargetGuardService;
 
 const exec = (
-  run: (cmd: string, args: readonly string[]) => Promise<string>,
+  run: (
+    cmd: string,
+    args: readonly string[],
+    opts?: { timeoutMs?: number | null },
+  ) => Promise<string>,
   kind: 'local' | 'kali' = 'kali',
 ) => {
   const fake = {
@@ -92,25 +95,29 @@ describe('NmapService', () => {
       svc(new CommandNotFoundError('nmap'), 'local'),
     ).rejects.toThrow(/not installed on the API host/);
     await expect(
-      svc(new CommandFailedError('nmap', '', true)),
-    ).rejects.toBeInstanceOf(GatewayTimeoutException);
+      svc(new CommandFailedError('nmap', 'boom', false, 1)),
+    ).rejects.toBeInstanceOf(BadGatewayException);
   });
 
-  it('limits concurrent scans', async () => {
+  it('runs scans in parallel without a cap or time limit', async () => {
     let release!: () => void;
     const gate = new Promise<void>((r) => (release = r));
+    const e = exec(async () => {
+      await gate;
+      return XML;
+    });
     const svc = new NmapService(
       guard(async () => ({ addresses: ['192.0.2.10'] })),
-      exec(async () => {
-        await gate;
-        return XML;
-      }),
+      e,
     );
-    const running = [svc.scan(params), svc.scan(params)];
-    await vi.waitFor(() => expect(svc['running']).toBe(2));
-    await expect(svc.scan(params)).rejects.toBeInstanceOf(HttpException);
+    const scans = [svc.scan(params), svc.scan(params), svc.scan(params)];
+    await vi.waitFor(() => expect(e.mockRun).toHaveBeenCalledTimes(3));
+    for (const c of e.mockRun.mock.calls) {
+      expect(c[2]).toEqual({ timeoutMs: null });
+    }
     release();
-    await Promise.all(running);
-    await expect(svc.scan(params)).resolves.toMatchObject({ hostState: 'up' });
+    for (const out of await Promise.all(scans)) {
+      expect(out).toMatchObject({ hostState: 'up' });
+    }
   });
 });

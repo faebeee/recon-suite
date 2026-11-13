@@ -29,8 +29,8 @@ Tool ids: `dns`, `subdomains`, `email-security`, `zone-transfer`, `dnssec`, `tak
 `exposed-files`, `ports`, `banner-grab`, `host-scan`, `wifi`, `bluetooth`. The options of each
 tool are listed in the [Tools reference](tools.md).
 
-`/api/health` and `/api/tools` are public and not rate limited. Everything else needs
-authentication and is rate limited; `/api/auth/login` allows 10 attempts per minute.
+`/api/health` and `/api/tools` are public. Everything else needs authentication. There is no
+global rate limit; only `/api/auth/login` is limited to 10 attempts per minute.
 
 ## Running a tool
 
@@ -88,7 +88,7 @@ Errors use HTTP status codes and a JSON body with a human-readable `message`:
 | 404    | Domain does not exist (NXDOMAIN), nothing found, unknown engagement/run/note           |
 | 409    | The engagement is archived                                                             |
 | 413    | An upstream response exceeded the size limit                                           |
-| 429    | Rate limit exceeded                                                                    |
+| 429    | Too many login attempts (10 per minute)                                                |
 | 502    | Upstream failure (target or third-party service refused, reset, errored, invalid key)  |
 | 503    | Tool unavailable: local tool on the wrong host, or a required API key is not set       |
 | 504    | Timeout                                                                                |

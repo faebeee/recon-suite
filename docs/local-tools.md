@@ -84,7 +84,7 @@ isolation of the container.
 
 `compose.yaml` has a `kali` service (`infra/kali/Containerfile`: kali-rolling with
 `nmap`, `iproute2`) and points the API at it with `KALI_CONTAINER=recon-kali`.
-Host Scan and Nmap Scan then run nmap there via `docker exec recon-kali timeout <s> nmap ...`
+Host Scan and Nmap Scan then run nmap there via `docker exec recon-kali nmap ...` (no time limit)
 instead of on the API host; Host Scan lists the Kali container's interfaces (`ip -j addr`).
 
 ```sh

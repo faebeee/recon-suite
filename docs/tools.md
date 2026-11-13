@@ -377,9 +377,9 @@ versions to CVE Lookup and records one `info` finding per open port.
 | `serviceDetection` | `true`  | `false` for a plain port scan (faster)         |
 
 Runs in the Kali container when `KALI_CONTAINER` is set (see
-[Kali container](local-tools.md#kali-container)), otherwise needs `nmap` on the API host. At
-most 2 scans run at the same time (429 otherwise); a scan is bounded by nmap's
-`--host-timeout` (60 s, or 150 s with version detection or more than 100 ports).
+[Kali container](local-tools.md#kali-container)), otherwise needs `nmap` on the API host. Scans
+have no time limit and any number can run at the same time; a large scan with version
+detection can take several minutes.
 
 ## Wireless
 

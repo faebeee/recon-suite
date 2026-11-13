@@ -69,7 +69,7 @@ removes its scope, history and notes.
 **Batch** runs several tools against several targets in one go. Enter targets (one per line) or
 load the active engagement's in-scope domains and IPs, pick the tools, and start. Each target
 only runs with the tools that accept its kind (domain, IP or URL), with default options, two at
-a time. Up to 300 jobs per batch; when the rate limit is reached the batch waits and retries.
+a time. Up to 300 jobs per batch.
 With an active engagement every result is saved and linked; without one, results are only shown.
 
 Active tools contact every target in the batch: only include systems you may test.

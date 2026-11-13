@@ -66,21 +66,21 @@ subject to the target guard above.
 
 ## Limits
 
-| Limit          | Value                                                                                 |
-| -------------- | ------------------------------------------------------------------------------------- |
-| Rate limit     | `THROTTLE_LIMIT` requests per minute per client (default 60)                          |
-| Timeouts       | Every outbound call, e.g. 8-12 s for target requests, 15 s RDAP, 45 s crt.sh          |
-| Response size  | Capped per tool (e.g. 64 KB security.txt, 2 MB sitemap, 1 MB HTML read, 50 MB crt.sh) |
-| Ports per scan | 64                                                                                    |
-| Redirects      | 5 to 10 depending on the tool                                                         |
-| Concurrency    | Bounded worker pools for multi-request tools (DKIM selectors, IP Intel)               |
-| Input          | Every request is validated against a strict schema; lists are capped                  |
+| Limit          | Value                                                                                                       |
+| -------------- | ----------------------------------------------------------------------------------------------------------- |
+| Rate limit     | None globally; login is limited to 10 attempts per minute                                                   |
+| Timeouts       | Every outbound call, e.g. 8-12 s for target requests, 15 s RDAP, 45 s crt.sh. nmap scans have no time limit |
+| Response size  | Capped per tool (e.g. 64 KB security.txt, 2 MB sitemap, 1 MB HTML read, 50 MB crt.sh)                       |
+| Ports per scan | 64                                                                                                          |
+| Redirects      | 5 to 10 depending on the tool                                                                               |
+| Concurrency    | Bounded worker pools for multi-request tools (DKIM selectors, IP Intel)                                     |
+| Input          | Every request is validated against a strict schema; lists are capped                                        |
 
 ## Local commands
 
 Local tools and Nmap Scan run fixed OS commands (`nmap`, `ip`, `nmcli`, `netsh`,
 `bluetoothctl`, the macOS helper) with hard-coded argument lists and never through a shell.
-With `KALI_CONTAINER`, `nmap` and `ip` run as `docker exec <container> timeout ...`
+With `KALI_CONTAINER`, `nmap` and `ip` run as `docker exec <container> ...` (`ip` wrapped in `timeout`)
 from a closed command list; this needs the engine socket in the API container, which is
 root-equivalent on the host (see [Kali container](local-tools.md#kali-container)). A user-chosen value, such as
 an interface name, becomes an argument only after strict validation and a check that the OS
@@ -96,5 +96,6 @@ actually reported it.
 - Third-party API keys (`NVD_API_KEY`, `SECURITYTRAILS_API_KEY`) are only sent to their
   providers. Reverse IP sends the target IP to SecurityTrails; CVE Lookup sends product names
   to the NVD.
-- Lower `THROTTLE_LIMIT` for multi-user setups.
+- There is no rate limit on tool requests and no time or parallelism limit on nmap scans:
+  don't expose the API to untrusted users.
 - Set `CORS_ORIGIN` to exactly the origin of your web app.

@@ -21,8 +21,6 @@ export const envSchema = z.object({
    * Disable for shared deployments: they expose the server's surroundings.
    */
   LOCAL_TOOLS_ENABLED: bool.default(true),
-  /** Requests per minute per client across all tool endpoints. */
-  THROTTLE_LIMIT: z.coerce.number().int().positive().default(60),
   /**
    * SQLite file for engagements, history, notes and sessions. Relative paths resolve from
    * the working directory; ":memory:" keeps everything in memory (tests).

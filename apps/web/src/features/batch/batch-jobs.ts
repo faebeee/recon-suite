@@ -8,8 +8,6 @@ import type { Tone } from '@/lib/tones';
 
 export const MAX_BATCH_JOBS = 300;
 export const BATCH_CONCURRENCY = 2;
-export const RATE_LIMIT_WAIT_MS = 15_000;
-export const MAX_RATE_LIMIT_RETRIES = 5;
 
 /** Tools that take a target (local tools and free-text tools excluded). */
 export const BATCH_TOOLS: ToolEntry[] = TOOLS.filter((t) => t.accepts.length);
@@ -80,17 +78,4 @@ export function countFindings(result: ToolResult<unknown> | undefined) {
     fail: findings.filter((f) => f.status === 'fail').length,
     warn: findings.filter((f) => f.status === 'warn').length,
   };
-}
-
-export function sleep(ms: number, signal: AbortSignal): Promise<void> {
-  return new Promise((resolve) => {
-    if (signal.aborted) return resolve();
-    const timer = setTimeout(done, ms);
-    function done() {
-      clearTimeout(timer);
-      signal.removeEventListener('abort', done);
-      resolve();
-    }
-    signal.addEventListener('abort', done);
-  });
 }

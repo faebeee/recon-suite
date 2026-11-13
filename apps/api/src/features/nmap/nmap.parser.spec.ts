@@ -69,7 +69,6 @@ describe('buildNmapArgs', () => {
     family: 4 as const,
     topPorts: 100,
     serviceDetection: false,
-    hostTimeoutSeconds: 60,
   };
 
   it('uses fixed flags, top ports and the IP as the last argument', () => {
@@ -82,8 +81,6 @@ describe('buildNmapArgs', () => {
       '-T4',
       '--max-retries',
       '2',
-      '--host-timeout',
-      '60s',
       '--top-ports',
       '100',
       '-oX',

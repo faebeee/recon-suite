@@ -19,7 +19,7 @@ you pivot from one finding to the next tool.
 | [HTTP API](api.md)                    | Endpoints, request and response format, errors, `curl` examples |
 | [Configuration](configuration.md)     | Environment variables for the API, web app and containers       |
 | [Local tools setup](local-tools.md)   | WiFi, Bluetooth and Host Scan per OS, macOS helper, containers  |
-| [Security model](security.md)         | Target guard, limits, rate limiting, deployment advice          |
+| [Security model](security.md)         | Target guard, limits, deployment advice                         |
 | [Architecture](architecture.md)       | Monorepo layout, feature slices, request flow, adding a tool    |
 
 Contributor and agent rules (conventions, definition of done) live in

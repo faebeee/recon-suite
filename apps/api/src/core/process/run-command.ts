@@ -25,6 +25,7 @@ export class CommandFailedError extends Error {
 /**
  * Runs a fixed OS command without a shell. Never pass user input as `command`;
  * arguments are passed as an array so they are not shell-interpreted.
+ * `timeoutMs: 0` disables the time limit.
  */
 export function runCommand(
   command: string,

@@ -117,12 +117,14 @@ apps/web/src/
 2. Never weaken `blocked-ranges.ts` or default `ALLOW_PRIVATE_TARGETS` to true.
 3. Bound everything: timeouts on every outbound call, response size limits (`readTextLimited`),
    capped list sizes in schemas (see `MAX_PORTS_PER_SCAN`), concurrency limits (`mapConcurrent`).
+   Exception: nmap scans (Nmap Scan, Network Scan, Host Scan sweep) run without a time limit
+   (`ToolExecService.run(..., { timeoutMs: null })`) and without a cap on parallel scans.
 4. Keep tools at the level of a standard recon toolkit. Do not add exploitation, brute-forcing of
    credentials, DoS-style flooding, or evasion features.
 5. Tools that connect to the target are `mode: 'active'` in the catalog; the UI then shows the
    authorisation notice automatically.
-6. Rate limiting is global (`@nestjs/throttler`, `THROTTLE_LIMIT`). Only system endpoints use
-   `@SkipThrottle()`.
+6. There is no global rate limit. Only `POST /api/auth/login` is throttled (10/min,
+   `@UseGuards(ThrottlerGuard)`) against password guessing; keep that.
 7. OS commands only through `runCommand()` (or `ToolExecService.run()` for the closed
    `EXEC_COMMANDS` list that may run in the Kali container) with a hard-coded command and
    argument array.
@@ -175,7 +177,6 @@ pure analysis function with tests).
 | `PORT`                   | api | `4000`                  | HTTP port                               |
 | `CORS_ORIGIN`            | api | `http://localhost:5173` | Comma-separated allowed origins         |
 | `ALLOW_PRIVATE_TARGETS`  | api | `false`                 | Allow loopback/private/reserved targets |
-| `THROTTLE_LIMIT`         | api | `60`                    | Requests per minute per client          |
 | `LOCAL_TOOLS_ENABLED`    | api | `true`                  | Enable host-local tools (WiFi scan)     |
 | `DATABASE_PATH`          | api | `data/recon.db`         | SQLite file (`:memory:` in e2e tests)   |
 | `ADMIN_PASSWORD_HASH`    | api | unset                   | scrypt login hash (`hash-password`)     |

@@ -2,9 +2,6 @@ import {
   BadRequestException,
   BadGatewayException,
   ForbiddenException,
-  GatewayTimeoutException,
-  HttpException,
-  HttpStatus,
   Injectable,
   ServiceUnavailableException,
 } from '@nestjs/common';
@@ -29,19 +26,15 @@ import {
   parseNetworkScan,
 } from './network-scan.parsers.js';
 
-const SCAN_TIMEOUT_MS = 90_000;
-/** A ping sweep is heavy; more parallel scans than this are refused with 429. */
-export const MAX_CONCURRENT_NETWORK_SCANS = 2;
-
 /**
  * Discovers live hosts on a user-supplied network/IP/subnet with an nmap ping sweep
  * (`nmap -sn`: ARP + MAC/vendor as root, falling back to TCP probes otherwise). Runs
  * in the Kali container when KALI_CONTAINER is set, else on the API host.
+ * No time limit and no cap on parallel scans: a sweep runs until nmap is done.
  */
 @Injectable()
 export class NetworkScanService {
   private readonly allowPrivate: boolean;
-  private running = 0;
 
   constructor(
     config: ConfigService<Env, true>,
@@ -70,17 +63,8 @@ export class NetworkScanService {
     const range = `${network}/${prefix}`;
     const args = networkScanArgs(range);
 
-    if (this.running >= MAX_CONCURRENT_NETWORK_SCANS) {
-      throw new HttpException(
-        `Already running ${MAX_CONCURRENT_NETWORK_SCANS} network scans. Wait for one to finish and try again.`,
-        HttpStatus.TOO_MANY_REQUESTS,
-      );
-    }
-    this.running++;
     try {
-      const xml = await this.exec.run('nmap', args, {
-        timeoutMs: SCAN_TIMEOUT_MS,
-      });
+      const xml = await this.exec.run('nmap', args, { timeoutMs: null });
       const hosts = parseNetworkScan(xml);
       const method = `nmap ${args.join(' ')}`;
       return {
@@ -92,8 +76,6 @@ export class NetworkScanService {
       };
     } catch (err) {
       throw this.toHttpError(err);
-    } finally {
-      this.running--;
     }
   }
 
@@ -107,11 +89,6 @@ export class NetworkScanService {
           ? 'nmap is not installed in the Kali container. Rebuild it (pnpm compose:up).'
           : 'nmap is not installed on the API host. Install it (e.g. "brew install nmap" / ' +
               '"sudo apt install nmap") or run it in a Kali container (KALI_CONTAINER).',
-      );
-    }
-    if (err instanceof CommandFailedError && err.timedOut) {
-      return new GatewayTimeoutException(
-        `The nmap sweep did not finish within ${SCAN_TIMEOUT_MS / 1000} s.`,
       );
     }
     if (err instanceof CommandFailedError) {

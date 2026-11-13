@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  GatewayTimeoutException,
   Injectable,
   ServiceUnavailableException,
 } from '@nestjs/common';
@@ -35,7 +34,6 @@ import {
  * (`nmap -sn`: ARP as root, with MAC + vendor). Runs inside the Kali container when
  * KALI_CONTAINER is set (interfaces are then those of the Kali container), else on the API host.
  */
-const SCAN_TIMEOUT_MS = 90_000;
 
 @Injectable()
 export class HostScanService {
@@ -95,9 +93,8 @@ export class HostScanService {
     const { range, limitedFrom } = hostScanRange(cidr);
     const args = nmapDiscoveryArgs(iface, range);
     try {
-      const xml = await this.exec.run('nmap', args, {
-        timeoutMs: SCAN_TIMEOUT_MS,
-      });
+      // No time limit: the sweep runs until nmap is done.
+      const xml = await this.exec.run('nmap', args, { timeoutMs: null });
       const method = `nmap ${args.join(' ')}`;
       return {
         interface: iface,
@@ -134,11 +131,6 @@ export class HostScanService {
           ? `${err.message} in the Kali container. Rebuild it (pnpm compose:up).`
           : `${err.message}. Host scanning needs "nmap" on the API host ` +
               '(e.g. "sudo apt install nmap" / "brew install nmap"), or a Kali container (KALI_CONTAINER).',
-      );
-    }
-    if (err instanceof CommandFailedError && err.timedOut) {
-      return new GatewayTimeoutException(
-        `The nmap host sweep did not finish within ${SCAN_TIMEOUT_MS / 1000} s.`,
       );
     }
     if (err instanceof CommandFailedError) {

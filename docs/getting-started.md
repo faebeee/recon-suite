@@ -77,7 +77,7 @@ Tests never touch the internet: network code is tested with fakes and local serv
 | Symptom                                             | Cause and fix                                                                                              |
 | --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | `403 ... resolves to a private or reserved address` | The target is internal. Intended; set `ALLOW_PRIVATE_TARGETS=true` only for local, single-user use.        |
-| `429 Too Many Requests`                             | Rate limit reached (`THROTTLE_LIMIT` per minute). Wait a minute or raise the limit.                        |
+| `429 Too Many Requests`                             | More than 10 login attempts per minute. Wait a minute.                                                     |
 | `503` on WiFi, Bluetooth or Host Scan               | Local tools are disabled or the host lacks the hardware/software. See the API startup log.                 |
 | Top bar shows `uplink down`                         | API not running, or `API_PROXY_TARGET` points to the wrong port.                                           |
 | `EADDRINUSE` on 4000 or 5173                        | Another process uses the port. Change `PORT` / `API_PROXY_TARGET` or stop the other process.               |

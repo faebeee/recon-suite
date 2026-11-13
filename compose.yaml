@@ -43,7 +43,6 @@ services:
       PORT: 4000
       CORS_ORIGIN: http://localhost:${WEB_PORT:-8080}
       ALLOW_PRIVATE_TARGETS: ${ALLOW_PRIVATE_TARGETS:-false}
-      THROTTLE_LIMIT: ${THROTTLE_LIMIT:-60}
       # Local tools (WiFi scan) also leak the host's surroundings when shared; off by default.
       # Set to true only if you also enabled the host access below, and understand the tradeoff.
       LOCAL_TOOLS_ENABLED: ${LOCAL_TOOLS_ENABLED:-false}

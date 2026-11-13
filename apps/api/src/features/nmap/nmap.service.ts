@@ -1,8 +1,5 @@
 import {
   BadGatewayException,
-  GatewayTimeoutException,
-  HttpException,
-  HttpStatus,
   Injectable,
   ServiceUnavailableException,
 } from '@nestjs/common';
@@ -20,18 +17,14 @@ import {
 import { ToolExecService } from '../../core/process/tool-exec.service.js';
 import { buildNmapArgs, nmapFindings, parseNmapXml } from './nmap.parser.js';
 
-/** nmap is heavy; more parallel scans than this are refused with 429. */
-export const MAX_CONCURRENT_NMAP = 2;
-
 /**
  * Active: runs nmap against the guard-resolved IP of the target, in the Kali container
  * (KALI_CONTAINER) or on the API host. The hostname never reaches nmap, so DNS rebinding
  * and blocked ranges are handled by TargetGuardService like for every other tool.
+ * No time limit and no cap on parallel scans: a scan runs until nmap is done.
  */
 @Injectable()
 export class NmapService {
-  private running = 0;
-
   constructor(
     private readonly guard: TargetGuardService,
     private readonly exec: ToolExecService,
@@ -47,29 +40,16 @@ export class NmapService {
     const address = addresses[0]!;
     const family = isIP(address) === 6 ? 6 : 4;
 
-    const heavy =
-      serviceDetection || topPorts > 100 || (ports?.length ?? 0) > 100;
-    const hostTimeoutSeconds = heavy ? 150 : 60;
     const args = buildNmapArgs({
       address,
       family,
       topPorts,
       ports,
       serviceDetection,
-      hostTimeoutSeconds,
     });
 
-    if (this.running >= MAX_CONCURRENT_NMAP) {
-      throw new HttpException(
-        `Already running ${MAX_CONCURRENT_NMAP} nmap scans. Wait for one to finish and try again.`,
-        HttpStatus.TOO_MANY_REQUESTS,
-      );
-    }
-    this.running++;
     try {
-      const xml = await this.exec.run('nmap', args, {
-        timeoutMs: (hostTimeoutSeconds + 15) * 1000,
-      });
+      const xml = await this.exec.run('nmap', args, { timeoutMs: null });
       const parsed = parseNmapXml(xml);
       const command = `nmap ${args.join(' ')}`;
       return {
@@ -81,8 +61,6 @@ export class NmapService {
       };
     } catch (err) {
       throw this.toHttpError(err);
-    } finally {
-      this.running--;
     }
   }
 
@@ -99,11 +77,9 @@ export class NmapService {
       );
     }
     if (err instanceof CommandFailedError) {
-      return err.timedOut
-        ? new GatewayTimeoutException('nmap did not finish in time.')
-        : new BadGatewayException(
-            `nmap failed: ${err.stderr.trim().split(/\r?\n/)[0] || 'unknown error'}`,
-          );
+      return new BadGatewayException(
+        `nmap failed: ${err.stderr.trim().split(/\r?\n/)[0] || 'unknown error'}`,
+      );
     }
     return err;
   }

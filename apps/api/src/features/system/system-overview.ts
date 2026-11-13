@@ -23,10 +23,6 @@ export const SETTING_META: Record<keyof Env, SettingMeta> = {
     group: 'server',
     description: 'Browser origins allowed to call the API.',
   },
-  THROTTLE_LIMIT: {
-    group: 'security',
-    description: 'Requests per minute per client.',
-  },
   ALLOW_PRIVATE_TARGETS: {
     group: 'security',
     description: 'Allow loopback, private and reserved targets (SSRF guard).',

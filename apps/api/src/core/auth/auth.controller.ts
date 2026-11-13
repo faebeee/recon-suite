@@ -7,9 +7,10 @@ import {
   Post,
   Req,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { Public, SessionService, SignInService } from '@nestjs/authentication';
-import { Throttle } from '@nestjs/throttler';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { loginInputSchema, type AuthStatus } from '@recon/shared';
 import type { IncomingMessage } from 'node:http';
 import type { z } from 'zod';
@@ -48,8 +49,8 @@ export class AuthController {
   @Public()
   @Post('login')
   @HttpCode(200)
-  // Tighter than the global limit: scrypt is slow on purpose, guessing should be too.
-  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  // The only rate-limited route (10/min, see AppModule): limits password guessing.
+  @UseGuards(ThrottlerGuard)
   async login(
     @Body({ schema: loginInputSchema }) body: z.output<typeof loginInputSchema>,
   ): Promise<AuthStatus> {

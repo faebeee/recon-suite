@@ -1,8 +1,7 @@
 import {
   BadRequestException,
   ForbiddenException,
-  GatewayTimeoutException,
-  HttpException,
+  BadGatewayException,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import type { ConfigService } from '@nestjs/config';
@@ -23,7 +22,11 @@ const guard = (isAllowed: (address: string) => boolean = () => true) =>
   ({ isAllowed: vi.fn(isAllowed) }) as unknown as TargetGuardService;
 
 const exec = (
-  run: (cmd: string, args: readonly string[]) => Promise<string>,
+  run: (
+    cmd: string,
+    args: readonly string[],
+    opts?: { timeoutMs?: number | null },
+  ) => Promise<string>,
   kind: 'local' | 'kali' = 'kali',
 ) => {
   const fake = {
@@ -96,33 +99,30 @@ describe('NetworkScanService', () => {
       svc(new CommandNotFoundError('nmap'), 'local'),
     ).rejects.toThrow(/not installed on the API host/);
     await expect(
-      svc(new CommandFailedError('nmap', '', true)),
-    ).rejects.toBeInstanceOf(GatewayTimeoutException);
+      svc(new CommandFailedError('nmap', 'boom', false, 1)),
+    ).rejects.toBeInstanceOf(BadGatewayException);
   });
 
-  it('limits concurrent scans', async () => {
+  it('runs scans in parallel without a cap or time limit', async () => {
     let release!: () => void;
     const gate = new Promise<void>((r) => (release = r));
-    const svc = new NetworkScanService(
-      config(true),
-      guard(),
-      exec(async () => {
-        await gate;
-        return XML;
-      }),
-    );
-    const running = [
+    const e = exec(async () => {
+      await gate;
+      return XML;
+    });
+    const svc = new NetworkScanService(config(true), guard(), e);
+    const scans = [
+      svc.scan({ target: '10.0.0.0/24' }),
       svc.scan({ target: '10.0.0.0/24' }),
       svc.scan({ target: '10.0.0.0/24' }),
     ];
-    await vi.waitFor(() => expect(svc['running']).toBe(2));
-    await expect(svc.scan({ target: '10.0.0.0/24' })).rejects.toBeInstanceOf(
-      HttpException,
-    );
+    await vi.waitFor(() => expect(e.mockRun).toHaveBeenCalledTimes(3));
+    for (const c of e.mockRun.mock.calls) {
+      expect(c[2]).toEqual({ timeoutMs: null });
+    }
     release();
-    await Promise.all(running);
-    await expect(svc.scan({ target: '10.0.0.0/24' })).resolves.toMatchObject({
-      network: '10.0.0.0/24',
-    });
+    for (const out of await Promise.all(scans)) {
+      expect(out).toMatchObject({ network: '10.0.0.0/24' });
+    }
   });
 });

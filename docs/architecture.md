@@ -49,8 +49,7 @@ Tool form
   | useToolRunner: validate
   |   with the shared schema
   v
-POST /api/tools/<id>  ------>   throttler (rate limit)
-  (+ x-engagement-id)           authentication guard (session cookie / API token / local)
+POST /api/tools/<id>  ------>   authentication guard (session cookie / API token / local)
                                 RunCaptureInterceptor (engagement: scope check, then record)
                                 StandardSchemaValidationPipe (same schema)
                                 <Id>Controller
