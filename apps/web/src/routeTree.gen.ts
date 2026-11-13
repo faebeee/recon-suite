@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BatchRouteImport } from './routes/batch'
+import { Route as SystemRouteImport } from './routes/system'
 import { Route as EngagementsIndexRouteImport } from './routes/engagements/index'
 import { Route as EngagementsEngagementIdRouteImport } from './routes/engagements/$engagementId'
 import { Route as ToolsBannerGrabRouteImport } from './routes/tools/banner-grab'
@@ -50,6 +51,11 @@ const IndexRoute = IndexRouteImport.update({
 const BatchRoute = BatchRouteImport.update({
   id: '/batch',
   path: '/batch',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SystemRoute = SystemRouteImport.update({
+  id: '/system',
+  path: '/system',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EngagementsIndexRoute = EngagementsIndexRouteImport.update({
@@ -206,6 +212,7 @@ const ToolsZoneTransferRoute = ToolsZoneTransferRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/batch': typeof BatchRoute
+  '/system': typeof SystemRoute
   '/engagements/$engagementId': typeof EngagementsEngagementIdRoute
   '/tools/banner-grab': typeof ToolsBannerGrabRoute
   '/tools/bluetooth': typeof ToolsBluetoothRoute
@@ -240,6 +247,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/batch': typeof BatchRoute
+  '/system': typeof SystemRoute
   '/engagements/$engagementId': typeof EngagementsEngagementIdRoute
   '/tools/banner-grab': typeof ToolsBannerGrabRoute
   '/tools/bluetooth': typeof ToolsBluetoothRoute
@@ -275,6 +283,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/batch': typeof BatchRoute
+  '/system': typeof SystemRoute
   '/engagements/$engagementId': typeof EngagementsEngagementIdRoute
   '/tools/banner-grab': typeof ToolsBannerGrabRoute
   '/tools/bluetooth': typeof ToolsBluetoothRoute
@@ -311,6 +320,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/batch'
+    | '/system'
     | '/engagements/$engagementId'
     | '/tools/banner-grab'
     | '/tools/bluetooth'
@@ -345,6 +355,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/batch'
+    | '/system'
     | '/engagements/$engagementId'
     | '/tools/banner-grab'
     | '/tools/bluetooth'
@@ -379,6 +390,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/batch'
+    | '/system'
     | '/engagements/$engagementId'
     | '/tools/banner-grab'
     | '/tools/bluetooth'
@@ -414,6 +426,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BatchRoute: typeof BatchRoute
+  SystemRoute: typeof SystemRoute
   EngagementsEngagementIdRoute: typeof EngagementsEngagementIdRoute
   ToolsBannerGrabRoute: typeof ToolsBannerGrabRoute
   ToolsBluetoothRoute: typeof ToolsBluetoothRoute
@@ -460,6 +473,13 @@ declare module '@tanstack/react-router' {
       path: '/batch'
       fullPath: '/batch'
       preLoaderRoute: typeof BatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/system': {
+      id: '/system'
+      path: '/system'
+      fullPath: '/system'
+      preLoaderRoute: typeof SystemRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/engagements/': {
@@ -678,6 +698,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BatchRoute: BatchRoute,
+  SystemRoute: SystemRoute,
   EngagementsEngagementIdRoute: EngagementsEngagementIdRoute,
   ToolsBannerGrabRoute: ToolsBannerGrabRoute,
   ToolsBluetoothRoute: ToolsBluetoothRoute,

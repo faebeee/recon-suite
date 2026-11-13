@@ -4,6 +4,7 @@ import type { Env } from '../../config/env.js';
 import { CommandFailedError, runCommand } from './run-command.js';
 import {
   buildKaliExec,
+  buildKaliInspect,
   buildKaliRun,
   buildKaliStart,
   classifyKaliFailure,
@@ -11,9 +12,11 @@ import {
   KALI_GRACE_MS,
   KaliUnavailableError,
   mapKaliError,
+  parseKaliInspect,
   type ExecCommand,
   type ExecTarget,
   type KaliFailure,
+  type KaliState,
   type KaliTarget,
 } from './tool-exec.js';
 
@@ -80,6 +83,19 @@ export class ToolExecService {
       return await once();
     } catch (err) {
       throw mapKaliError(err, target, command);
+    }
+  }
+
+  /** Read-only Kali container state; undefined when tools run on the API host. */
+  async kaliState(): Promise<KaliState | undefined> {
+    if (this.target.kind !== 'kali') return undefined;
+    const inspect = buildKaliInspect(this.target);
+    try {
+      return parseKaliInspect(
+        await this.command(inspect.command, inspect.args, 5_000),
+      );
+    } catch (err) {
+      return parseKaliInspect(err);
     }
   }
 

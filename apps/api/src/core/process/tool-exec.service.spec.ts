@@ -159,3 +159,52 @@ describe('ToolExecService', () => {
     expect(calls.filter((c) => verb(c) === 'start')).toHaveLength(1);
   });
 });
+
+describe('ToolExecService.kaliState', () => {
+  it('is undefined without KALI_CONTAINER', async () => {
+    const { svc, calls } = service({}, async () => 'running');
+    await expect(svc.kaliState()).resolves.toBeUndefined();
+    expect(calls).toEqual([]);
+  });
+
+  it('inspects the container read-only', async () => {
+    const { svc, calls } = service(KALI, async () => 'running\n');
+    await expect(svc.kaliState()).resolves.toEqual({ state: 'running' });
+    expect(calls).toEqual([
+      {
+        command: 'docker',
+        args: ['inspect', '--format', '{{.State.Status}}', 'recon-kali'],
+      },
+    ]);
+  });
+
+  it('reports stopped, missing and unreachable containers', async () => {
+    const stopped = service(KALI, async () => 'exited');
+    await expect(stopped.svc.kaliState()).resolves.toEqual({
+      state: 'stopped',
+      detail: 'exited',
+    });
+    const missing = service(KALI, async () => {
+      throw new CommandFailedError(
+        'docker',
+        'Error: No such object: recon-kali',
+        false,
+        1,
+      );
+    });
+    await expect(missing.svc.kaliState()).resolves.toEqual({
+      state: 'missing',
+    });
+    const down = service(KALI, async () => {
+      throw new CommandFailedError(
+        'docker',
+        'Cannot connect to the Docker daemon at unix:///var/run/docker.sock',
+        false,
+        1,
+      );
+    });
+    await expect(down.svc.kaliState()).resolves.toMatchObject({
+      state: 'unreachable',
+    });
+  });
+});

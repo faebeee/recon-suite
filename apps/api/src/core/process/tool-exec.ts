@@ -94,6 +94,65 @@ export function buildKaliStart(target: KaliTarget): {
 }
 
 /**
+ * `<cli> inspect --format {{.State.Status}} <container>`: read-only state probe for the
+ * system overview (prints e.g. "running", "exited"). Never starts or changes anything.
+ */
+export function buildKaliInspect(target: KaliTarget): {
+  command: ContainerCli;
+  args: string[];
+} {
+  assertContainerName(target.container);
+  return {
+    command: target.cli,
+    args: ['inspect', '--format', '{{.State.Status}}', target.container],
+  };
+}
+
+/**
+ * Kali container state as the system overview reports it.
+ * running/stopped: container exists. missing: no such container.
+ * unreachable: CLI missing or the container engine did not answer.
+ */
+export type KaliState =
+  | { state: 'running' }
+  | { state: 'stopped'; detail: string }
+  | { state: 'missing' }
+  | { state: 'unreachable'; detail: string };
+
+/** Interprets the outcome of buildKaliInspect (stdout on success, the error otherwise). */
+export function parseKaliInspect(result: unknown): KaliState {
+  if (typeof result === 'string') {
+    const status = result.trim().toLowerCase();
+    return status === 'running'
+      ? { state: 'running' }
+      : { state: 'stopped', detail: status || 'unknown' };
+  }
+  if (result instanceof CommandNotFoundError) {
+    return {
+      state: 'unreachable',
+      detail: `"${result.command}" CLI not found`,
+    };
+  }
+  if (result instanceof CommandFailedError) {
+    if (result.timedOut) {
+      return { state: 'unreachable', detail: 'container engine timed out' };
+    }
+    if (
+      /no such (object|container)|no container with name or id/i.test(
+        result.stderr,
+      )
+    ) {
+      return { state: 'missing' };
+    }
+    return { state: 'unreachable', detail: firstLine(result.stderr) };
+  }
+  return {
+    state: 'unreachable',
+    detail: result instanceof Error ? result.message : 'unknown error',
+  };
+}
+
+/**
  * `<cli> run -d ...`: creates the Kali container when it does not exist. Fixed flags, the same
  * as the kali service in compose.yaml (init, NET_RAW/NET_ADMIN, default network). `--pull never`: only a
  * locally built image is used, nothing is downloaded at request time.

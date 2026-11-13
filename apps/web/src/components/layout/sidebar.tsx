@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { FolderKanban, LayoutGrid, ListChecks } from 'lucide-react';
+import { Activity, FolderKanban, LayoutGrid, ListChecks } from 'lucide-react';
 import { CATEGORY_LABELS, type ToolCategory } from '@recon/shared';
 import { RuntimeBadge } from '@/components/tool';
 import { TOOLS } from '@/features/registry';
@@ -40,6 +40,14 @@ export function Sidebar() {
         >
           <FolderKanban className="size-4" />
           Engagements
+        </Link>
+        <Link
+          to="/system"
+          className={linkBase}
+          activeProps={{ className: linkActive }}
+        >
+          <Activity className="size-4" />
+          System
         </Link>
       </div>
       {CATEGORIES.map((cat) => {
@@ -106,6 +114,13 @@ export function MobileNav() {
         activeProps={{ className: 'border-primary text-primary' }}
       >
         Engagements
+      </Link>
+      <Link
+        to="/system"
+        className="shrink-0 border border-border px-2 py-1 text-[11px] tracking-wider uppercase"
+        activeProps={{ className: 'border-primary text-primary' }}
+      >
+        System
       </Link>
       {TOOLS.map((tool) => (
         <Link

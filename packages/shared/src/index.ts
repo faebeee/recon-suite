@@ -1,6 +1,7 @@
 export * from './common/finding.js';
 export * from './common/health.js';
 export * from './common/runtime.js';
+export * from './common/system.js';
 export * from './common/target.js';
 export * from './common/tool.js';
 export * from './catalog.js';

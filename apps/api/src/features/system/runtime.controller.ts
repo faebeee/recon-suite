@@ -1,6 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
-import type { RuntimeInfo } from '@recon/shared';
+import type { RuntimeInfo, SystemOverview } from '@recon/shared';
 import { PlatformDiagnosticsService } from './platform-diagnostics.service.js';
+import { SystemOverviewService } from './system-overview.service.js';
 
 /**
  * GET /api/system/runtime: where each tool runs (API host, API container, Kali container),
@@ -9,10 +10,18 @@ import { PlatformDiagnosticsService } from './platform-diagnostics.service.js';
  */
 @Controller('system')
 export class RuntimeController {
-  constructor(private readonly diagnostics: PlatformDiagnosticsService) {}
+  constructor(
+    private readonly diagnostics: PlatformDiagnosticsService,
+    private readonly overviewService: SystemOverviewService,
+  ) {}
 
   @Get('runtime')
   runtime(): RuntimeInfo {
     return this.diagnostics.runtime;
+  }
+
+  @Get('overview')
+  overview(): Promise<SystemOverview> {
+    return this.overviewService.overview();
   }
 }

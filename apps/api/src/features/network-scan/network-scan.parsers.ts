@@ -30,10 +30,7 @@ export function parseCidr(cidr: string): ParsedCidr {
  * and bounded.
  */
 export function networkScanArgs(range: string): string[] {
-  return [
-    '-sn',
-    range,
-  ];
+  return ['-sn', range];
 }
 
 /**

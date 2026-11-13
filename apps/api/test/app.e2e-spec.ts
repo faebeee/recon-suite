@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types.js';
-import { TOOL_IDS, type RuntimeInfo } from '@recon/shared';
+import { TOOL_IDS, type RuntimeInfo, type SystemOverview } from '@recon/shared';
 import { AppModule } from './../src/app.module.js';
 import { configureApp } from './../src/app.setup.js';
 
@@ -48,6 +48,21 @@ describe('App (e2e)', () => {
         for (const t of body.tools) {
           expect(['host', 'container', 'kali']).toContain(t.location);
           expect(t.engine).toBeTruthy();
+        }
+      }));
+
+  it('GET /api/system/overview reports settings and status checks', () =>
+    request(app.getHttpServer())
+      .get('/api/system/overview')
+      .expect(200)
+      .expect((res) => {
+        const body = res.body as SystemOverview;
+        expect(['ok', 'warn', 'error']).toContain(body.status);
+        expect(body.checks.find((c) => c.id === 'database')?.status).toBe('ok');
+        expect(body.database.path).toBe(':memory:');
+        expect(body.tools.total).toBe(TOOL_IDS.length);
+        for (const s of body.settings.filter((s) => s.secret)) {
+          expect(s.value).toBeUndefined();
         }
       }));
 
