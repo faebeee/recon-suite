@@ -2,13 +2,19 @@ import type { DnssecOutput, DnssecStatus, RrsigRecord } from '@recon/shared';
 import { KeyValueGrid, Panel, Tag } from '@/components/cyber';
 import { FindingsList } from '@/components/tool';
 import { cn } from '@/lib/utils';
-import { toneText, type Tone } from '@/lib/tones';
+import { DNSSEC_TONE, toneText, type Tone } from '@/lib/tones';
 
 const STATUS: Record<DnssecStatus, { tone: Tone; caption: string }> = {
-  secure: { tone: 'green', caption: 'Chain of trust validates' },
-  insecure: { tone: 'yellow', caption: 'No DS record at the parent: unsigned' },
-  bogus: { tone: 'magenta', caption: 'Signed, but validation fails' },
-  indeterminate: { tone: 'muted', caption: 'Could not determine the status' },
+  secure: { tone: DNSSEC_TONE.secure, caption: 'Chain of trust validates' },
+  insecure: {
+    tone: DNSSEC_TONE.insecure,
+    caption: 'No DS record at the parent: unsigned',
+  },
+  bogus: { tone: DNSSEC_TONE.bogus, caption: 'Signed, but validation fails' },
+  indeterminate: {
+    tone: DNSSEC_TONE.indeterminate,
+    caption: 'Could not determine the status',
+  },
 };
 
 const th = 'py-1.5 pr-4 font-normal';

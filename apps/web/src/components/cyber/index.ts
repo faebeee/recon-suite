@@ -7,3 +7,5 @@ export { StatusDot } from './status-dot';
 export { Tag } from './tag';
 export { TerminalLoader } from './terminal-loader';
 export { ChipToggle, Segmented } from './segmented';
+export { WorldMap } from './world-map';
+export { ScoreChart } from './score-chart';

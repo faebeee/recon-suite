@@ -8,6 +8,7 @@ import { useActiveEngagement } from '@/lib/engagement';
 import { cn } from '@/lib/utils';
 import { toneText } from '@/lib/tones';
 import { RuntimeDetails } from './runtime-badge';
+import { ToolScoreHistory } from './score-history';
 
 /** Standard layout for a tool: header from the catalog, then form, then results. */
 export function ToolPage({
@@ -56,6 +57,7 @@ export function ToolPage({
       </header>
       <EngagementBanner active={tool.mode === 'active'} />
       {children}
+      <ToolScoreHistory toolId={toolId} />
     </div>
   );
 }

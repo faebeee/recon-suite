@@ -19,6 +19,7 @@ import { getTool } from '@/features/registry';
 import { formatDateTime } from '@/lib/format';
 import { FINDING_TONE, toneText } from '@/lib/tones';
 import { cn } from '@/lib/utils';
+import { PosturePanel } from './posture-panel';
 import { findingsQuery } from './queries';
 import { ErrorText } from './ui';
 
@@ -63,6 +64,8 @@ export function OverviewTab({ engagement: e }: { engagement: Engagement }) {
           ]}
         />
       </Panel>
+
+      <PosturePanel engagementId={e.id} />
 
       {findings.isPending ? (
         <p className="text-sm text-muted-foreground">Loading findings…</p>

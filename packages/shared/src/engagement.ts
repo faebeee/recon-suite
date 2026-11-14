@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import type { Finding, FindingStatus } from './common/finding.js';
+import type { Finding, FindingStatus, Grade } from './common/finding.js';
+import type { DnssecStatus } from './features/dnssec.js';
 import type { ToolId, ToolResult } from './common/tool.js';
 
 /**
@@ -142,6 +143,53 @@ export interface RunDiff {
   }[];
 }
 
+// ---------------------------------------------------------------- posture history
+
+/** Tools whose headline result (grade or status) is tracked over time per target. */
+export const POSTURE_TOOLS = [
+  'http-headers',
+  'tls-audit',
+  'dnssec',
+  'email-security',
+] as const;
+export type PostureTool = (typeof POSTURE_TOOLS)[number];
+
+/** Posture tools whose result carries a 0-100 score and a letter grade. */
+export const SCORED_TOOLS = [
+  'http-headers',
+  'tls-audit',
+  'email-security',
+] as const satisfies readonly PostureTool[];
+export type ScoredTool = (typeof SCORED_TOOLS)[number];
+
+export function isScoredTool(tool: string): tool is ScoredTool {
+  return (SCORED_TOOLS as readonly string[]).includes(tool);
+}
+
+export const GRADES: readonly Grade[] = ['A+', 'A', 'B', 'C', 'D', 'F'];
+export const DNSSEC_STATUSES: readonly DnssecStatus[] = [
+  'secure',
+  'insecure',
+  'bogus',
+  'indeterminate',
+];
+
+export interface PosturePoint {
+  runId: string;
+  observedAt: string;
+  /** Letter grade (SCORED_TOOLS) or DNSSEC status (dnssec). */
+  value: Grade | DnssecStatus;
+  /** 0-100 score (SCORED_TOOLS only). */
+  score?: number;
+}
+
+export interface PostureSeries {
+  tool: PostureTool;
+  target: string;
+  /** Successful runs, oldest first. */
+  points: PosturePoint[];
+}
+
 // ---------------------------------------------------------------- notes
 
 export const noteInputSchema = z.object({
@@ -224,6 +272,7 @@ export const AUTH_ENDPOINTS = {
  *   DELETE run(runId)          -> 204
  *   GET    runDiff(a, b)       -> RunDiff (a = before, b = after; same tool required, else 400)
  *   GET    findings(id)        -> EngagementFinding[] (latest successful run per tool+target, most severe first)
+ *   GET    posture(id)         -> PostureSeries[] (POSTURE_TOOLS, per tool+target, ordered by tool then target)
  *   GET    notes(id)           -> Note[] (newest first)
  *   POST   notes(id)           -> Note                  body: NoteInput
  *   PATCH  note(noteId)        -> Note                  body: Partial<NoteInput>
@@ -244,6 +293,7 @@ export const ENGAGEMENT_API = {
   run: (runId: string) => `/runs/${runId}`,
   runDiff: (before: string, after: string) => `/runs/${before}/diff/${after}`,
   findings: (id: string) => `/engagements/${id}/findings`,
+  posture: (id: string) => `/engagements/${id}/posture`,
   notes: (id: string) => `/engagements/${id}/notes`,
   note: (noteId: string) => `/notes/${noteId}`,
   exportFile: (id: string, format: ExportFormat) =>

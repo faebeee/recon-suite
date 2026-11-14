@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDrizzle } from '@nestjs/drizzle';
-import { and, count, desc, eq, sql, type SQL } from 'drizzle-orm';
+import { and, asc, count, desc, eq, inArray, sql, type SQL } from 'drizzle-orm';
 import type {
   Engagement,
   EngagementFinding,
@@ -14,6 +14,7 @@ import type {
   ToolId,
   ToolResult,
 } from '@recon/shared';
+import { POSTURE_TOOLS } from '@recon/shared';
 import type { Db } from '../../core/db/database.js';
 import {
   engagements,
@@ -21,6 +22,7 @@ import {
   runs,
   scopeEntries,
 } from '../../core/db/schema.js';
+import { POSTURE_PATHS, type PostureRow } from './posture.js';
 import type { ScopeRule } from './scope.js';
 
 type EngagementRow = typeof engagements.$inferSelect;
@@ -342,6 +344,46 @@ export class EngagementsRepository {
       }
     }
     return out;
+  }
+
+  /**
+   * Successful runs of the posture tools with grade/status and score extracted in
+   * SQL, so the (possibly large) result JSON is not loaded for each run.
+   */
+  async postureRows(engagementId: string): Promise<PostureRow[]> {
+    const pick = (key: 'value' | 'score') =>
+      sql.join(
+        [
+          sql`case ${runs.tool}`,
+          ...POSTURE_TOOLS.map((tool) => {
+            const path = POSTURE_PATHS[tool][key];
+            return path
+              ? sql`when ${tool} then json_extract(${runs.result}, ${path})`
+              : sql`when ${tool} then null`;
+          }),
+          sql`end`,
+        ],
+        sql` `,
+      );
+    return this.db
+      .select({
+        id: runs.id,
+        tool: runs.tool,
+        target: runs.target,
+        startedAt: runs.startedAt,
+        value: sql<unknown>`${pick('value')}`,
+        score: sql<unknown>`${pick('score')}`,
+      })
+      .from(runs)
+      .where(
+        and(
+          eq(runs.engagementId, engagementId),
+          eq(runs.status, 'ok'),
+          inArray(runs.tool, [...POSTURE_TOOLS]),
+          sql`json_valid(${runs.result})`,
+        ),
+      )
+      .orderBy(asc(runs.startedAt));
   }
 
   // ------------------------------------------------------------ notes

@@ -59,6 +59,11 @@
   --sidebar-accent-foreground: oklch(0.97 0 0);
   --sidebar-border: oklch(1 0 0 / 13%);
   --sidebar-ring: oklch(0.97 0 0);
+
+  --series-1: oklch(0.66 0.11 230);
+  --series-2: oklch(0.56 0.2 27);
+  --series-3: oklch(0.66 0.12 85);
+  --series-4: oklch(0.5 0.12 290);
 }
 
 /* ---- Base ------------------------------------------------------------- */
@@ -151,4 +156,41 @@
 :root[data-theme='nothing'] [data-slot='meter-segment'] {
   border-radius: 9999px;
   box-shadow: none;
+}
+
+/* World map: dot matrix land, white dots for the highlight, one red marker. */
+:root[data-theme='nothing'] [data-slot='geo-map'] {
+  background-image: none;
+}
+:root[data-theme='nothing'] [data-slot='geo-map'] [data-geo='graticule'] {
+  display: none;
+}
+:root[data-theme='nothing'] [data-slot='geo-map'] [data-geo-dot='land'] {
+  fill: oklch(1 0 0 / 24%);
+}
+:root[data-theme='nothing'] [data-slot='geo-map'] [data-geo-dot='hit'] {
+  fill: var(--foreground);
+}
+:root[data-theme='nothing'] [data-slot='geo-map'] [data-geo='land'] {
+  fill: var(--geo-dots-land);
+  stroke: none;
+}
+:root[data-theme='nothing'] [data-slot='geo-map'] [data-geo='hit'] {
+  fill: var(--geo-dots-hit);
+  stroke: none;
+  filter: none;
+}
+:root[data-theme='nothing'] [data-slot='geo-map'] [data-geo='marker'] {
+  color: var(--neon-magenta);
+  filter: none;
+}
+
+/* Score chart: dot-matrix grid, no line glow. */
+:root[data-theme='nothing'] [data-slot='score-chart'] [data-chart='grid'] {
+  stroke-dasharray: 0.1 5;
+  stroke-linecap: round;
+  stroke-width: 1.5;
+}
+:root[data-theme='nothing'] [data-slot='score-chart'] [data-chart='line'] {
+  filter: none;
 }

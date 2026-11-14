@@ -63,6 +63,10 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-series-1: var(--series-1);
+  --color-series-2: var(--series-2);
+  --color-series-3: var(--series-3);
+  --color-series-4: var(--series-4);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -121,6 +125,12 @@
   --sidebar-accent-foreground: var(--neon-cyan);
   --sidebar-border: oklch(0.87 0.16 195 / 18%);
   --sidebar-ring: var(--neon-cyan);
+
+  /* Line-chart series (fixed order; validated for CVD separation on --card). */
+  --series-1: oklch(0.66 0.11 200);
+  --series-2: oklch(0.55 0.22 0);
+  --series-3: oklch(0.66 0.13 85);
+  --series-4: oklch(0.52 0.18 270);
 }
 
 @layer base {
@@ -318,5 +328,55 @@
   *::after {
     animation-duration: 0s !important;
     animation-iteration-count: 1 !important;
+  }
+}
+
+/* World map (components/cyber/world-map.tsx): HUD outlines, glowing highlight. */
+@layer components {
+  [data-slot='geo-map'] [data-geo='graticule'] {
+    fill: none;
+    stroke: color-mix(in oklch, var(--neon-cyan) 8%, transparent);
+    stroke-width: 0.5;
+  }
+  [data-slot='geo-map'] [data-geo='land'] {
+    fill: color-mix(in oklch, var(--neon-cyan) 7%, transparent);
+    stroke: color-mix(in oklch, var(--neon-cyan) 30%, transparent);
+    stroke-width: 0.4;
+  }
+  [data-slot='geo-map'] [data-geo='hit'] {
+    fill: color-mix(in oklch, var(--neon-cyan) 45%, transparent);
+    stroke: var(--neon-cyan);
+    stroke-width: 0.8;
+    filter: drop-shadow(0 0 4px var(--neon-cyan));
+  }
+  [data-slot='geo-map'] [data-geo='marker'] {
+    color: var(--neon-cyan);
+    stroke: currentColor;
+    stroke-width: 1.5;
+    fill: none;
+    filter: drop-shadow(0 0 3px currentColor);
+  }
+  [data-slot='geo-map'] [data-geo='marker-dot'] {
+    fill: currentColor;
+    stroke: none;
+  }
+  [data-slot='geo-map'] [data-geo='marker-ring'] {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: geo-ping 2s ease-out infinite;
+  }
+  [data-slot='geo-map'] [data-geo-dot] {
+    fill: currentColor;
+  }
+}
+
+@keyframes geo-ping {
+  from {
+    transform: scale(0.4);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.6);
+    opacity: 0;
   }
 }

@@ -47,3 +47,11 @@ export function gradeTone(grade: string): Tone {
   if (grade === 'B' || grade === 'C') return 'yellow';
   return 'magenta';
 }
+
+/** Tone per DNSSEC validation status (`DnssecStatus` from @recon/shared). */
+export const DNSSEC_TONE = {
+  secure: 'green',
+  insecure: 'yellow',
+  bogus: 'magenta',
+  indeterminate: 'muted',
+} as const satisfies Record<string, Tone>;

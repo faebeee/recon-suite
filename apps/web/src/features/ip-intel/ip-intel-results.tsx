@@ -3,8 +3,9 @@ import type {
   IpIntelOutput,
   ProviderKind,
 } from '@recon/shared';
-import { KeyValueGrid, Panel, Tag } from '@/components/cyber';
+import { KeyValueGrid, Panel, Tag, WorldMap } from '@/components/cyber';
 import { PivotLinks } from '@/components/tool';
+import { countryName, normalizeCountryCode } from '@/lib/countries';
 import type { Tone } from '@/lib/tones';
 
 const PROVIDER_TONE: Record<ProviderKind, Tone> = {
@@ -25,10 +26,58 @@ export function IpIntelResults({ data }: { data: IpIntelOutput }) {
           .
         </p>
       )}
+      <CountryMapPanel addresses={data.addresses} />
       {data.addresses.map((a) => (
         <AddressPanel key={a.ip} a={a} />
       ))}
     </div>
+  );
+}
+
+/** Registry country of an address (RDAP network first, then the ASN record). */
+function addressCountry(a: IpIntelAddress) {
+  return normalizeCountryCode(a.network?.country ?? a.asn?.country);
+}
+
+function CountryMapPanel({ addresses }: { addresses: IpIntelAddress[] }) {
+  const byCountry = new Map<string, string[]>();
+  for (const a of addresses) {
+    const code = addressCountry(a);
+    if (code) byCountry.set(code, [...(byCountry.get(code) ?? []), a.ip]);
+  }
+  if (byCountry.size === 0) return null;
+
+  const codes = [...byCountry.keys()];
+  const names = codes.map(countryName);
+  return (
+    <Panel
+      title="Registry country"
+      code="GEO"
+      actions={codes.map((c) => (
+        <Tag key={c}>{c}</Tag>
+      ))}
+      bodyClassName="p-0"
+    >
+      <WorldMap
+        highlight={codes}
+        label={`World map highlighting ${names.join(', ')}`}
+      />
+      <ul className="flex flex-wrap gap-x-6 gap-y-1 border-t border-inherit px-4 py-2 text-xs">
+        {codes.map((code, i) => (
+          <li key={code}>
+            <span className="text-neon-cyan">{names[i]}</span>
+            <span className="text-muted-foreground">
+              {' '}
+              · {byCountry.get(code)?.join(', ')}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="border-t border-inherit px-4 py-2 text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
+        Country registered for the network (RDAP / ASN), not a precise
+        geolocation
+      </p>
+    </Panel>
   );
 }
 
@@ -95,7 +144,7 @@ function AddressPanel({ a }: { a: IpIntelAddress }) {
               label: 'Country / RIR',
               value:
                 [
-                  a.network?.country ?? a.asn?.country,
+                  addressCountry(a) ?? a.network?.country ?? a.asn?.country,
                   a.asn?.registry?.toUpperCase(),
                 ]
                   .filter(Boolean)

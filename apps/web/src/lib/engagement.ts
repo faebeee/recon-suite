@@ -1,6 +1,11 @@
 import { queryOptions, useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
-import { ENGAGEMENT_API, type Engagement, type RunDetail } from '@recon/shared';
+import {
+  ENGAGEMENT_API,
+  type Engagement,
+  type PostureSeries,
+  type RunDetail,
+} from '@recon/shared';
 import { ApiError, apiFetch } from './api-client';
 import {
   getActiveEngagementId,
@@ -25,6 +30,14 @@ export function engagementQuery(id: string) {
     queryFn: () => apiFetch<Engagement>(ENGAGEMENT_API.one(id)),
     retry: (count, err) =>
       !(err instanceof ApiError && err.status === 404) && count < 2,
+  });
+}
+
+/** Grade/status history per posture tool and target of an engagement. */
+export function postureQuery(id: string) {
+  return queryOptions({
+    queryKey: [...ENGAGEMENTS_KEY, id, 'posture'],
+    queryFn: () => apiFetch<PostureSeries[]>(ENGAGEMENT_API.posture(id)),
   });
 }
 

@@ -11,6 +11,7 @@ import { RuntimeBadge } from '@/components/tool';
 import { HostPanel } from '@/features/system';
 import { EngagementPanel } from './engagement-panel';
 import { RuntimePanel } from './runtime-panel';
+import { ScoreHistoryPanel } from './score-history-panel';
 
 const CATEGORIES = Object.keys(CATEGORY_LABELS) as ToolCategory[];
 
@@ -36,6 +37,8 @@ export function DashboardPage() {
       <HostPanel />
 
       <EngagementPanel />
+
+      <ScoreHistoryPanel />
 
       <RuntimePanel />
 

@@ -5,11 +5,14 @@ import type { App } from 'supertest/types.js';
 import {
   ENGAGEMENT_HEADER,
   type Engagement,
+  type PostureSeries,
   type RunPage,
+  type ToolId,
 } from '@recon/shared';
 import { AppModule } from './../src/app.module.js';
 import { configureApp } from './../src/app.setup.js';
 import { DnsService } from './../src/features/dns/dns.service.js';
+import { EngagementsRepository } from './../src/features/engagements/engagements.repository.js';
 
 /** DNS answers change between runs so the diff has something to show. No network. */
 let answer = ['93.184.216.34'];
@@ -197,6 +200,100 @@ describe('Engagements (e2e)', () => {
     // Delete cascades.
     await http.delete(`/api/engagements/${e.id}`).expect(204);
     await http.get(`/api/runs/${first.body.runId}`).expect(404);
+  });
+
+  it('tracks grade and status history per tool and target', async () => {
+    const e = (
+      await http.post('/api/engagements').send({ name: 'Posture' }).expect(201)
+    ).body as Engagement;
+    const repo = app.get(EngagementsRepository);
+    const store = (
+      tool: ToolId,
+      target: string,
+      startedAt: string,
+      data: unknown,
+    ) =>
+      repo.insertRun({
+        engagementId: e.id,
+        tool,
+        target,
+        startedAt,
+        durationMs: 5,
+        input: { target },
+        result: { tool, target, startedAt, durationMs: 5, data },
+      });
+    const site = 'https://example.com/';
+    const r1 = await store('http-headers', site, '2026-11-01T10:00:00.000Z', {
+      security: { grade: 'D', score: 45 },
+    });
+    const r2 = await store('http-headers', site, '2026-11-03T10:00:00.000Z', {
+      security: { grade: 'A', score: 90 },
+    });
+    await store('tls-audit', 'example.com', '2026-11-02T10:00:00.000Z', {
+      report: { grade: 'B', score: 74 },
+    });
+    await store('dnssec', 'example.com', '2026-11-02T10:00:00.000Z', {
+      status: 'insecure',
+    });
+    await store('email-security', 'example.com', '2026-11-02T10:00:00.000Z', {
+      report: { grade: 'C', score: 60 },
+    });
+    // Not tracked: other tools and failed runs.
+    await store('dns', 'example.com', '2026-11-02T10:00:00.000Z', {});
+    await repo.insertRun({
+      engagementId: e.id,
+      tool: 'dnssec',
+      target: 'example.com',
+      startedAt: '2026-11-04T10:00:00.000Z',
+      durationMs: 5,
+      input: {},
+      error: { status: 502, message: 'resolver down' },
+    });
+
+    const series = (
+      await http.get(`/api/engagements/${e.id}/posture`).expect(200)
+    ).body as PostureSeries[];
+    expect(series).toEqual([
+      {
+        tool: 'http-headers',
+        target: site,
+        points: [
+          {
+            runId: r1,
+            observedAt: '2026-11-01T10:00:00.000Z',
+            value: 'D',
+            score: 45,
+          },
+          {
+            runId: r2,
+            observedAt: '2026-11-03T10:00:00.000Z',
+            value: 'A',
+            score: 90,
+          },
+        ],
+      },
+      {
+        tool: 'tls-audit',
+        target: 'example.com',
+        points: [expect.objectContaining({ value: 'B', score: 74 })],
+      },
+      {
+        tool: 'dnssec',
+        target: 'example.com',
+        points: [expect.objectContaining({ value: 'insecure' })],
+      },
+      {
+        tool: 'email-security',
+        target: 'example.com',
+        points: [expect.objectContaining({ value: 'C', score: 60 })],
+      },
+    ]);
+    expect(series[2]?.points[0]).not.toHaveProperty('score');
+
+    await http
+      .get('/api/engagements/00000000-0000-4000-8000-000000000000/posture')
+      .expect(404);
+    await http.delete(`/api/engagements/${e.id}`).expect(204);
   });
 
   it('reports open mode for local requests without a password', async () => {

@@ -25,6 +25,7 @@ import {
   type EngagementFinding,
   type ExportFormat,
   type Note,
+  type PostureSeries,
   type RunDetail,
   type RunDiff,
   type RunPage,
@@ -35,6 +36,7 @@ import {
 import { z } from 'zod';
 import { diffValues } from './diff.js';
 import { EngagementsRepository } from './engagements.repository.js';
+import { buildPosture } from './posture.js';
 import { renderCsv, renderMarkdown, sortFindings } from './export.js';
 import { checkScope, parseScopeValue } from './scope.js';
 
@@ -199,6 +201,12 @@ export class EngagementsController {
   async findings(@Param('id', uuid) id: string): Promise<EngagementFinding[]> {
     await this.repo.engagementRow(id);
     return sortFindings(await this.repo.findings(id));
+  }
+
+  @Get('engagements/:id/posture')
+  async posture(@Param('id', uuid) id: string): Promise<PostureSeries[]> {
+    await this.repo.engagementRow(id);
+    return buildPosture(await this.repo.postureRows(id));
   }
 
   @Get('engagements/:id/export')
