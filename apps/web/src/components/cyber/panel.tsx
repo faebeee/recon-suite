@@ -8,6 +8,11 @@ interface PanelProps {
   code?: string;
   actions?: ReactNode;
   tone?: Tone;
+  /**
+   * The tone is decoration (identity), not meaning: themes may neutralise it
+   * through `[data-accent]`. Leave unset for error/warning/success panels.
+   */
+  accent?: boolean;
   className?: string;
   bodyClassName?: string;
   children: ReactNode;
@@ -19,6 +24,7 @@ export function Panel({
   code,
   actions,
   tone = 'cyan',
+  accent,
   className,
   bodyClassName,
   children,
@@ -27,6 +33,7 @@ export function Panel({
     <section
       data-slot="panel"
       data-tone={tone}
+      data-accent={accent || undefined}
       className={cn(
         'relative border bg-card/70 backdrop-blur-sm',
         toneBorder[tone],
@@ -35,7 +42,10 @@ export function Panel({
     >
       <Corners tone={tone} />
       {(title || actions) && (
-        <header className="flex items-center justify-between gap-3 border-b border-inherit px-4 py-2">
+        <header
+          data-slot="panel-header"
+          className="flex items-center justify-between gap-3 border-b border-inherit px-4 py-2"
+        >
           <h2 className="flex min-w-0 items-center gap-2 font-display text-xs tracking-[0.2em] uppercase">
             <span className={cn('opacity-70', toneText[tone])}>{'//'}</span>
             {code && <span className={toneText[tone]}>{code}</span>}
@@ -46,7 +56,14 @@ export function Panel({
           )}
         </header>
       )}
-      <div className={cn('p-4', bodyClassName)}>{children}</div>
+      <div
+        data-slot="panel-body"
+        // Lets themes change the default padding without touching flush (p-0) bodies.
+        data-flush={/(^|\s)p-0(\s|$)/.test(bodyClassName ?? '') || undefined}
+        className={cn('p-4', bodyClassName)}
+      >
+        {children}
+      </div>
     </section>
   );
 }

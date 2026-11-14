@@ -68,6 +68,7 @@ export function Sidebar() {
                   activeProps={{ className: linkActive }}
                 >
                   <Icon
+                    data-accent
                     className={cn('size-4 shrink-0', toneText[tool.tone])}
                   />
                   <span className="truncate">{tool.name}</span>

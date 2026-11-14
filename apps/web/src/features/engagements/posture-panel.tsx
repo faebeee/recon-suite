@@ -135,8 +135,10 @@ function SeriesRow({ series: s }: { series: PostureSeries }) {
     <li className="grid gap-3 px-4 py-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
       <div className="min-w-0 space-y-2">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-          <Tag tone={tool.tone}>{tool.name}</Tag>
-          <span className="inline-flex min-w-0 items-center gap-1">
+          <Tag tone={tool.tone} accent>
+            {tool.name}
+          </Tag>
+          <span className="flex min-w-0 flex-wrap items-center gap-1">
             <span className="break-all text-primary">{s.target}</span>
             <PivotLinks value={s.target} />
           </span>

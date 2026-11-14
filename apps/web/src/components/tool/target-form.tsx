@@ -51,6 +51,7 @@ export function TargetForm({
           <div className="flex flex-col gap-2 sm:flex-row">
             <div className="flex min-w-0 flex-1 items-center border border-input bg-background/60 focus-within:border-primary focus-within:shadow-[0_0_16px_-6px] focus-within:shadow-primary">
               <span
+                data-accent
                 className="pl-3 text-sm text-neon-magenta select-none"
                 aria-hidden
               >

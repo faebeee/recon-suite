@@ -3,12 +3,14 @@ import { useCallback, useSyncExternalStore } from 'react';
 /**
  * Visual themes. Each id maps to `:root[data-theme='<id>']` in `src/themes/<id>.css`
  * (the default `cyber` theme lives in `styles.css` on plain `:root`).
- * Keep `THEME_STORAGE_KEY` and the ids in sync with the inline script in `index.html`,
- * which applies the stored theme before first paint.
+ * Keep `THEME_STORAGE_KEY`, the ids, theme colours and light schemes in sync with the
+ * inline script in `index.html`, which applies the stored theme before first paint.
+ * `scheme: 'light'` themes remove the `dark` class from <html>.
  */
 export const THEMES = [
-  { id: 'cyber', label: 'Cyber', themeColor: '#0b0b16' },
-  { id: 'nothing', label: 'Nothing', themeColor: '#000000' },
+  { id: 'cyber', label: 'Cyber', themeColor: '#0b0b16', scheme: 'dark' },
+  { id: 'nothing', label: 'Nothing', themeColor: '#000000', scheme: 'dark' },
+  { id: 'mono', label: 'Mono', themeColor: '#ffffff', scheme: 'light' },
 ] as const;
 
 export type ThemeId = (typeof THEMES)[number]['id'];
@@ -28,8 +30,12 @@ function readTheme(): ThemeId {
 }
 
 export function applyTheme(id: ThemeId) {
-  document.documentElement.dataset.theme = id;
-  const color = THEMES.find((t) => t.id === id)?.themeColor;
+  const entry = THEMES.find((t) => t.id === id);
+  const root = document.documentElement;
+  root.dataset.theme = id;
+  // shadcn's `dark:` variants key off the .dark class; light themes drop it.
+  root.classList.toggle('dark', entry?.scheme !== 'light');
+  const color = entry?.themeColor;
   document
     .querySelector('meta[name="theme-color"]')
     ?.setAttribute('content', color ?? '');

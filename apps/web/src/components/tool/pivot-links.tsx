@@ -25,6 +25,7 @@ export function PivotLinks({
             search={{ target: value }}
             title={`${tool.name}: ${value}`}
             aria-label={`Open ${value} in ${tool.name}`}
+            data-accent
             className={cn(
               'inline-flex size-6 items-center justify-center border border-transparent opacity-60 transition hover:border-current hover:opacity-100',
               toneText[tool.tone],

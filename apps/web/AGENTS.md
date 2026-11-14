@@ -32,20 +32,32 @@ style `new-york`, Radix), lucide-react icons, Zod (shared schemas from `@recon/s
 
 ## Design system: cyberpunk HUD (+ themes)
 
-Dark themes only. The default `cyber` theme's tokens are defined in `src/styles.css` (see the
+The default `cyber` theme's tokens are defined in `src/styles.css` (see the
 header comment there). Alternative themes override those tokens under
 `:root[data-theme='<id>']` in `src/themes/<id>.css`:
 
 - `nothing`: Nothing-inspired. True black, white primary, one red accent, dot-matrix `font-dot`
   (Doto), dot grid, rounded panels, pill buttons, no glow/scanlines/glitch.
+- `mono`: the only **light** theme. White paper, near-black ink, hairline borders, Inter for UI
+  text (`--theme-font-sans`; JetBrains Mono stays for code), sentence-case page titles, more
+  padding (panels, page, top bar, sidebar), no glow/grid/scanlines. Decorative accents are black.
 
 Theme switching lives in `lib/theme.ts` (`THEMES`, `useTheme`) and the `ThemeSwitcher` in the
 top bar; the choice is stored in `localStorage` (`recon-theme`) and applied before first paint
-by the inline script in `index.html`. To add a theme: add it to `THEMES`, the inline script's
-allowlist, create `src/themes/<id>.css` and import it in `styles.css`. Theme files target
-components through stable hooks (`data-slot="panel"`, `data-tone`, `.panel-corner`,
-`data-slot="meter-segment"`, `data-slot="button"`), never through Tailwind class names.
+by the inline script in `index.html`. To add a theme: add it to `THEMES` (with `scheme`), the
+inline script's colour map, create `src/themes/<id>.css` and import it in `styles.css`. A
+`scheme: 'light'` theme removes the `dark` class from `<html>` (shadcn's `dark:` variants) and
+must keep tone colours readable on white (>= 4.5:1). Theme files target components through
+stable hooks (`data-slot="panel" | "panel-header" | "panel-body" | "tag" | "button" |
+"meter-segment" | "geo-map" | "score-chart" | "top-bar" | "sidebar" | "main" | "page" |
+"brand"`, `data-tone`, `data-flush`, `.panel-corner`), never through Tailwind class names.
 Features stay theme-agnostic: keep using tones and tokens.
+
+**Decorative vs. semantic colour:** a tone that only identifies something (tool colours in the
+sidebar, cards, tool tags, pivot icons; the brand brackets; `❯` prompts) is marked with
+`data-accent` (`="box"` for bordered elements, `="input"` for input wrappers; `Panel accent`,
+`Tag accent`). Themes may neutralise those; status tones (pass/warn/fail, errors) are never
+marked and keep their meaning in every theme.
 
 **Colour semantics (use the tone, not the hue):**
 

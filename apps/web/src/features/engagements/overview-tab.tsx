@@ -130,8 +130,10 @@ function EngagementFindingsList({
                 </code>
               )}
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-                <Tag tone={tool.tone}>{tool.name}</Tag>
-                <span className="inline-flex min-w-0 items-center gap-1">
+                <Tag tone={tool.tone} accent>
+                  {tool.name}
+                </Tag>
+                <span className="flex min-w-0 flex-wrap items-center gap-1">
                   <span className="break-all text-primary">{f.target}</span>
                   <PivotLinks value={f.target} />
                 </span>

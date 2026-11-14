@@ -13,12 +13,13 @@
       // Apply the stored theme before first paint (keep in sync with src/lib/theme.ts).
       try {
         var t = localStorage.getItem('recon-theme');
-        if (t === 'nothing' || t === 'cyber') {
+        var colors = { cyber: '#0b0b16', nothing: '#000000', mono: '#ffffff' };
+        if (colors[t]) {
           document.documentElement.dataset.theme = t;
-          if (t === 'nothing')
-            document
-              .querySelector('meta[name="theme-color"]')
-              .setAttribute('content', '#000000');
+          if (t === 'mono') document.documentElement.classList.remove('dark');
+          document
+            .querySelector('meta[name="theme-color"]')
+            .setAttribute('content', colors[t]);
         }
       } catch (e) {}
     </script>

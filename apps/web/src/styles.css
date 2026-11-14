@@ -2,6 +2,7 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 @import './themes/nothing.css';
+@import './themes/mono.css';
 
 /*
  * RECON//SUITE design system
@@ -13,7 +14,7 @@
  *   neon-magenta  accent, danger, errors, "open" findings
  *   neon-yellow   warnings
  *   neon-green    success / pass
- * Fonts: font-sans (JetBrains Mono, all UI text), font-display (Orbitron, headings),
+ * Fonts: font-sans (JetBrains Mono, all UI text; Inter in `mono`), font-display (Orbitron, headings),
  *        font-dot (large hero text, grades; dot-matrix in the Nothing theme)
  * Effects: text-glow, box-glow, clip-corner(-sm), bg-grid, animate-flicker, glitch
  */
@@ -21,7 +22,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --font-sans: var(--theme-font-sans);
   --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
   --font-display: var(--theme-font-display);
   --font-dot: var(--theme-font-dot);
@@ -84,6 +85,7 @@
 :root {
   color-scheme: dark;
 
+  --theme-font-sans: 'JetBrains Mono Variable', ui-monospace, monospace;
   --theme-font-display:
     'Orbitron Variable', 'JetBrains Mono Variable', sans-serif;
   --theme-font-dot: var(--theme-font-display);

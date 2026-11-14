@@ -1,0 +1,244 @@
+/*
+ * MONO theme
+ * --------------------------------------------------------------
+ * Light, black and white, minimal and spacious: white paper, near-black ink,
+ * hairline borders, Inter for UI text (JetBrains Mono stays for code/data),
+ * generous padding, no glow, grid, scanlines, glitch or clipped corners.
+ * It is the only light theme: `lib/theme.ts` drops the `dark` class for it.
+ *
+ * Tone mapping (semantics stay the same; colours are dark enough for text on
+ * white, all >= 4.5:1 on --background and --muted):
+ *   cyan    -> black   primary, focus, info
+ *   magenta -> red     errors, critical
+ *   yellow  -> ochre   warnings
+ *   green   -> green   success / pass
+ *
+ * Everything is scoped to :root[data-theme='mono']; rules are unlayered on
+ * purpose so they beat Tailwind's layers without !important.
+ */
+
+:root[data-theme='mono'] {
+  color-scheme: light;
+
+  --theme-font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --theme-font-display: var(--theme-font-sans);
+  --theme-font-dot: var(--theme-font-sans);
+
+  --neon-cyan: oklch(0.16 0 0);
+  --neon-magenta: oklch(0.52 0.19 27);
+  --neon-yellow: oklch(0.52 0.11 65);
+  --neon-green: oklch(0.52 0.13 150);
+
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.16 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.16 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.16 0 0);
+  --primary: oklch(0.16 0 0);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.16 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.47 0 0);
+  --accent: oklch(0.96 0 0);
+  --accent-foreground: oklch(0.16 0 0);
+  --destructive: var(--neon-magenta);
+  --border: oklch(0 0 0 / 9%);
+  --input: oklch(0 0 0 / 14%);
+  --ring: oklch(0.16 0 0);
+  --chart-1: oklch(0.16 0 0);
+  --chart-2: var(--neon-magenta);
+  --chart-3: oklch(0.47 0 0);
+  --chart-4: oklch(0.65 0 0);
+  --chart-5: oklch(0.8 0 0);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.16 0 0);
+  --sidebar-primary: oklch(0.16 0 0);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0 0 0 / 5%);
+  --sidebar-accent-foreground: oklch(0.16 0 0);
+  --sidebar-border: oklch(0 0 0 / 8%);
+  --sidebar-ring: oklch(0.16 0 0);
+
+  /* Validated on white (light mode); blue/violet are close for protan readers,
+   * which the chart's dash patterns, legend and data table make up for. */
+  --series-1: oklch(0.45 0.13 255);
+  --series-2: oklch(0.62 0.17 50);
+  --series-3: oklch(0.62 0.11 185);
+  --series-4: oklch(0.5 0.2 345);
+}
+
+/* ---- Base ------------------------------------------------------------- */
+
+:root[data-theme='mono'] body {
+  background-image: none;
+  letter-spacing: -0.005em;
+}
+:root[data-theme='mono'] body::after {
+  display: none;
+}
+:root[data-theme='mono'] ::selection {
+  background: oklch(0.16 0 0);
+  color: white;
+}
+:root[data-theme='mono'] h1,
+:root[data-theme='mono'] h2,
+:root[data-theme='mono'] h3 {
+  letter-spacing: -0.01em;
+}
+/* Page titles: sentence case, tight and heavy instead of spaced capitals. */
+:root[data-theme='mono'] h1 {
+  text-transform: none;
+  letter-spacing: -0.025em;
+  font-weight: 650;
+}
+:root[data-theme='mono'] ::-webkit-scrollbar-thumb {
+  background: oklch(0 0 0 / 15%);
+  border-radius: 9999px;
+}
+
+/* ---- Effects: none ---------------------------------------------------- */
+
+:root[data-theme='mono'] .text-glow,
+:root[data-theme='mono'] .group:hover .group-hover\:text-glow {
+  text-shadow: none;
+}
+:root[data-theme='mono'] .box-glow {
+  box-shadow: 0 0 0 1px currentColor;
+}
+:root[data-theme='mono'] .animate-flicker {
+  animation: none;
+}
+:root[data-theme='mono'] .glitch::before,
+:root[data-theme='mono'] .glitch::after {
+  display: none;
+}
+:root[data-theme='mono'] .bg-grid {
+  background-image: none;
+}
+:root[data-theme='mono'] .clip-corner {
+  clip-path: none;
+  border-radius: 0.875rem;
+}
+:root[data-theme='mono'] .clip-corner-sm {
+  clip-path: none;
+}
+
+/* ---- Layout: more air ------------------------------------------------- */
+
+:root[data-theme='mono'] [data-slot='top-bar'] {
+  height: 4rem;
+  padding-inline: 1.5rem;
+  background-color: oklch(1 0 0 / 85%);
+}
+:root[data-theme='mono'] [data-slot='sidebar'] {
+  top: 4rem;
+  height: calc(100vh - 4rem);
+  width: 17rem;
+  background-color: var(--sidebar);
+}
+:root[data-theme='mono'] [data-slot='brand'] {
+  letter-spacing: 0.12em;
+}
+/* Decorative accents (tool identity colours, brand brackets, prompts) go
+ * black; status tones (pass/warn/fail) keep their colour.
+ *   [data-accent]          text/icon colour only
+ *   [data-accent='box']    bordered element (tool cards, chips)
+ *   [data-accent='input']  input wrapper: keeps its border, black focus border
+ *   Panel accent           tone border becomes a hairline */
+:root[data-theme='mono'] [data-accent]:not([data-accent='input']) {
+  color: var(--foreground);
+}
+:root[data-theme='mono'] [data-accent='box'],
+:root[data-theme='mono'] [data-slot='panel'][data-accent] {
+  border-color: var(--border);
+}
+:root[data-theme='mono'] [data-slot='tag'][data-accent] {
+  background-color: var(--muted);
+}
+:root[data-theme='mono'] [data-accent='box']:hover {
+  border-color: oklch(0 0 0 / 30%);
+}
+:root[data-theme='mono'] [data-accent='input']:focus-within {
+  border-color: var(--ring);
+}
+:root[data-theme='mono'] [data-slot='brand'] [data-accent] {
+  color: var(--muted-foreground);
+}
+@media (min-width: 640px) {
+  :root[data-theme='mono'] [data-slot='page'] {
+    padding: 3.5rem 3rem 5rem;
+  }
+}
+
+/* Panels: plain white cards with a hairline, roomier header and body. */
+:root[data-theme='mono'] [data-slot='panel'] {
+  border-radius: 0.875rem;
+  background-color: var(--card);
+  backdrop-filter: none;
+  box-shadow: 0 1px 2px oklch(0 0 0 / 4%);
+}
+:root[data-theme='mono'] [data-slot='panel'][data-tone='cyan'],
+:root[data-theme='mono'] [data-slot='panel'][data-tone='muted'] {
+  border-color: var(--border);
+}
+:root[data-theme='mono'] .panel-corner {
+  display: none;
+}
+:root[data-theme='mono'] [data-slot='panel-header'] {
+  padding: 1rem 1.5rem;
+}
+:root[data-theme='mono'] [data-slot='panel-header'] > h2 > span:first-child {
+  display: none; /* the "//" prefix */
+}
+:root[data-theme='mono'] [data-slot='panel-body']:not([data-flush]) {
+  padding: 1.5rem;
+}
+
+/* ---- Components ------------------------------------------------------- */
+
+:root[data-theme='mono'] [data-slot='button'] {
+  border-radius: 0.5rem;
+  letter-spacing: 0.08em;
+}
+:root[data-theme='mono'] [data-slot='button']:hover {
+  box-shadow: none;
+}
+:root[data-theme='mono'] [data-slot='button'][data-variant='default']:hover {
+  background-color: oklch(0.32 0 0);
+}
+
+:root[data-theme='mono'] [data-slot='meter-segment'] {
+  border-radius: 9999px;
+  box-shadow: none;
+}
+
+/* World map: light grey land on white, black highlight and marker. */
+:root[data-theme='mono'] [data-slot='geo-map'] [data-geo='graticule'] {
+  display: none;
+}
+:root[data-theme='mono'] [data-slot='geo-map'] [data-geo='land'] {
+  fill: oklch(0.93 0 0);
+  stroke: oklch(1 0 0);
+  stroke-width: 0.5;
+}
+:root[data-theme='mono'] [data-slot='geo-map'] [data-geo='hit'] {
+  fill: oklch(0.16 0 0);
+  stroke: oklch(1 0 0);
+  stroke-width: 0.5;
+  filter: none;
+}
+:root[data-theme='mono'] [data-slot='geo-map'] [data-geo='marker'] {
+  color: var(--neon-magenta);
+  filter: none;
+}
+
+/* Score chart: faint solid grid, no glow. */
+:root[data-theme='mono'] [data-slot='score-chart'] [data-chart='grid'] {
+  stroke: oklch(0 0 0 / 7%);
+}
+:root[data-theme='mono'] [data-slot='score-chart'] [data-chart='line'] {
+  filter: none;
+}

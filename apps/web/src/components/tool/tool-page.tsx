@@ -25,7 +25,9 @@ export function ToolPage({
     <div className="space-y-6">
       <header className="space-y-3">
         <div className="flex flex-wrap items-center gap-2 text-[11px] tracking-[0.2em] text-muted-foreground uppercase">
-          <span className={toneText[tool.tone]}>{tool.code}</span>
+          <span data-accent className={toneText[tool.tone]}>
+            {tool.code}
+          </span>
           <span>/</span>
           <span>{tool.category}</span>
           <Tag tone={tool.mode === 'active' ? 'yellow' : 'green'}>
@@ -33,7 +35,10 @@ export function ToolPage({
           </Tag>
         </div>
         <h1 className="flex items-center font-dot gap-3 text-2xl font-bold uppercase sm:text-3xl">
-          <Icon className={cn('size-7 shrink-0', toneText[tool.tone])} />
+          <Icon
+            data-accent
+            className={cn('size-7 shrink-0', toneText[tool.tone])}
+          />
           <span className="text-glow">{tool.name}</span>
         </h1>
         <p className="max-w-2xl text-sm text-muted-foreground">

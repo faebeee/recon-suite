@@ -19,7 +19,10 @@ export function DashboardPage() {
   return (
     <div className="space-y-10">
       <section className="space-y-4">
-        <p className="text-[11px] tracking-[0.4em] text-neon-magenta uppercase">
+        <p
+          data-accent
+          className="text-[11px] tracking-[0.4em] text-neon-magenta uppercase"
+        >
           {'>'} reconnaissance toolkit
         </p>
         <h1 className="font-dot text-4xl font-black uppercase sm:text-6xl">
@@ -68,6 +71,7 @@ function ToolCard({ tool }: { tool: ToolEntry }) {
   return (
     <Link
       to={tool.path}
+      data-accent="box"
       className={cn(
         'group relative flex flex-col gap-3 border bg-card/70 p-5 transition-all clip-corner hover:-translate-y-0.5 hover:bg-card',
         toneBorder[tool.tone],
@@ -75,6 +79,7 @@ function ToolCard({ tool }: { tool: ToolEntry }) {
     >
       <div className="flex items-start justify-between">
         <Icon
+          data-accent
           className={cn(
             'size-6 transition group-hover:text-glow',
             toneText[tool.tone],
@@ -112,9 +117,16 @@ function QuickTarget() {
   const pinned = !!value && value === sessionTarget;
 
   return (
-    <Panel title="Quick target" tone="magenta">
-      <div className="flex items-center border border-input bg-background/60 focus-within:border-neon-magenta">
-        <span className="pl-3 text-sm text-neon-magenta" aria-hidden>
+    <Panel title="Quick target" tone="magenta" accent>
+      <div
+        data-accent="input"
+        className="flex items-center border border-input bg-background/60 focus-within:border-neon-magenta"
+      >
+        <span
+          data-accent
+          className="pl-3 text-sm text-neon-magenta"
+          aria-hidden
+        >
           ❯
         </span>
         <input
@@ -158,6 +170,7 @@ function QuickTarget() {
                 key={tool.id}
                 to={tool.path}
                 search={{ target: value }}
+                data-accent="box"
                 className={cn(
                   'inline-flex items-center gap-2 border px-3 py-1.5 text-[11px] tracking-[0.15em] uppercase transition hover:bg-card',
                   toneBorder[tool.tone],
