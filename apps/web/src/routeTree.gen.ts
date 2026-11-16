@@ -30,6 +30,7 @@ import { Route as ToolsIpIntelRouteImport } from './routes/tools/ip-intel'
 import { Route as ToolsJsEndpointsRouteImport } from './routes/tools/js-endpoints'
 import { Route as ToolsNetworkScanRouteImport } from './routes/tools/network-scan'
 import { Route as ToolsNmapRouteImport } from './routes/tools/nmap'
+import { Route as ToolsPassiveExposureRouteImport } from './routes/tools/passive-exposure'
 import { Route as ToolsPortsRouteImport } from './routes/tools/ports'
 import { Route as ToolsReverseIpRouteImport } from './routes/tools/reverse-ip'
 import { Route as ToolsSubdomainsRouteImport } from './routes/tools/subdomains'
@@ -148,6 +149,11 @@ const ToolsNmapRoute = ToolsNmapRouteImport.update({
   path: '/tools/nmap',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToolsPassiveExposureRoute = ToolsPassiveExposureRouteImport.update({
+  id: '/tools/passive-exposure',
+  path: '/tools/passive-exposure',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ToolsPortsRoute = ToolsPortsRouteImport.update({
   id: '/tools/ports',
   path: '/tools/ports',
@@ -230,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/tools/js-endpoints': typeof ToolsJsEndpointsRoute
   '/tools/network-scan': typeof ToolsNetworkScanRoute
   '/tools/nmap': typeof ToolsNmapRoute
+  '/tools/passive-exposure': typeof ToolsPassiveExposureRoute
   '/tools/ports': typeof ToolsPortsRoute
   '/tools/reverse-ip': typeof ToolsReverseIpRoute
   '/tools/subdomains': typeof ToolsSubdomainsRoute
@@ -265,6 +272,7 @@ export interface FileRoutesByTo {
   '/tools/js-endpoints': typeof ToolsJsEndpointsRoute
   '/tools/network-scan': typeof ToolsNetworkScanRoute
   '/tools/nmap': typeof ToolsNmapRoute
+  '/tools/passive-exposure': typeof ToolsPassiveExposureRoute
   '/tools/ports': typeof ToolsPortsRoute
   '/tools/reverse-ip': typeof ToolsReverseIpRoute
   '/tools/subdomains': typeof ToolsSubdomainsRoute
@@ -301,6 +309,7 @@ export interface FileRoutesById {
   '/tools/js-endpoints': typeof ToolsJsEndpointsRoute
   '/tools/network-scan': typeof ToolsNetworkScanRoute
   '/tools/nmap': typeof ToolsNmapRoute
+  '/tools/passive-exposure': typeof ToolsPassiveExposureRoute
   '/tools/ports': typeof ToolsPortsRoute
   '/tools/reverse-ip': typeof ToolsReverseIpRoute
   '/tools/subdomains': typeof ToolsSubdomainsRoute
@@ -338,6 +347,7 @@ export interface FileRouteTypes {
     | '/tools/js-endpoints'
     | '/tools/network-scan'
     | '/tools/nmap'
+    | '/tools/passive-exposure'
     | '/tools/ports'
     | '/tools/reverse-ip'
     | '/tools/subdomains'
@@ -373,6 +383,7 @@ export interface FileRouteTypes {
     | '/tools/js-endpoints'
     | '/tools/network-scan'
     | '/tools/nmap'
+    | '/tools/passive-exposure'
     | '/tools/ports'
     | '/tools/reverse-ip'
     | '/tools/subdomains'
@@ -408,6 +419,7 @@ export interface FileRouteTypes {
     | '/tools/js-endpoints'
     | '/tools/network-scan'
     | '/tools/nmap'
+    | '/tools/passive-exposure'
     | '/tools/ports'
     | '/tools/reverse-ip'
     | '/tools/subdomains'
@@ -444,6 +456,7 @@ export interface RootRouteChildren {
   ToolsJsEndpointsRoute: typeof ToolsJsEndpointsRoute
   ToolsNetworkScanRoute: typeof ToolsNetworkScanRoute
   ToolsNmapRoute: typeof ToolsNmapRoute
+  ToolsPassiveExposureRoute: typeof ToolsPassiveExposureRoute
   ToolsPortsRoute: typeof ToolsPortsRoute
   ToolsReverseIpRoute: typeof ToolsReverseIpRoute
   ToolsSubdomainsRoute: typeof ToolsSubdomainsRoute
@@ -608,6 +621,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToolsNmapRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tools/passive-exposure': {
+      id: '/tools/passive-exposure'
+      path: '/tools/passive-exposure'
+      fullPath: '/tools/passive-exposure'
+      preLoaderRoute: typeof ToolsPassiveExposureRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tools/ports': {
       id: '/tools/ports'
       path: '/tools/ports'
@@ -716,6 +736,7 @@ const rootRouteChildren: RootRouteChildren = {
   ToolsJsEndpointsRoute: ToolsJsEndpointsRoute,
   ToolsNetworkScanRoute: ToolsNetworkScanRoute,
   ToolsNmapRoute: ToolsNmapRoute,
+  ToolsPassiveExposureRoute: ToolsPassiveExposureRoute,
   ToolsPortsRoute: ToolsPortsRoute,
   ToolsReverseIpRoute: ToolsReverseIpRoute,
   ToolsSubdomainsRoute: ToolsSubdomainsRoute,

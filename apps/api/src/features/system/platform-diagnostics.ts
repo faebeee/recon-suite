@@ -43,6 +43,7 @@ const CHECKS: Record<ToolId, Check> = {
   subdomains: () => OK,
   'email-security': () => OK,
   'ip-intel': () => OK,
+  'passive-exposure': () => OK,
   'http-headers': () => OK,
   tls: () => OK,
   'web-files': () => OK,

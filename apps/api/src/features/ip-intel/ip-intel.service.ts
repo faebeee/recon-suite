@@ -1,9 +1,5 @@
-import {
-  BadGatewayException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { Resolver } from 'node:dns/promises';
+import { Injectable } from '@nestjs/common';
+import type { Resolver } from 'node:dns/promises';
 import { isIP } from 'node:net';
 import {
   MAX_IP_INTEL_ADDRESSES,
@@ -12,6 +8,10 @@ import {
   type IpIntelParams,
 } from '@recon/shared';
 import { HttpClientService } from '../../core/http/http-client.service.js';
+import {
+  publicResolver,
+  resolveDomainAddresses,
+} from '../../core/net/resolve-domain.js';
 import { mapConcurrent } from '../../core/util/map-concurrent.js';
 import {
   canonicalIp,
@@ -23,7 +23,6 @@ import {
   type RdapIpNetwork,
 } from './ip-intel.parser.js';
 
-const RESOLVERS = ['1.1.1.1', '1.0.0.1'];
 const RDAP_BOOTSTRAP = 'https://rdap.org';
 const MAX_PTR_CONFIRM = 3;
 
@@ -36,11 +35,11 @@ export class IpIntelService {
   constructor(private readonly http: HttpClientService) {}
 
   async lookup({ target }: IpIntelParams): Promise<IpIntelOutput> {
-    const r = new Resolver({ timeout: 3000, tries: 2 });
-    r.setServers(RESOLVERS);
+    const r = publicResolver();
 
     const kind = isIP(target) ? 'ip' : 'domain';
-    const ips = kind === 'ip' ? [target] : await this.resolveDomain(r, target);
+    const ips =
+      kind === 'ip' ? [target] : await resolveDomainAddresses(r, target);
 
     const addresses = await mapConcurrent(
       ips.slice(0, MAX_IP_INTEL_ADDRESSES),
@@ -48,30 +47,6 @@ export class IpIntelService {
       (ip) => this.analyse(r, ip),
     );
     return { query: target, kind, resolvedCount: ips.length, addresses };
-  }
-
-  private async resolveDomain(r: Resolver, domain: string): Promise<string[]> {
-    const [v4, v6] = await Promise.allSettled([
-      r.resolve4(domain),
-      r.resolve6(domain),
-    ]);
-    const ips = [
-      ...(v4.status === 'fulfilled' ? v4.value : []),
-      ...(v6.status === 'fulfilled' ? v6.value : []),
-    ];
-    if (ips.length) return ips;
-    const codes = [v4, v6].map((s) =>
-      s.status === 'rejected' ? (s.reason as NodeJS.ErrnoException).code : '',
-    );
-    if (codes.includes('ENOTFOUND')) {
-      throw new NotFoundException(`NXDOMAIN: ${domain} does not exist`);
-    }
-    if (codes.every((c) => c === 'ENODATA')) {
-      throw new NotFoundException(`${domain} has no A or AAAA records`);
-    }
-    throw new BadGatewayException(
-      `Could not resolve ${domain} (${codes.join(', ')})`,
-    );
   }
 
   private async analyse(r: Resolver, ip: string): Promise<IpIntelAddress> {

@@ -27,6 +27,7 @@ import {
   Unlink,
   Wifi,
   type LucideIcon,
+  Telescope,
 } from 'lucide-react';
 import {
   TOOL_CATALOG,
@@ -52,6 +53,11 @@ export const TOOL_UI: Record<ToolId, ToolUi> = {
   whois: { icon: Fingerprint, tone: 'magenta', accepts: ['domain', 'ip'] },
   'email-security': { icon: MailCheck, tone: 'green', accepts: ['domain'] },
   'ip-intel': { icon: Server, tone: 'magenta', accepts: ['domain', 'ip'] },
+  'passive-exposure': {
+    icon: Telescope,
+    tone: 'magenta',
+    accepts: ['domain', 'ip'],
+  },
   'http-headers': {
     icon: ShieldCheck,
     tone: 'yellow',

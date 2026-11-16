@@ -96,6 +96,11 @@ import {
   type IpIntelOutput,
 } from './features/ip-intel.js';
 import {
+  passiveExposureInputSchema,
+  type PassiveExposureInput,
+  type PassiveExposureOutput,
+} from './features/passive-exposure.js';
+import {
   techFingerprintInputSchema,
   type TechFingerprintInput,
   type TechFingerprintOutput,
@@ -148,6 +153,7 @@ export const TOOL_INPUT_SCHEMAS = {
   subdomains: subdomainsInputSchema,
   'email-security': emailSecurityInputSchema,
   'ip-intel': ipIntelInputSchema,
+  'passive-exposure': passiveExposureInputSchema,
   'web-files': webFilesInputSchema,
   'tech-fingerprint': techFingerprintInputSchema,
   'zone-transfer': zoneTransferInputSchema,
@@ -180,6 +186,10 @@ export interface ToolIO {
   subdomains: { input: SubdomainsInput; output: SubdomainsOutput };
   'email-security': { input: EmailSecurityInput; output: EmailSecurityOutput };
   'ip-intel': { input: IpIntelInput; output: IpIntelOutput };
+  'passive-exposure': {
+    input: PassiveExposureInput;
+    output: PassiveExposureOutput;
+  };
   'web-files': { input: WebFilesInput; output: WebFilesOutput };
   'tech-fingerprint': {
     input: TechFingerprintInput;

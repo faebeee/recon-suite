@@ -178,6 +178,18 @@ export const TOOL_CATALOG: Record<ToolId, ToolMeta> = {
     scope: 'remote',
     targetHint: 'example.com',
   },
+  'passive-exposure': {
+    id: 'passive-exposure',
+    code: 'I-07',
+    name: 'Passive Exposure',
+    tagline: 'Open ports and CVEs from Shodan, without scanning',
+    description:
+      "For an IP, or every address a domain resolves to: open ports, products, tags and CVE ids from Shodan's free InternetDB. The target itself is never contacted; data can be days or weeks old.",
+    category: 'intel',
+    mode: 'passive',
+    scope: 'remote',
+    targetHint: '1.1.1.1 or example.com',
+  },
   wayback: {
     id: 'wayback',
     code: 'W-05',

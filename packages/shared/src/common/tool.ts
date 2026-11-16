@@ -13,6 +13,7 @@ export const TOOL_IDS = [
   'cert-search',
   'reverse-ip',
   'cloud-storage',
+  'passive-exposure',
   'http-headers',
   'tls',
   'web-files',

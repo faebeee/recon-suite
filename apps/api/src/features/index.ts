@@ -21,6 +21,7 @@ import { EmailSecurityModule } from './email-security/email-security.module.js';
 import { HostScanModule } from './host-scan/host-scan.module.js';
 import { HttpHeadersModule } from './http-headers/http-headers.module.js';
 import { IpIntelModule } from './ip-intel/ip-intel.module.js';
+import { PassiveExposureModule } from './passive-exposure/passive-exposure.module.js';
 import { PortsModule } from './ports/ports.module.js';
 import { SubdomainsModule } from './subdomains/subdomains.module.js';
 import { SystemModule } from './system/system.module.js';
@@ -41,6 +42,7 @@ export const FEATURE_MODULES = [
   SubdomainsModule,
   EmailSecurityModule,
   IpIntelModule,
+  PassiveExposureModule,
   HttpHeadersModule,
   TlsModule,
   WebFilesModule,

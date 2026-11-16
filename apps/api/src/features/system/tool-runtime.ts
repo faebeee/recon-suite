@@ -34,6 +34,10 @@ const ENGINES: Record<ToolId, (h: HostFacts) => Engine> = {
     services: ['crt.sh'],
   }),
   'ip-intel': () => ({ engine: `${NODE_DNS} + RDAP`, services: ['rdap.org'] }),
+  'passive-exposure': () => ({
+    engine: 'Shodan InternetDB',
+    services: ['internetdb.shodan.io'],
+  }),
   'cve-lookup': () => ({
     engine: 'NVD CVE API',
     services: ['services.nvd.nist.gov'],
