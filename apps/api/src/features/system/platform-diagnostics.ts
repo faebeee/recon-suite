@@ -44,6 +44,7 @@ const CHECKS: Record<ToolId, Check> = {
   'email-security': () => OK,
   'ip-intel': () => OK,
   'passive-exposure': () => OK,
+  'dev-footprint': () => OK,
   'http-headers': () => OK,
   tls: () => OK,
   'web-files': () => OK,

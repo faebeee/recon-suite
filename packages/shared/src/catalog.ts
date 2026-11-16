@@ -190,6 +190,18 @@ export const TOOL_CATALOG: Record<ToolId, ToolMeta> = {
     scope: 'remote',
     targetHint: '1.1.1.1 or example.com',
   },
+  'dev-footprint': {
+    id: 'dev-footprint',
+    code: 'I-08',
+    name: 'Dev Footprint',
+    tagline: 'GitHub, GitLab, npm, PyPI and Docker Hub presence',
+    description:
+      "For an organisation handle (or a domain's name): its public GitHub/GitLab organisation and repositories, npm scope, Docker Hub images, and whether npm/PyPI packages with the same name are linked to it. Organisation-level only: no member lists or personal profiles.",
+    category: 'intel',
+    mode: 'passive',
+    scope: 'remote',
+    targetHint: 'acme or acme.com',
+  },
   wayback: {
     id: 'wayback',
     code: 'W-05',

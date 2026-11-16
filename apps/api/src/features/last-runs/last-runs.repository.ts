@@ -5,7 +5,12 @@ import {
 } from '@nestjs/common';
 import { InjectDrizzle } from '@nestjs/drizzle';
 import { and, eq } from 'drizzle-orm';
-import type { LastToolRun, ToolId, ToolResult } from '@recon/shared';
+import type {
+  LastRunSummary,
+  LastToolRun,
+  ToolId,
+  ToolResult,
+} from '@recon/shared';
 import type { Db } from '../../core/db/database.js';
 import { toolLastRuns } from '../../core/db/schema.js';
 
@@ -40,6 +45,26 @@ export class LastRunsRepository implements OnApplicationBootstrap {
         `Marked ${stale.length} interrupted run(s) as failed: ${stale.map((r) => r.tool).join(', ')}`,
       );
     }
+  }
+
+  /** Every tool's last run, without the (possibly large) input and result. */
+  async summaries(): Promise<LastRunSummary[]> {
+    const rows = await this.db
+      .select({
+        tool: toolLastRuns.tool,
+        target: toolLastRuns.target,
+        status: toolLastRuns.status,
+        startedAt: toolLastRuns.startedAt,
+        finishedAt: toolLastRuns.finishedAt,
+      })
+      .from(toolLastRuns);
+    return rows.map((r) => ({
+      tool: r.tool as ToolId,
+      target: r.target,
+      status: r.status,
+      startedAt: r.startedAt,
+      ...(r.finishedAt && { finishedAt: r.finishedAt }),
+    }));
   }
 
   async get(tool: ToolId): Promise<LastToolRun | null> {

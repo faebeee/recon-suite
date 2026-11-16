@@ -34,6 +34,19 @@ export interface LastToolRunResponse<T = unknown> {
   run: LastToolRun<T> | null;
 }
 
+/** One tool's last run without input or result (for marking tools in navigation). */
+export type LastRunSummary = Pick<
+  LastToolRun,
+  'tool' | 'target' | 'status' | 'startedAt' | 'finishedAt'
+>;
+
+/** Response of GET /api/last-runs: every tool that has a stored run. */
+export interface LastRunsSummaryResponse {
+  runs: LastRunSummary[];
+}
+
+export const LAST_RUNS_ENDPOINT = '/last-runs';
+
 export const lastRunToolSchema = z.enum(TOOL_IDS);
 
 export const lastRunEndpoint = (tool: ToolId) => `/last-runs/${tool}`;

@@ -49,6 +49,9 @@ describe('Last runs (e2e)', () => {
 
   it('is empty before the first run and rejects unknown tools', async () => {
     expect(await last()).toEqual({ run: null });
+    expect((await http.get('/api/last-runs').expect(200)).body).toEqual({
+      runs: [],
+    });
     await http.get('/api/last-runs/not-a-tool').expect(400);
   });
 
@@ -75,6 +78,18 @@ describe('Last runs (e2e)', () => {
     expect(run).toMatchObject({ status: 'ok', target: 'example.com' });
     expect(run?.result?.data).toMatchObject({ resolver: 'cloudflare' });
     expect(run?.finishedAt).toBeDefined();
+
+    // The summary lists the tool without input or result.
+    const { runs } = (await http.get('/api/last-runs').expect(200)).body;
+    expect(runs).toEqual([
+      {
+        tool: 'dns',
+        target: 'example.com',
+        status: 'ok',
+        startedAt: expect.any(String),
+        finishedAt: expect.any(String),
+      },
+    ]);
   });
 
   it('stores failures with status and message', async () => {

@@ -59,6 +59,21 @@ describe('LastRunsRepository', () => {
     });
   });
 
+  it('summarises every tool without input or result', async () => {
+    expect(await repo.summaries()).toEqual([]);
+    await start(repo, 'a', 'one.example');
+    await repo.finish('dns', 'a', { result: result('one.example') });
+    expect(await repo.summaries()).toEqual([
+      {
+        tool: 'dns',
+        target: 'one.example',
+        status: 'ok',
+        startedAt: '2026-11-13T10:00:00.000Z',
+        finishedAt: expect.any(String),
+      },
+    ]);
+  });
+
   it('returns null for tools that never ran', async () => {
     expect(await repo.get('whois')).toBeNull();
   });

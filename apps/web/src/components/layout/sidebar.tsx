@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { Activity, FolderKanban, LayoutGrid, ListChecks } from 'lucide-react';
 import { CATEGORY_LABELS, type ToolCategory } from '@recon/shared';
-import { RuntimeBadge } from '@/components/tool';
+import { LastRunDot, RuntimeBadge } from '@/components/tool';
 import { TOOLS } from '@/features/registry';
 import { cn } from '@/lib/utils';
 import { toneText } from '@/lib/tones';
@@ -72,6 +72,7 @@ export function Sidebar() {
                     className={cn('size-4 shrink-0', toneText[tool.tone])}
                   />
                   <span className="truncate">{tool.name}</span>
+                  <LastRunDot toolId={tool.id} />
                   <RuntimeBadge
                     toolId={tool.id}
                     compact

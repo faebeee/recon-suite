@@ -14,6 +14,7 @@ export const TOOL_IDS = [
   'reverse-ip',
   'cloud-storage',
   'passive-exposure',
+  'dev-footprint',
   'http-headers',
   'tls',
   'web-files',

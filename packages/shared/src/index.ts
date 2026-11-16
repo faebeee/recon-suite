@@ -15,6 +15,7 @@ export * from './features/subdomains.js';
 export * from './features/email-security.js';
 export * from './features/ip-intel.js';
 export * from './features/passive-exposure.js';
+export * from './features/dev-footprint.js';
 export * from './features/web-files.js';
 export * from './features/tech-fingerprint.js';
 export * from './features/zone-transfer.js';

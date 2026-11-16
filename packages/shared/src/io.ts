@@ -101,6 +101,11 @@ import {
   type PassiveExposureOutput,
 } from './features/passive-exposure.js';
 import {
+  devFootprintInputSchema,
+  type DevFootprintInput,
+  type DevFootprintOutput,
+} from './features/dev-footprint.js';
+import {
   techFingerprintInputSchema,
   type TechFingerprintInput,
   type TechFingerprintOutput,
@@ -154,6 +159,7 @@ export const TOOL_INPUT_SCHEMAS = {
   'email-security': emailSecurityInputSchema,
   'ip-intel': ipIntelInputSchema,
   'passive-exposure': passiveExposureInputSchema,
+  'dev-footprint': devFootprintInputSchema,
   'web-files': webFilesInputSchema,
   'tech-fingerprint': techFingerprintInputSchema,
   'zone-transfer': zoneTransferInputSchema,
@@ -190,6 +196,7 @@ export interface ToolIO {
     input: PassiveExposureInput;
     output: PassiveExposureOutput;
   };
+  'dev-footprint': { input: DevFootprintInput; output: DevFootprintOutput };
   'web-files': { input: WebFilesInput; output: WebFilesOutput };
   'tech-fingerprint': {
     input: TechFingerprintInput;

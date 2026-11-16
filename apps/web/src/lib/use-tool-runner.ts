@@ -19,6 +19,7 @@ import {
 import { targetForTool } from '@/features/registry';
 import { ApiError, apiFetch, apiPost } from './api-client';
 import { ENGAGEMENTS_KEY, runQuery } from './engagement';
+import { lastRunsQuery, markRunStarted } from './last-runs';
 import { useSessionTarget } from './session-target';
 
 interface Options<Id extends ToolId> {
@@ -127,9 +128,16 @@ export function useToolRunner<Id extends ToolId>(
         void queryClient.invalidateQueries({ queryKey: ENGAGEMENTS_KEY });
       }
     },
+    // Mark the tool as running in the navigation right away.
+    onMutate: (input) => {
+      markRunStarted(queryClient, id, targetOf(input) ?? 'this host');
+    },
     // The API stored the outcome; refresh it for when the page is opened again.
     onSettled: () =>
-      queryClient.invalidateQueries({ queryKey: lastRunQuery(id).queryKey }),
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: lastRunQuery(id).queryKey }),
+        queryClient.invalidateQueries({ queryKey: lastRunsQuery.queryKey }),
+      ]),
   });
 
   const run = (overrideTarget?: string) => {

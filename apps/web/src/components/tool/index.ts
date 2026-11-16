@@ -1,3 +1,4 @@
+export { LastRunDot } from './last-run-dot';
 export { PivotLinks } from './pivot-links';
 export { FormOption, TargetForm } from './target-form';
 export { ToolPage } from './tool-page';

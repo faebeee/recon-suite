@@ -34,6 +34,16 @@ const ENGINES: Record<ToolId, (h: HostFacts) => Engine> = {
     services: ['crt.sh'],
   }),
   'ip-intel': () => ({ engine: `${NODE_DNS} + RDAP`, services: ['rdap.org'] }),
+  'dev-footprint': () => ({
+    engine: 'Public platform APIs',
+    services: [
+      'api.github.com',
+      'gitlab.com',
+      'registry.npmjs.org',
+      'pypi.org',
+      'hub.docker.com',
+    ],
+  }),
   'passive-exposure': () => ({
     engine: 'Shodan InternetDB',
     services: ['internetdb.shodan.io'],

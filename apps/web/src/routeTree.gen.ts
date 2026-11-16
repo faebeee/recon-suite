@@ -20,6 +20,7 @@ import { Route as ToolsCertSearchRouteImport } from './routes/tools/cert-search'
 import { Route as ToolsCloudStorageRouteImport } from './routes/tools/cloud-storage'
 import { Route as ToolsCorsRouteImport } from './routes/tools/cors'
 import { Route as ToolsCveLookupRouteImport } from './routes/tools/cve-lookup'
+import { Route as ToolsDevFootprintRouteImport } from './routes/tools/dev-footprint'
 import { Route as ToolsDnsRouteImport } from './routes/tools/dns'
 import { Route as ToolsDnssecRouteImport } from './routes/tools/dnssec'
 import { Route as ToolsEmailSecurityRouteImport } from './routes/tools/email-security'
@@ -97,6 +98,11 @@ const ToolsCorsRoute = ToolsCorsRouteImport.update({
 const ToolsCveLookupRoute = ToolsCveLookupRouteImport.update({
   id: '/tools/cve-lookup',
   path: '/tools/cve-lookup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsDevFootprintRoute = ToolsDevFootprintRouteImport.update({
+  id: '/tools/dev-footprint',
+  path: '/tools/dev-footprint',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ToolsDnsRoute = ToolsDnsRouteImport.update({
@@ -226,6 +232,7 @@ export interface FileRoutesByFullPath {
   '/tools/cloud-storage': typeof ToolsCloudStorageRoute
   '/tools/cors': typeof ToolsCorsRoute
   '/tools/cve-lookup': typeof ToolsCveLookupRoute
+  '/tools/dev-footprint': typeof ToolsDevFootprintRoute
   '/tools/dns': typeof ToolsDnsRoute
   '/tools/dnssec': typeof ToolsDnssecRoute
   '/tools/email-security': typeof ToolsEmailSecurityRoute
@@ -262,6 +269,7 @@ export interface FileRoutesByTo {
   '/tools/cloud-storage': typeof ToolsCloudStorageRoute
   '/tools/cors': typeof ToolsCorsRoute
   '/tools/cve-lookup': typeof ToolsCveLookupRoute
+  '/tools/dev-footprint': typeof ToolsDevFootprintRoute
   '/tools/dns': typeof ToolsDnsRoute
   '/tools/dnssec': typeof ToolsDnssecRoute
   '/tools/email-security': typeof ToolsEmailSecurityRoute
@@ -299,6 +307,7 @@ export interface FileRoutesById {
   '/tools/cloud-storage': typeof ToolsCloudStorageRoute
   '/tools/cors': typeof ToolsCorsRoute
   '/tools/cve-lookup': typeof ToolsCveLookupRoute
+  '/tools/dev-footprint': typeof ToolsDevFootprintRoute
   '/tools/dns': typeof ToolsDnsRoute
   '/tools/dnssec': typeof ToolsDnssecRoute
   '/tools/email-security': typeof ToolsEmailSecurityRoute
@@ -337,6 +346,7 @@ export interface FileRouteTypes {
     | '/tools/cloud-storage'
     | '/tools/cors'
     | '/tools/cve-lookup'
+    | '/tools/dev-footprint'
     | '/tools/dns'
     | '/tools/dnssec'
     | '/tools/email-security'
@@ -373,6 +383,7 @@ export interface FileRouteTypes {
     | '/tools/cloud-storage'
     | '/tools/cors'
     | '/tools/cve-lookup'
+    | '/tools/dev-footprint'
     | '/tools/dns'
     | '/tools/dnssec'
     | '/tools/email-security'
@@ -409,6 +420,7 @@ export interface FileRouteTypes {
     | '/tools/cloud-storage'
     | '/tools/cors'
     | '/tools/cve-lookup'
+    | '/tools/dev-footprint'
     | '/tools/dns'
     | '/tools/dnssec'
     | '/tools/email-security'
@@ -446,6 +458,7 @@ export interface RootRouteChildren {
   ToolsCloudStorageRoute: typeof ToolsCloudStorageRoute
   ToolsCorsRoute: typeof ToolsCorsRoute
   ToolsCveLookupRoute: typeof ToolsCveLookupRoute
+  ToolsDevFootprintRoute: typeof ToolsDevFootprintRoute
   ToolsDnsRoute: typeof ToolsDnsRoute
   ToolsDnssecRoute: typeof ToolsDnssecRoute
   ToolsEmailSecurityRoute: typeof ToolsEmailSecurityRoute
@@ -549,6 +562,13 @@ declare module '@tanstack/react-router' {
       path: '/tools/cve-lookup'
       fullPath: '/tools/cve-lookup'
       preLoaderRoute: typeof ToolsCveLookupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/dev-footprint': {
+      id: '/tools/dev-footprint'
+      path: '/tools/dev-footprint'
+      fullPath: '/tools/dev-footprint'
+      preLoaderRoute: typeof ToolsDevFootprintRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tools/dns': {
@@ -726,6 +746,7 @@ const rootRouteChildren: RootRouteChildren = {
   ToolsCloudStorageRoute: ToolsCloudStorageRoute,
   ToolsCorsRoute: ToolsCorsRoute,
   ToolsCveLookupRoute: ToolsCveLookupRoute,
+  ToolsDevFootprintRoute: ToolsDevFootprintRoute,
   ToolsDnsRoute: ToolsDnsRoute,
   ToolsDnssecRoute: ToolsDnssecRoute,
   ToolsEmailSecurityRoute: ToolsEmailSecurityRoute,

@@ -7,7 +7,7 @@ import { TOOLS, toolsAccepting, type ToolEntry } from '@/features/registry';
 import { setSessionTarget, useSessionTarget } from '@/lib/session-target';
 import { cn } from '@/lib/utils';
 import { toneBorder, toneText } from '@/lib/tones';
-import { RuntimeBadge } from '@/components/tool';
+import { LastRunDot, RuntimeBadge } from '@/components/tool';
 import { HostPanel } from '@/features/system';
 import { EngagementPanel } from './engagement-panel';
 import { RuntimePanel } from './runtime-panel';
@@ -85,7 +85,8 @@ function ToolCard({ tool }: { tool: ToolEntry }) {
             toneText[tool.tone],
           )}
         />
-        <span className="text-[10px] tracking-[0.2em] text-muted-foreground">
+        <span className="flex items-center gap-2 text-[10px] tracking-[0.2em] text-muted-foreground">
+          <LastRunDot toolId={tool.id} />
           {tool.code}
         </span>
       </div>
