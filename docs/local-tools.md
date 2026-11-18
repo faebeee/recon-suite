@@ -109,7 +109,7 @@ missing container is reported as 503. The image must already be built locally; n
 pulled at request time.
 
 **Security:** the API needs the container engine socket for `exec`, which is root-equivalent on
-the host. Use this setup only on machines you control, behind the login, never publicly.
+the host. Use this setup only on machines you control, on a private network, never publicly.
 
 **Networks:** nmap reaches internet targets from the default bridge network. The Host Scan sweep only sees
 the LAN with `network_mode: host` on the `kali` service, which works on Linux hosts only (Docker

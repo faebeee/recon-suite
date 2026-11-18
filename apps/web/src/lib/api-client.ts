@@ -1,6 +1,5 @@
-import { AUTH_ENDPOINTS, ENGAGEMENT_HEADER } from '@recon/shared';
+import { ENGAGEMENT_HEADER } from '@recon/shared';
 import { getActiveEngagementId } from './engagement-store';
-import { AUTH_STATUS_KEY, queryClient } from './query-client';
 
 export const API_BASE: string = import.meta.env.VITE_API_URL ?? '/api';
 
@@ -14,9 +13,6 @@ export class ApiError extends Error {
     this.name = 'ApiError';
   }
 }
-
-/** Calls whose 401 is an expected answer, not a lost session. */
-const AUTH_PATHS: string[] = [AUTH_ENDPOINTS.status, AUTH_ENDPOINTS.login];
 
 /** Absolute URL of an API path (for plain links such as file downloads). */
 export function apiUrl(path: string): string {
@@ -32,7 +28,6 @@ export async function apiFetch<T>(
   try {
     res = await fetch(apiUrl(path), {
       ...init,
-      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         ...(engagementId ? { [ENGAGEMENT_HEADER]: engagementId } : {}),
@@ -45,9 +40,6 @@ export async function apiFetch<T>(
   }
 
   if (!res.ok) {
-    if (res.status === 401 && !AUTH_PATHS.includes(path)) {
-      void queryClient.invalidateQueries({ queryKey: AUTH_STATUS_KEY });
-    }
     const body = (await res.json().catch(() => null)) as {
       message?: string | string[];
     } | null;

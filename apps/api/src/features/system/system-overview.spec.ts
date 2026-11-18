@@ -16,17 +16,15 @@ describe('describeSettings', () => {
   it('never exposes secret values', () => {
     const settings = describeSettings(
       env({
-        ADMIN_PASSWORD: 'correct horse battery',
-        API_TOKEN: 'x'.repeat(40),
         NVD_API_KEY: 'nvd-secret',
+        SECURITYTRAILS_API_KEY: 'st-secret',
       }),
       defaults,
     );
     const json = JSON.stringify(settings);
-    expect(json).not.toContain('correct horse battery');
-    expect(json).not.toContain('x'.repeat(40));
     expect(json).not.toContain('nvd-secret');
-    expect(settings.find((s) => s.key === 'API_TOKEN')).toMatchObject({
+    expect(json).not.toContain('st-secret');
+    expect(settings.find((s) => s.key === 'NVD_API_KEY')).toMatchObject({
       secret: true,
       isSet: true,
       value: undefined,
@@ -61,23 +59,17 @@ describe('describeSettings', () => {
 describe('buildChecks', () => {
   it('flags weakened security settings as warnings', () => {
     const checks = buildChecks({
-      env: env({
-        ALLOW_PRIVATE_TARGETS: 'true',
-        COOKIE_SECURE: 'false',
-        ADMIN_PASSWORD: 'correct horse battery',
-      }),
+      env: env({ ALLOW_PRIVATE_TARGETS: 'true' }),
       database: { ok: true },
       tools,
     });
     expect(check(checks, 'private-targets').status).toBe('warn');
-    expect(check(checks, 'cookie').status).toBe('warn');
-    expect(check(checks, 'auth').status).toBe('warn');
     expect(overallStatus(checks)).toBe('warn');
   });
 
   it('is ok with the recommended configuration and optional parts off', () => {
     const checks = buildChecks({
-      env: env({ ADMIN_PASSWORD_HASH: '$scrypt$abc' }),
+      env: defaults,
       database: { ok: true },
       tools,
     });

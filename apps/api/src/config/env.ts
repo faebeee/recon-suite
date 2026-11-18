@@ -22,29 +22,10 @@ export const envSchema = z.object({
    */
   LOCAL_TOOLS_ENABLED: bool.default(true),
   /**
-   * SQLite file for engagements, history, notes and sessions. Relative paths resolve from
+   * SQLite file for engagements, history and notes. Relative paths resolve from
    * the working directory; ":memory:" keeps everything in memory (tests).
    */
   DATABASE_PATH: z.string().trim().min(1).default('data/recon.db'),
-  /** Login password (plain). Prefer ADMIN_PASSWORD_HASH outside local use. */
-  ADMIN_PASSWORD: optional(
-    z.string().min(12, 'ADMIN_PASSWORD must be at least 12 characters'),
-  ),
-  /** scrypt hash of the login password (`pnpm --filter @recon/api hash-password`). */
-  ADMIN_PASSWORD_HASH: optional(
-    z
-      .string()
-      .startsWith('$scrypt$', 'ADMIN_PASSWORD_HASH must be a $scrypt$ hash'),
-  ),
-  /** Static bearer token for scripts (Authorization: Bearer <token>), at least 32 characters. */
-  API_TOKEN: optional(
-    z.string().min(32, 'API_TOKEN must be at least 32 characters'),
-  ),
-  /**
-   * Mark the session cookie Secure. Browsers accept Secure cookies on http://localhost; set
-   * false only when serving the UI over plain HTTP on another host name.
-   */
-  COOKIE_SECURE: bool.default(true),
   /**
    * Name of a running Kali container. When set, nmap (Host Scan, Nmap Scan) runs inside it via
    * `<CONTAINER_CLI> exec` instead of on the API host. Needs access to the container

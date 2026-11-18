@@ -19,12 +19,11 @@ export interface SystemCheck {
 }
 
 export type SettingGroup =
-  'server' | 'security' | 'auth' | 'storage' | 'tooling' | 'integrations';
+  'server' | 'security' | 'storage' | 'tooling' | 'integrations';
 
 export const SETTING_GROUP_LABELS: Record<SettingGroup, string> = {
   server: 'Server',
   security: 'Security',
-  auth: 'Authentication',
   storage: 'Storage',
   tooling: 'Tool execution',
   integrations: 'Integrations',
@@ -68,7 +67,6 @@ export interface SystemOverview {
     engagements: number;
     runs: number;
     notes: number;
-    activeSessions: number;
   };
   /** How many tools work fully / limited / not at all on this setup. */
   tools: Record<SupportStatus, number> & { total: number };

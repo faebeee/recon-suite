@@ -13,38 +13,22 @@ values count as "not set".
 
 ## API
 
-| Variable                 | Default                 | Purpose                                                                                      |
-| ------------------------ | ----------------------- | -------------------------------------------------------------------------------------------- |
-| `PORT`                   | `4000`                  | HTTP port                                                                                    |
-| `CORS_ORIGIN`            | `http://localhost:5173` | Allowed browser origins, comma separated (also trusted for cookie-authenticated writes)      |
-| `ALLOW_PRIVATE_TARGETS`  | `false`                 | Allow loopback, private, link-local and reserved targets. Keep `false` when shared.          |
-| `LOCAL_TOOLS_ENABLED`    | `true`                  | Enable WiFi, Bluetooth and Host Scan (they expose the server's surroundings)                 |
-| `DATABASE_PATH`          | `data/recon.db`         | SQLite file for engagements, history, notes and sessions (relative to the working directory) |
-| `ADMIN_PASSWORD_HASH`    | not set                 | scrypt hash of the login password (preferred), see below                                     |
-| `ADMIN_PASSWORD`         | not set                 | Login password in plain text (min. 12 characters), hashed at startup                         |
-| `API_TOKEN`              | not set                 | Bearer token for scripts (min. 32 characters)                                                |
-| `COOKIE_SECURE`          | `true`                  | Secure session cookie. Set `false` only for plain HTTP on a host other than `localhost`      |
-| `NVD_API_KEY`            | not set                 | Enables CVE Lookup ([free key](https://nvd.nist.gov/developers/request-an-api-key))          |
-| `SECURITYTRAILS_API_KEY` | not set                 | Enables Reverse IP ([SecurityTrails](https://securitytrails.com))                            |
+| Variable                 | Default                 | Purpose                                                                             |
+| ------------------------ | ----------------------- | ----------------------------------------------------------------------------------- |
+| `PORT`                   | `4000`                  | HTTP port                                                                           |
+| `CORS_ORIGIN`            | `http://localhost:5173` | Allowed browser origins, comma separated (also trusted for state-changing requests) |
+| `ALLOW_PRIVATE_TARGETS`  | `false`                 | Allow loopback, private, link-local and reserved targets. Keep `false` when shared. |
+| `LOCAL_TOOLS_ENABLED`    | `true`                  | Enable WiFi, Bluetooth and Host Scan (they expose the server's surroundings)        |
+| `DATABASE_PATH`          | `data/recon.db`         | SQLite file for engagements, history and notes (relative to the working directory)  |
+| `NVD_API_KEY`            | not set                 | Enables CVE Lookup ([free key](https://nvd.nist.gov/developers/request-an-api-key)) |
+| `SECURITYTRAILS_API_KEY` | not set                 | Enables Reverse IP ([SecurityTrails](https://securitytrails.com))                   |
 
 Booleans accept `true`, `false`, `1` and `0`.
 
-### Login
+### Access
 
-Without `ADMIN_PASSWORD_HASH` or `ADMIN_PASSWORD`, the API only accepts requests from its own
-machine (loopback), which suits `pnpm dev` on a laptop. As soon as the UI is reached any other
-way (containers behind nginx, another computer), set a password:
-
-```sh
-pnpm --filter @recon/api hash-password   # asks for the password, prints the hash
-```
-
-Put the printed `$scrypt$...` value into `ADMIN_PASSWORD_HASH`. For scripts, generate a token
-with e.g. `openssl rand -hex 32` and set `API_TOKEN`.
-
-Browsers accept Secure cookies on `http://localhost`, so `COOKIE_SECURE=true` works for local
-use and with HTTPS. Serving the UI over plain HTTP under another host name needs
-`COOKIE_SECURE=false` (and is not recommended).
+There is no login. The API accepts every request that reaches it, so keep it on your own
+machine: compose publishes the API and web ports on `127.0.0.1` only.
 
 ### Database
 
@@ -70,8 +54,6 @@ of the web app to the API's `CORS_ORIGIN`.
 | `WEB_PORT`                              | `8080`  | Host port for the web container (nginx); also sets the API's `CORS_ORIGIN` |
 | `ALLOW_PRIVATE_TARGETS`                 | `false` | Passed to the API                                                          |
 | `LOCAL_TOOLS_ENABLED`                   | `false` | Passed to the API. Off by default in containers                            |
-| `ADMIN_PASSWORD_HASH`, `ADMIN_PASSWORD` | not set | Passed to the API. **Required**: requests through nginx are not local      |
-| `API_TOKEN`, `COOKIE_SECURE`            |         | Passed to the API                                                          |
 | `NVD_API_KEY`, `SECURITYTRAILS_API_KEY` | not set | Passed to the API                                                          |
 
 The Kali container (part of `pnpm compose:up`) uses `CONTAINER_SOCKET`, `CONTAINER_SOCKET_GID` and

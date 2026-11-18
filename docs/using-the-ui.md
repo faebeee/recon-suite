@@ -2,17 +2,10 @@
 
 ![Recon Suite tool page with the sidebar, parameters panel and theme switcher](screenshot.png)
 
-## Signing in
-
-When a password is configured on the API, the UI starts with a login form; the top bar then has
-a sign-out button. Without a password the UI opens directly, but only on the machine running
-the API. Opened from anywhere else, it explains that `ADMIN_PASSWORD` (or
-`ADMIN_PASSWORD_HASH`) must be set first. See [Configuration](configuration.md#login).
-
 ## Layout
 
 - **Top bar:** logo (back to the dashboard), UTC clock, API status ("uplink"), the active
-  engagement, the theme switcher and sign-out.
+  engagement, and the theme switcher.
 - **Sidebar:** every tool grouped by category (DNS, Intel, Web, Network, Wireless) with its
   code, e.g. `D-01`. On small screens it becomes a horizontal strip under the top bar.
 - **Dashboard:** tool cards with passive/active badges, a quick-target field, a **Host** panel

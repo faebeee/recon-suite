@@ -83,23 +83,6 @@ export const notes = sqliteTable(
   (t) => [index('notes_engagement_idx').on(t.engagementId)],
 );
 
-/** Login sessions (@nestjs/authentication SessionStore). The id is the SHA-256 of the token. */
-export const sessions = sqliteTable(
-  'sessions',
-  {
-    id: text().primaryKey(),
-    userId: text('user_id').notNull(),
-    /** Epoch milliseconds. */
-    createdAt: integer('created_at').notNull(),
-    expiresAt: integer('expires_at').notNull(),
-    lastActiveAt: integer('last_active_at').notNull(),
-    mfa: text({ enum: ['pending', 'verified'] }),
-    /** JSON */
-    metadata: text(),
-  },
-  (t) => [index('sessions_user_idx').on(t.userId)],
-);
-
 /**
  * The most recent run of each tool (one row per tool, replaced by the next run), so tool pages
  * can show it again later. Inserted as `running` when the request starts and updated when it

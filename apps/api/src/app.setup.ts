@@ -15,9 +15,9 @@ export function configureApp(app: INestApplication): INestApplication {
     .split(',')
     .map((o) => o.trim())
     .filter(Boolean);
-  // Cookies carry the login session, so cross-origin calls need credentials ...
-  app.enableCors({ origin: origins, credentials: true });
-  // ... and state-changing requests from other origins are refused (login CSRF etc.).
+  app.enableCors({ origin: origins });
+  // There is no login: refusing state-changing requests from other origins is what stops a
+  // web page in the operator's browser from starting scans through the API.
   app.enableCsrfProtection({ trustedOrigins: origins });
   app.enableShutdownHooks();
   return app;

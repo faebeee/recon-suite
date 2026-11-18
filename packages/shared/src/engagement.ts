@@ -231,27 +231,6 @@ export const FINDING_STATUS_ORDER: FindingStatus[] = [
   'pass',
 ];
 
-// ---------------------------------------------------------------- auth
-
-export const loginInputSchema = z.object({
-  password: z.string().min(1, 'Password is required').max(1024),
-});
-
-/**
- * password: a password is configured and the user is signed in (or not).
- * open:     no password configured; requests from this machine are allowed.
- */
-export interface AuthStatus {
-  authenticated: boolean;
-  mode: 'password' | 'open';
-}
-
-export const AUTH_ENDPOINTS = {
-  status: '/auth/status',
-  login: '/auth/login',
-  logout: '/auth/logout',
-} as const;
-
 // ---------------------------------------------------------------- endpoints
 
 /**

@@ -19,6 +19,18 @@ services:
     # network_mode: host
     restart: unless-stopped
 
+  # One-shot: make the data volume writable for the api user (uid 1000 = node). Docker/Podman
+  # only copy the image's /app/data ownership into a volume when it is first populated; a
+  # volume created earlier (or by another engine) stays root-owned and SQLite then fails with
+  # "unable to open database file".
+  data-init:
+    image: docker.io/library/node:26-alpine
+    user: '0'
+    entrypoint: ['chown', '1000:1000', '/app/data']
+    volumes:
+      - recon-data:/app/data
+    restart: 'no'
+
   api:
     build:
       context: .
@@ -29,7 +41,8 @@ services:
     image: localhost/recon-suite/api:latest
     environment:
       # Kali container for nmap (Host Scan, Nmap Scan). SECURITY: the engine socket mounted below is
-      # root-equivalent on the host; keep the API behind the login and never expose it.
+      # root-equivalent on the host, and the API has no login: keep both ports bound to
+      # 127.0.0.1 (below) and never expose them.
       # Socket path: Docker /var/run/docker.sock (default), Podman rootful/podman machine
       # /run/podman/podman.sock, rootless /run/user/<uid>/podman/podman.sock
       # (podman info --format '{{.Host.RemoteSocket.Path}}'). Set CONTAINER_SOCKET_GID to
@@ -46,16 +59,12 @@ services:
       # Local tools (WiFi scan) also leak the host's surroundings when shared; off by default.
       # Set to true only if you also enabled the host access below, and understand the tradeoff.
       LOCAL_TOOLS_ENABLED: ${LOCAL_TOOLS_ENABLED:-false}
-      # Login. Requests through nginx are not "local", so set a password (or its hash).
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
-      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:-}
-      API_TOKEN: ${API_TOKEN:-}
-      COOKIE_SECURE: ${COOKIE_SECURE:-true}
       # Optional third-party API keys (CVE Lookup, Reverse IP).
       NVD_API_KEY: ${NVD_API_KEY:-}
       SECURITYTRAILS_API_KEY: ${SECURITYTRAILS_API_KEY:-}
+    # No login: anyone who can reach these ports can use every tool. Loopback only.
     ports:
-      - '${API_PORT:-4000}:4000'
+      - '127.0.0.1:${API_PORT:-4000}:4000'
     # --- WiFi adapter access (R-01), opt-in, all disabled by default ---
     # The container has no wireless adapter and no view of the host's NetworkManager by
     # default. To let the WiFi tool see the host's networks: set LOCAL_TOOLS_ENABLED=true
@@ -82,6 +91,8 @@ services:
     depends_on:
       kali:
         condition: service_started
+      data-init:
+        condition: service_completed_successfully
 
   web:
     build:
@@ -89,7 +100,7 @@ services:
       dockerfile: apps/web/Containerfile
     image: localhost/recon-suite/web:latest
     ports:
-      - '${WEB_PORT:-8080}:8080'
+      - '127.0.0.1:${WEB_PORT:-8080}:8080'
     depends_on:
       api:
         condition: service_healthy

@@ -40,20 +40,14 @@ The guard covers more than the first request:
 `ALLOW_PRIVATE_TARGETS=true` disables the range check. Use it only for local, single-user setups
 where you want to scan your own LAN.
 
-## Authentication
+## Access
 
-- **Password login** (`ADMIN_PASSWORD_HASH` or `ADMIN_PASSWORD`): a single operator account.
-  Passwords are verified with scrypt; sessions are random 256-bit tokens in an HTTP-only,
-  Secure, SameSite=Lax `__Host-sid` cookie, stored hashed in the database, valid for at most
-  7 days and 12 hours of inactivity. Login is limited to 10 attempts per minute.
-- **API token** (`API_TOKEN`): `Authorization: Bearer <token>` for scripts, compared in
-  constant time.
-- **No password configured:** only requests from the API's own machine (loopback) are let in.
-  `X-Forwarded-For` is ignored, so a reverse proxy on the same machine does **not** make remote
-  users "local": set a password before putting a proxy in front.
-- **CSRF:** state-changing requests from browser origins other than `CORS_ORIGIN` are rejected.
-- `/api/health`, `/api/tools` (the catalog) and `/api/auth/*` status/login are the only public
-  endpoints.
+- **There is no login.** Anyone who can reach the API (or the UI in front of it) can use every
+  tool and read every engagement. Access control is the network: compose publishes the ports on
+  `127.0.0.1` only. Do not expose them, and do not put a reverse proxy in front without adding
+  your own authentication there.
+- **CSRF:** state-changing requests from browser origins other than `CORS_ORIGIN` are rejected,
+  so other web pages open in your browser cannot start scans through the API.
 
 ## Engagement scope
 
@@ -68,7 +62,7 @@ subject to the target guard above.
 
 | Limit          | Value                                                                                                       |
 | -------------- | ----------------------------------------------------------------------------------------------------------- |
-| Rate limit     | None globally; login is limited to 10 attempts per minute                                                   |
+| Rate limit     | None                                                                                                        |
 | Timeouts       | Every outbound call, e.g. 8-12 s for target requests, 15 s RDAP, 45 s crt.sh. nmap scans have no time limit |
 | Response size  | Capped per tool (e.g. 64 KB security.txt, 2 MB sitemap, 1 MB HTML read, 50 MB crt.sh)                       |
 | Ports per scan | 64                                                                                                          |
@@ -88,8 +82,8 @@ actually reported it.
 
 ## Deployment advice
 
-- Set `ADMIN_PASSWORD_HASH` for anything beyond a single laptop, serve the UI over HTTPS, and
-  prefer a VPN or private network over exposing it publicly.
+- Run it for a single operator on their own machine. If others must reach it, put it behind a
+  VPN or an authenticating reverse proxy; never expose it publicly.
 - Keep `ALLOW_PRIVATE_TARGETS=false` and `LOCAL_TOOLS_ENABLED=false` on anything shared.
 - The database (`DATABASE_PATH`) contains assessment results: store and back it up like other
   confidential engagement data.
@@ -98,7 +92,7 @@ actually reported it.
   to the NVD.
 - The dashboard's internet check (`GET /api/system/host`, cached 30 s) resolves
   `cloudflare.com` and requests `https://1.1.1.1/cdn-cgi/trace`, which reveals the API host's
-  public IP to Cloudflare. It also shows the host's IPs, MACs and gateway, so it requires sign-in.
+  public IP to Cloudflare. It also shows the host's IPs, MACs and gateway, so keep the API private.
 - There is no rate limit on tool requests and no time or parallelism limit on nmap scans:
   don't expose the API to untrusted users.
 - Set `CORS_ORIGIN` to exactly the origin of your web app.

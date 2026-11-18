@@ -153,7 +153,6 @@ function Overview({ data }: { data: SystemOverview }) {
               { label: 'Engagements', value: data.database.engagements },
               { label: 'Runs', value: data.database.runs },
               { label: 'Notes', value: data.database.notes },
-              { label: 'Active sessions', value: data.database.activeSessions },
             ]}
           />
         </Panel>

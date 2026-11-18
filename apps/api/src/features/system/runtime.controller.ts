@@ -6,8 +6,7 @@ import { SystemOverviewService } from './system-overview.service.js';
 
 /**
  * GET /api/system/runtime: where each tool runs (API host, API container, Kali container),
- * which engine does the work and whether it is available. Not @Public(): it describes the
- * server (platform, container names).
+ * which engine does the work and whether it is available.
  */
 @Controller('system')
 export class RuntimeController {

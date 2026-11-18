@@ -32,28 +32,9 @@ export const SETTING_META: Record<keyof Env, SettingMeta> = {
     description:
       'Tools that inspect the API host surroundings (WiFi, Bluetooth).',
   },
-  ADMIN_PASSWORD_HASH: {
-    group: 'auth',
-    description: 'scrypt hash of the login password.',
-    secret: true,
-  },
-  ADMIN_PASSWORD: {
-    group: 'auth',
-    description: 'Plain login password (prefer the hash).',
-    secret: true,
-  },
-  API_TOKEN: {
-    group: 'auth',
-    description: 'Bearer token for scripts.',
-    secret: true,
-  },
-  COOKIE_SECURE: {
-    group: 'auth',
-    description: 'Send the session cookie over HTTPS (and localhost) only.',
-  },
   DATABASE_PATH: {
     group: 'storage',
-    description: 'SQLite file for engagements, runs, notes and sessions.',
+    description: 'SQLite file for engagements, runs and notes.',
   },
   KALI_CONTAINER: {
     group: 'tooling',
@@ -129,61 +110,7 @@ export function buildChecks(f: CheckFacts): SystemCheck[] {
     toolsCheck(f.tools),
   ];
 
-  if (env.ADMIN_PASSWORD_HASH) {
-    checks.push({
-      id: 'auth',
-      label: 'Login',
-      status: 'ok',
-      detail: 'Password login with a scrypt hash.',
-    });
-  } else if (env.ADMIN_PASSWORD) {
-    checks.push({
-      id: 'auth',
-      label: 'Login',
-      status: 'warn',
-      detail: 'Password login with a plain-text password in the environment.',
-      fix: 'Replace ADMIN_PASSWORD with ADMIN_PASSWORD_HASH (pnpm --filter @recon/api hash-password).',
-    });
-  } else {
-    checks.push({
-      id: 'auth',
-      label: 'Login',
-      status: 'warn',
-      detail: 'No password set: only requests from this machine are accepted.',
-      fix: 'Set ADMIN_PASSWORD_HASH to allow sign-in from other machines.',
-    });
-  }
-
   checks.push(
-    env.API_TOKEN
-      ? {
-          id: 'api-token',
-          label: 'API token',
-          status: 'ok',
-          detail: 'Bearer token for scripts is configured.',
-        }
-      : {
-          id: 'api-token',
-          label: 'API token',
-          status: 'off',
-          detail: 'No bearer token; scripts must sign in.',
-          fix: 'Set API_TOKEN (min. 32 characters) to call the API from scripts.',
-        },
-    env.COOKIE_SECURE
-      ? {
-          id: 'cookie',
-          label: 'Session cookie',
-          status: 'ok',
-          detail: 'Secure flag set.',
-        }
-      : {
-          id: 'cookie',
-          label: 'Session cookie',
-          status: 'warn',
-          detail:
-            'Secure flag off: the session cookie is also sent over plain HTTP.',
-          fix: 'Serve the UI over HTTPS and set COOKIE_SECURE=true.',
-        },
     env.ALLOW_PRIVATE_TARGETS
       ? {
           id: 'private-targets',

@@ -295,9 +295,4 @@ describe('Engagements (e2e)', () => {
       .expect(404);
     await http.delete(`/api/engagements/${e.id}`).expect(204);
   });
-
-  it('reports open mode for local requests without a password', async () => {
-    const res = await http.get('/api/auth/status').expect(200);
-    expect(res.body).toEqual({ mode: 'open', authenticated: true });
-  });
 });

@@ -4,11 +4,10 @@ import { isAbsolute, resolve } from 'node:path';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectDrizzle } from '@nestjs/drizzle';
-import { gt } from 'drizzle-orm';
 import type { SystemOverview } from '@recon/shared';
 import { envSchema, type Env } from '../../config/env.js';
 import type { Db } from '../../core/db/database.js';
-import { engagements, notes, runs, sessions } from '../../core/db/schema.js';
+import { engagements, notes, runs } from '../../core/db/schema.js';
 import { ToolExecService } from '../../core/process/tool-exec.service.js';
 import { PlatformDiagnosticsService } from './platform-diagnostics.service.js';
 import {
@@ -79,7 +78,7 @@ export class SystemOverviewService {
         sizeBytes: this.databaseSize(),
         ...(database.ok
           ? database.counts
-          : { engagements: 0, runs: 0, notes: 0, activeSessions: 0 }),
+          : { engagements: 0, runs: 0, notes: 0 }),
       },
       tools,
     };
@@ -90,21 +89,20 @@ export class SystemOverviewService {
         ok: true;
         counts: Pick<
           SystemOverview['database'],
-          'engagements' | 'runs' | 'notes' | 'activeSessions'
+          'engagements' | 'runs' | 'notes'
         >;
       }
     | { ok: false; error: string }
   > {
     try {
-      const [e, r, n, s] = await Promise.all([
+      const [e, r, n] = await Promise.all([
         this.db.$count(engagements),
         this.db.$count(runs),
         this.db.$count(notes),
-        this.db.$count(sessions, gt(sessions.expiresAt, Date.now())),
       ]);
       return {
         ok: true,
-        counts: { engagements: e, runs: r, notes: n, activeSessions: s },
+        counts: { engagements: e, runs: r, notes: n },
       };
     } catch (err) {
       return {

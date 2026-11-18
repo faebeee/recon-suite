@@ -6,6 +6,3 @@ export const queryClient = new QueryClient({
     queries: { staleTime: 10_000 },
   },
 });
-
-/** Query key of `GET /auth/status`; invalidated on any 401 to show the login screen. */
-export const AUTH_STATUS_KEY = ['auth', 'status'] as const;

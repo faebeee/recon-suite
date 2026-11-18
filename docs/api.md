@@ -6,14 +6,13 @@ The web UI is a client of a plain JSON API. You can call it directly from script
   through the Vite proxy)
 - Base URL with containers: `http://localhost:8080/api` (through nginx) or
   `http://localhost:4000/api`
-- Authentication: see [below](#authentication). Without a configured password the API only
-  accepts requests from its own machine.
+- No authentication: see [Access](#access).
 
 ## Endpoints
 
 | Method | Path                                                      | Purpose                                                                    |
 | ------ | --------------------------------------------------------- | -------------------------------------------------------------------------- |
-| GET    | `/api/health`                                             | Health check (`status`, `service`, `version`, `timestamp`), public         |
+| GET    | `/api/health`                                             | Health check (`status`, `service`, `version`, `timestamp`)                 |
 | GET    | `/api/tools`                                              | Catalog: id, code, name, description, category, mode, scope of every tool  |
 | POST   | `/api/tools/<id>`                                         | Run a tool                                                                 |
 | GET    | `/api/tools/wifi/interfaces`                              | WiFi interfaces for the WiFi Scanner's `interface` option                  |
@@ -22,9 +21,6 @@ The web UI is a client of a plain JSON API. You can call it directly from script
 | GET    | `/api/system/overview`                                    | Status checks, database, tool support, settings (no secret values)         |
 | GET    | `/api/system/host`                                        | OS, CPU, memory, interfaces (IP, MAC), gateway, DNS, internet check        |
 | GET    | `/api/last-runs/<id>`                                     | `{ run }`: the tool's most recent run (`running`, `ok` or `error`) or null |
-| GET    | `/api/auth/status`                                        | `{ mode, authenticated }`, public                                          |
-| POST   | `/api/auth/login`                                         | `{ password }`, sets the session cookie, public                            |
-| POST   | `/api/auth/logout`                                        | Ends the session                                                           |
 | ...    | `/api/engagements/...`, `/api/runs/...`, `/api/notes/...` | [Engagement workspace](#engagements)                                       |
 
 Tool ids: `dns`, `subdomains`, `email-security`, `zone-transfer`, `dnssec`, `takeover`, `whois`,
@@ -33,8 +29,7 @@ Tool ids: `dns`, `subdomains`, `email-security`, `zone-transfer`, `dnssec`, `tak
 `exposed-files`, `ports`, `banner-grab`, `host-scan`, `wifi`, `bluetooth`. The options of each
 tool are listed in the [Tools reference](tools.md).
 
-`/api/health` and `/api/tools` are public. Everything else needs authentication. There is no
-global rate limit; only `/api/auth/login` is limited to 10 attempts per minute.
+There is no authentication and no rate limit.
 
 ## Running a tool
 
@@ -87,25 +82,17 @@ Errors use HTTP status codes and a JSON body with a human-readable `message`:
 | Status | Meaning                                                                                |
 | ------ | -------------------------------------------------------------------------------------- |
 | 400    | Invalid input; `message` is a list of field errors                                     |
-| 401    | Not signed in (no valid session cookie or API token), or wrong password                |
 | 403    | Target blocked (private/reserved address), out of engagement scope, cross-origin write |
 | 404    | Domain does not exist (NXDOMAIN), nothing found, unknown engagement/run/note           |
 | 409    | The engagement is archived                                                             |
 | 413    | An upstream response exceeded the size limit                                           |
-| 429    | Too many login attempts (10 per minute)                                                |
 | 502    | Upstream failure (target or third-party service refused, reset, errored, invalid key)  |
 | 503    | Tool unavailable: local tool on the wrong host, or a required API key is not set       |
 | 504    | Timeout                                                                                |
 
-## Authentication
+## Access
 
-| Client  | How                                                                                                          |
-| ------- | ------------------------------------------------------------------------------------------------------------ |
-| Browser | `POST /api/auth/login` with `{ "password": "..." }` sets an HTTP-only session cookie (max 7 days, 12 h idle) |
-| Scripts | `Authorization: Bearer <API_TOKEN>` on every request                                                         |
-| Local   | Without `ADMIN_PASSWORD` / `ADMIN_PASSWORD_HASH`, requests from the API's own machine (loopback) are let in  |
-
-State-changing requests from other browser origins are rejected (CSRF protection). If the UI
+There is no login: every request that reaches the API is accepted. State-changing requests from other browser origins are rejected (CSRF protection). If the UI
 runs on another origin than the API, list it in `CORS_ORIGIN`. See
 [Configuration](configuration.md).
 
@@ -118,7 +105,7 @@ engagement:
   engagement's scope; otherwise 403 `Out of scope for engagement "...": ...`. Passive tools are
   not restricted.
 - The run is stored in the engagement's history, including upstream failures (502, 504, ...),
-  and the response carries its `runId`. Invalid input, auth and rate-limit errors are not stored.
+  and the response carries its `runId`. Invalid input errors are not stored.
 - Archived engagements answer 409.
 
 | Method | Path                                    | Purpose                                                     |
@@ -151,21 +138,19 @@ resolves into an in-scope range.
 
 ```sh
 API=http://localhost:4000/api
-AUTH="authorization: Bearer $API_TOKEN"
-E=$(curl -s -X POST "$API/engagements" -H "$AUTH" -H 'content-type: application/json' \
+E=$(curl -s -X POST "$API/engagements" -H 'content-type: application/json' \
   -d '{"name":"ACME Q4"}' | jq -r .id)
-curl -s -X POST "$API/engagements/$E/scope" -H "$AUTH" -H 'content-type: application/json' \
+curl -s -X POST "$API/engagements/$E/scope" -H 'content-type: application/json' \
   -d '{"entries":[{"value":"example.com"},{"value":"*.example.com"}]}'
-curl -s -X POST "$API/tools/http-headers" -H "$AUTH" -H "x-engagement-id: $E" \
+curl -s -X POST "$API/tools/http-headers" -H "x-engagement-id: $E" \
   -H 'content-type: application/json' -d '{"target":"https://www.example.com"}' | jq .runId
-curl -s "$API/engagements/$E/export?format=md" -H "$AUTH" -o report.md
+curl -s "$API/engagements/$E/export?format=md" -o report.md
 ```
 
 ## Examples
 
 ```sh
 API=http://localhost:4000/api
-# Add -H "authorization: Bearer $API_TOKEN" when a password is configured
 post() { curl -s -X POST "$API/tools/$1" -H 'content-type: application/json' -d "$2"; }
 
 # Mail spoofing protection, with an extra DKIM selector

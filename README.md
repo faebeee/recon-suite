@@ -42,8 +42,8 @@ Turborepo monorepo with a feature-driven architecture.
 
 **Engagements** tie it together for real assessments: a scope list that active tools enforce,
 a history of every run with tags and run-to-run comparison, collected findings, notes, batch
-runs over many targets, and a Markdown/JSON/CSV report export. A single-operator password login
-(plus an API token for scripts) protects the UI and API.
+runs over many targets, and a Markdown/JSON/CSV report export. There is no login: the UI and API
+are meant for a single operator on their own machine (containers bind to `127.0.0.1`).
 
 Results link to each other ("pivots"): a hostname found in DNS, CT logs or a certificate
 can be opened in any other compatible tool with one click. Every tool also accepts
@@ -65,11 +65,11 @@ can be opened in any other compatible tool with one click. Every tool also accep
 
 ## Stack
 
-| Path              | Package         | Stack                                                                                                     |
-| ----------------- | --------------- | --------------------------------------------------------------------------------------------------------- |
-| `apps/api`        | `@recon/api`    | NestJS 12 (ESM), Zod validation, undici, throttler, @nestjs/authentication, Drizzle + node:sqlite, Vitest |
-| `apps/web`        | `@recon/web`    | Vite, React 19, TanStack Router + Query, Tailwind 4, shadcn/ui                                            |
-| `packages/shared` | `@recon/shared` | Zod schemas, types and tool catalog used by both apps                                                     |
+| Path              | Package         | Stack                                                                  |
+| ----------------- | --------------- | ---------------------------------------------------------------------- |
+| `apps/api`        | `@recon/api`    | NestJS 12 (ESM), Zod validation, undici, Drizzle + node:sqlite, Vitest |
+| `apps/web`        | `@recon/web`    | Vite, React 19, TanStack Router + Query, Tailwind 4, shadcn/ui         |
+| `packages/shared` | `@recon/shared` | Zod schemas, types and tool catalog used by both apps                  |
 
 ## Getting started
 
@@ -99,9 +99,9 @@ Configuration: see `.env.example`, `apps/api/.env.example` and `apps/web/.env.ex
   loopback, private, link-local, CGNAT, multicast and reserved ranges (including on redirects
   and against DNS rebinding). Set `ALLOW_PRIVATE_TARGETS=true` only for local, single-user use.
 - Timeouts (except nmap scans), response size limits and port count limits apply to all
-  tools. There is no global rate limit; only login attempts are limited (10/min).
-- Password login (single operator), API token for scripts; without a password only local
-  requests are accepted. Active tools stay inside the engagement scope. See
+  tools. There is no rate limit.
+- No login: anyone who can reach the API can use it, so keep it on your machine or a private
+  network. Active tools stay inside the engagement scope. See
   [docs/security.md](docs/security.md).
 
 ## Architecture & agentic development

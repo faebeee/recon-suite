@@ -48,7 +48,7 @@ three places. Features never import from other features; shared code goes into t
 ```
 packages/shared/src/
   common/            target schemas (domain/host/url/port), ToolMeta, ToolResult, Finding/grading, health
-  engagement.ts      engagement/scope/run/note/auth contract + ENGAGEMENT_API endpoint map
+  engagement.ts      engagement/scope/run/note contract + ENGAGEMENT_API endpoint map
   catalog.ts         TOOL_CATALOG: metadata of every tool (name, code, category, mode)
   io.ts              TOOL_INPUT_SCHEMAS + ToolIO type map (id -> input/output types)
   features/<id>.ts   Zod input schema, <X>Input / <X>Params / <X>Output types
@@ -61,7 +61,6 @@ apps/api/src/
                      ToolExecService: nmap/ip locally or in the Kali container
     util/            mapConcurrent
     db/              Drizzle schema (schema.ts) on node:sqlite; migrations in apps/api/drizzle/
-    auth/            @nestjs/authentication: login, SQLite sessions, API token, local-open mode
     tool-runner.ts   runTool(id, target, fn, { findings }): ToolResult envelope (+ findings)
   config/env.ts      Zod-validated environment
   features/<id>/     <id>.module.ts, <id>.controller.ts, <id>.service.ts, pure helpers + *.spec.ts
@@ -77,7 +76,7 @@ apps/web/src/
   lib/               api-client, useToolRunner, tones, format, tool-search
   features/registry.ts  TOOL_UI: icon, tone, accepted target kinds per tool
   features/<id>/     <id>-tool.tsx (form + state), <id>-results.tsx (rendering), index.ts
-  features/{engagements,batch,auth}/  workspace pages, batch runner, login gate
+  features/{engagements,batch}/  workspace pages, batch runner
   routes/tools/<id>.tsx thin file route: validateSearch + render the feature component
 ```
 
@@ -103,9 +102,11 @@ apps/web/src/
 - Errors are Nest HTTP exceptions: 400 invalid input, 403 blocked target, 404 not found/NXDOMAIN,
   502 upstream failure, 504 timeout. The web `ApiError` shows `message` to the user, so write
   messages for humans.
-- `GET /api/tools` returns the catalog, `GET /api/health` is the health check. These and
-  `/api/auth/status|login` are the only `@Public()` routes; everything else is authenticated by
-  the global guard from `@nestjs/authentication`.
+- `GET /api/tools` returns the catalog, `GET /api/health` is the health check.
+- There is **no authentication**: every route is open to whoever can reach the API. Access
+  control is the network (compose binds the ports to `127.0.0.1`). CSRF protection
+  (`app.enableCsrfProtection`, trusted origins = `CORS_ORIGIN`) stops other web pages in the
+  operator's browser from calling the API; keep it.
 - Tools may expose helper sub-resources for their UI as `GET /api/tools/<id>/<name>` (plain
   response, no `ToolResult` envelope), e.g. `GET /api/tools/wifi/interfaces` for the dropdown.
   Put the path constant in the shared feature file (`WIFI_INTERFACES_ENDPOINT`).
@@ -127,16 +128,15 @@ apps/web/src/
    credentials, DoS-style flooding, or evasion features.
 5. Tools that connect to the target are `mode: 'active'` in the catalog; the UI then shows the
    authorisation notice automatically.
-6. There is no global rate limit. Only `POST /api/auth/login` is throttled (10/min,
-   `@UseGuards(ThrottlerGuard)`) against password guessing; keep that.
+6. There is no rate limit and no login. Keep the published ports bound to loopback in
+   `compose.yaml` (the API also holds the container-engine socket) and keep CSRF protection on.
 7. OS commands only through `runCommand()` (or `ToolExecService.run()` for the closed
    `EXEC_COMMANDS` list that may run in the Kali container) with a hard-coded command and
    argument array.
    Never build commands from user input and never use a shell. A user-chosen value may only
    become an argument after strict schema validation **and** an allowlist check against what the
    OS reported (see `WifiService.scan`: the interface must be in `listInterfaces()`).
-8. Never mark tool, engagement or data endpoints `@Public()`, and never trust `X-Forwarded-For`
-   for the "local requests are open" rule (`core/auth/request-source.ts`).
+8. Never trust `X-Forwarded-For` or other client-supplied headers for security decisions.
 9. Database changes only through the Drizzle schema plus a generated migration
    (`pnpm --filter @recon/api db:generate --name=<change>`); never edit applied migrations.
 10. Local tools expose the server's surroundings (e.g. nearby WiFi networks reveal its location):
@@ -183,10 +183,6 @@ pure analysis function with tests).
 | `ALLOW_PRIVATE_TARGETS`  | api | `false`                 | Allow loopback/private/reserved targets |
 | `LOCAL_TOOLS_ENABLED`    | api | `true`                  | Enable host-local tools (WiFi scan)     |
 | `DATABASE_PATH`          | api | `data/recon.db`         | SQLite file (`:memory:` in e2e tests)   |
-| `ADMIN_PASSWORD_HASH`    | api | unset                   | scrypt login hash (`hash-password`)     |
-| `ADMIN_PASSWORD`         | api | unset                   | Plain login password (min. 12 chars)    |
-| `API_TOKEN`              | api | unset                   | Bearer token for scripts (min. 32)      |
-| `COOKIE_SECURE`          | api | `true`                  | Secure session cookie                   |
 | `NVD_API_KEY`            | api | unset                   | Enables CVE Lookup                      |
 | `SECURITYTRAILS_API_KEY` | api | unset                   | Enables Reverse IP                      |
 | `KALI_CONTAINER`         | api | unset                   | Run nmap via `docker exec`              |

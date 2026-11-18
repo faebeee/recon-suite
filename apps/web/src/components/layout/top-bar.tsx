@@ -1,6 +1,5 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-import { LogoutButton } from '@/features/auth';
 import { ApiStatus } from '@/features/system';
 import { EngagementSwitcher } from './engagement-switcher';
 import { SessionTargetControl } from './session-target-control';
@@ -49,7 +48,6 @@ export function TopBar() {
         <SessionTargetControl />
         <EngagementSwitcher />
         <ThemeSwitcher />
-        <LogoutButton />
       </div>
     </header>
   );
