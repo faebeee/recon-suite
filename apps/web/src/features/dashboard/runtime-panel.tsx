@@ -8,9 +8,9 @@ import { LOCATION_META, STATUS_TONE, runtimeQuery } from '@/lib/runtime';
 import { cn } from '@/lib/utils';
 import { toneBorder, toneText } from '@/lib/tones';
 
-const LOCATIONS: RuntimeLocation[] = ['host', 'container'];
+const LOCATIONS: RuntimeLocation[] = ['host'];
 
-/** Overview: which tools run on the API host or in the API container. */
+/** Overview: which tools run on the API host and with what. */
 export function RuntimePanel() {
   const { data } = useQuery(runtimeQuery);
   if (!data) return null;

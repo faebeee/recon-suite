@@ -21,7 +21,7 @@ import {
 /**
  * Discovers live hosts on a user-supplied network/IP/subnet with an nmap ping sweep
  * (`nmap -sn`: ARP + MAC/vendor as root, falling back to TCP probes otherwise) on the
- * API host (in compose: the Kali-based API container).
+ * API host.
  * No time limit and no cap on parallel scans: a sweep runs until nmap is done.
  */
 @Injectable()
@@ -59,7 +59,7 @@ export class NetworkScanService {
     if (err instanceof CommandNotFoundError) {
       return new ServiceUnavailableException(
         'nmap is not installed on the API host. Install it (e.g. "brew install nmap" / ' +
-          '"sudo apt install nmap"), or run the API with "npm run compose:up" (its image includes nmap).',
+          '"sudo apt install nmap").',
       );
     }
     if (err instanceof CommandFailedError) {

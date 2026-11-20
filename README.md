@@ -53,8 +53,8 @@ Turborepo monorepo with a feature-driven architecture.
 a history of every run with tags and run-to-run comparison, change monitoring (what changed
 since the last run of each tool and target, with one-click re-runs), collected findings, notes, batch
 runs over many targets, and a Markdown/JSON/CSV report export. There is no login: the UI and API
-are meant for a single operator on a trusted network (the proxy listens on `0.0.0.0` by default;
-set `BIND_ADDRESS=127.0.0.1` to keep it on one machine).
+are meant for a single operator on a trusted network (the API listens on every interface, port
+4000).
 
 Results link to each other ("pivots"): a hostname found in DNS, CT logs or a certificate
 can be opened in any other compatible tool with one click. Every tool also accepts
@@ -65,7 +65,7 @@ can be opened in any other compatible tool with one click. Every tool also accep
 
 | Page                                       | Contents                                              |
 | ------------------------------------------ | ----------------------------------------------------- |
-| [Getting started](docs/getting-started.md) | Install, development, containers, troubleshooting     |
+| [Getting started](docs/getting-started.md) | Install, development, running, troubleshooting        |
 | [Using the UI](docs/using-the-ui.md)       | Tool pages, pivots, deep links, themes                |
 | [Tools reference](docs/tools.md)           | Every tool with options, data sources and limits      |
 | [HTTP API](docs/api.md)                    | Endpoints, response envelope, errors, `curl` examples |
@@ -84,7 +84,7 @@ can be opened in any other compatible tool with one click. Every tool also accep
 
 ## Getting started
 
-Requirements: Node 24+, npm 11, Podman (for containers).
+Requirements: Node 24+, npm 11.
 
 ```sh
 npm install
@@ -94,14 +94,13 @@ npm run dev        # api http://localhost:4000, web http://localhost:5173
 ```sh
 npm run build | typecheck | lint | test
 npm run test:e2e -w @recon/api
-npm run compose:up     # http://localhost:8090 (proxy -> web + api on a Kali image)
-npm run compose:down
+npm start          # build, then run api :4000 + web :4173 in the background
+npm stop
 ```
 
-Configuration: see `.env.example`, `apps/api/.env.example` and `apps/web/.env.example`.
+Configuration: see `apps/api/.env.example` and `apps/web/.env.example`.
 
-> **Local tools** (WiFi, Bluetooth, Host Scan) inspect the machine running the API and are off
-> by default in containers. On macOS run `npm run setup:macos-helper` once. Details per OS:
+> **Local tools** (WiFi, Bluetooth, Host Scan) inspect the machine running the API. On macOS run `npm run setup:macos-helper` once. Details per OS:
 > [docs/local-tools.md](docs/local-tools.md).
 
 ## Security model

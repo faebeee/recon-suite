@@ -37,7 +37,7 @@ const INTERNET_CACHE_MS = 30_000;
 type Internet = HostStats['internet'];
 
 /**
- * Facts about the machine (or container) the API runs on: OS, CPU, memory, network
+ * Facts about the machine the API runs on: OS, CPU, memory, network
  * interfaces, default gateway, DNS servers and an internet connectivity check.
  */
 @Injectable()

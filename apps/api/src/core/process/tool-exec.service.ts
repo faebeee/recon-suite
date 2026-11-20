@@ -3,8 +3,7 @@ import { runCommand } from './run-command.js';
 import { EXEC_COMMANDS, type ExecCommand } from './tool-exec.js';
 
 /**
- * Runs security tooling (nmap) on the API host. In compose the API image is built on
- * Kali, so the tools are part of it. Same rules as runCommand(): fixed command names,
+ * Runs security tooling (nmap) on the API host. Same rules as runCommand(): fixed command names,
  * arguments as an array, no shell.
  */
 @Injectable()

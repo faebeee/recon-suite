@@ -59,7 +59,7 @@ export class BluetoothService {
       if (err instanceof CommandNotFoundError) {
         throw new ServiceUnavailableException(
           `${err.message}. Bluetooth scanning needs the API to run natively on a machine with a ` +
-            'Bluetooth adapter (not inside containers; on Linux it requires BlueZ).',
+            'Bluetooth adapter (on Linux it requires BlueZ).',
         );
       }
       if (err instanceof CommandFailedError) {

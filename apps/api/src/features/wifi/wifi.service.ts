@@ -39,7 +39,7 @@ import {
 
 /**
  * Lists WiFi interfaces and the networks they can see, via the OS's own tooling.
- * Works when the API runs natively; containers have no wireless adapter.
+ * Needs a wireless adapter on the API host.
  */
 @Injectable()
 export class WifiService {
@@ -191,7 +191,7 @@ export class WifiService {
       if (err instanceof CommandNotFoundError) {
         throw new ServiceUnavailableException(
           `${err.message}. WiFi scanning needs the API to run natively on a machine with a wireless adapter ` +
-            '(it is not available inside containers; on Linux it requires NetworkManager).',
+            '(on Linux it requires NetworkManager).',
         );
       }
       if (err instanceof CommandFailedError) {

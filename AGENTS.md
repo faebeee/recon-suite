@@ -16,7 +16,7 @@ It is meant for authorised security assessments of systems the operator owns or 
 apps/api          @recon/api     NestJS 12 (ESM), Vitest, oxlint
 apps/web          @recon/web     Vite + React 19, TanStack Router/Query, Tailwind 4, shadcn/ui
 packages/shared   @recon/shared  Zod schemas, types and tool catalog shared by both apps
-infra/proxy       nginx reverse proxy: the compose stack's single entry point (/ -> web, /api -> api)
+scripts          start.sh / stop.sh: build, then run api + web on the host (`npm start` / `npm stop`)
 ```
 
 npm workspaces + Turborepo. `@recon/shared` is compiled to `dist/` and must be built before the
@@ -34,7 +34,6 @@ apps typecheck (`turbo` does this automatically through `dependsOn: ["^build"]`)
 | Unit tests                        | `npm test`                                                                                   |
 | API e2e tests                     | `npm run test:e2e -w @recon/api`                                                             |
 | Format                            | `npm run format`                                                                             |
-| Containers                        | `npm run compose:up` / `npm run compose:down`                                                |
 | Add shadcn component              | `cd apps/web && npx shadcn@latest add <name>`                                                |
 | macOS helper (once)               | `npm run setup:macos-helper` (builds `apps/api/native/macos`, asks for Location + Bluetooth) |
 
@@ -60,7 +59,7 @@ apps/api/src/
     net/             TargetGuardService: resolves targets (no private-range block)
     http/            HttpClientService (guarded + trusted undici agents), readTextLimited
     process/         runCommand(): fixed OS commands via execFile (local tools)
-                     ToolExecService: nmap on the API host (the compose API image is built on Kali)
+                     ToolExecService: nmap on the API host
     util/            mapConcurrent
     db/              Drizzle schema (schema.ts) on node:sqlite; migrations in apps/api/drizzle/
     tool-runner.ts   runTool(id, target, fn, { findings }): ToolResult envelope (+ findings)
@@ -106,8 +105,8 @@ apps/web/src/
   messages for humans.
 - `GET /api/tools` returns the catalog, `GET /api/health` is the health check.
 - There is **no authentication**: every route is open to whoever can reach the API. Access
-  control is the network: compose publishes only the reverse proxy, on `BIND_ADDRESS`
-  (default `0.0.0.0`, i.e. the LAN). CSRF protection
+  control is the network: the app runs on the host only; the API listens on every interface
+  and `npm start` serves the UI on `BIND_ADDRESS` (default `0.0.0.0`, i.e. the LAN). CSRF protection
   (`app.enableCsrfProtection`, trusted origins = `CORS_ORIGIN`) stops other web pages in the
   operator's browser from calling the API; keep it.
 - Tools may expose helper sub-resources for their UI as `GET /api/tools/<id>/<name>` (plain
@@ -133,11 +132,10 @@ apps/web/src/
    credentials, DoS-style flooding, or evasion features.
 5. Tools that connect to the target are `mode: 'active'` in the catalog; the UI then shows the
    authorisation notice automatically.
-6. There is no rate limit and no login. Compose publishes only the proxy, on `BIND_ADDRESS`
-   (default `0.0.0.0`: every device on the network can use the app; the operator chose LAN
-   access, so keep that default). Don't publish the `api`/`web` ports (the API runs as root with
-   NET_RAW/NET_ADMIN in its container) and keep CSRF protection on; LAN origins go into
-   `PUBLIC_ORIGINS`, never a wildcard.
+6. There is no rate limit and no login. The app runs on the host (no containers): the UI from
+   `npm start` listens on `BIND_ADDRESS` (default `0.0.0.0`: every device on the network can use
+   the app; the operator chose LAN access, so keep that default) and the API on every interface.
+   Keep CSRF protection on; LAN origins go into `PUBLIC_ORIGINS`, never a wildcard.
 7. OS commands only through `runCommand()` (or `ToolExecService.run()` for the closed
    closed `EXEC_COMMANDS` list) with a hard-coded command and
    argument array.

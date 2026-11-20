@@ -8,7 +8,6 @@ function facts(overrides: Partial<HostFacts> = {}): HostFacts {
     has: () => true,
     macosHelperInstalled: false,
     isRoot: true,
-    inContainer: false,
     hasIpv4Interface: true,
     netRawAllowed: true,
     apiKeys: { nvd: true, securityTrails: true },
@@ -32,12 +31,6 @@ describe('describeRuntime', () => {
     const info = describeRuntime(facts());
     expect(info.api).toEqual({ location: 'host', platform: 'linux' });
     expect(info.tools.every((t) => t.location === 'host')).toBe(true);
-  });
-
-  it('puts every tool in the API container when running in one', () => {
-    const info = describeRuntime(facts({ inContainer: true }));
-    expect(info.api.location).toBe('container');
-    expect(info.tools.every((t) => t.location === 'container')).toBe(true);
   });
 
   it('names third-party services and platform engines', () => {

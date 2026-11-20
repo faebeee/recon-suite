@@ -1,8 +1,0 @@
-**/node_modules
-**/dist
-**/native/macos/build
-**/.turbo
-**/coverage
-**/*.tsbuildinfo
-**/.env
-.git

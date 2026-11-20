@@ -4,7 +4,6 @@
 
 - Node.js 24 or newer
 - npm 11 (ships with Node.js)
-- Podman with `podman compose`, only for the container setup
 - Optional, for local tools: see [Local tools setup](local-tools.md)
 
 ## Run in development
@@ -26,7 +25,7 @@ There is no login. Engagements and history are stored in
 `apps/api/data/recon.db`, created on first start.
 
 At startup the API logs which tools this machine can run and, for the ones it can't, why and
-how to fix it (missing `nmap`, missing permission, running in a container, ...).
+how to fix it (missing `nmap`, missing permission, ...).
 
 ## Your first scan
 
@@ -40,27 +39,26 @@ how to fix it (missing `nmap`, missing permission, running in a container, ...).
 The dashboard's quick-target field does the same in reverse: type a domain, IP or URL and it
 lists every tool that accepts it.
 
-## Run with containers
+## Run a build
 
-Compose publishes a single port, the reverse proxy, on all interfaces (`BIND_ADDRESS=0.0.0.0`).
-There is no login, so only do this on a trusted network:
+`npm start` builds everything, then runs the API and the web app in the background on this
+machine; `npm stop` ends both. PIDs and logs go to `.run/`.
 
 ```sh
-cp .env.example .env
-npm run compose:up             # builds and starts api, web and proxy
-npm run compose:logs
-npm run compose:down
+npm start   # npm run build, then api :4000 and web :4173 (vite preview, proxies /api)
+npm stop
 ```
 
-The proxy container (nginx) is the single entry point on http://localhost:8090: it routes `/api`
-to the API container and everything else to the web container. Neither of those publishes a host
-port, so they can't collide with other local projects; change `APP_PORT` if 8090 is taken.
+| Service | URL                       |
+| ------- | ------------------------- |
+| Web UI  | http://localhost:4173     |
+| API     | http://localhost:4000/api |
 
-To use it from another device (e.g. the app runs on a Raspberry Pi), add the URL you open to
-`PUBLIC_ORIGINS` in `.env` (`PUBLIC_ORIGINS=http://192.168.1.20:8090`); without it the page
-loads but every scan is rejected by the CSRF check. `BIND_ADDRESS=127.0.0.1` keeps the app on the
-machine itself. The database is kept in the `recon-data` volume. Local tools are disabled in containers by default; see
-[Local tools setup](local-tools.md#containers).
+`API_PORT` and `WEB_PORT` change the ports. The web app listens on `BIND_ADDRESS` (default
+`0.0.0.0`, the LAN; `127.0.0.1` keeps it on this machine) and the API on every interface. There is
+no login, so only run it on a trusted network. To open the UI from another device, add that URL to
+`PUBLIC_ORIGINS` (e.g. `PUBLIC_ORIGINS=http://192.168.1.20:4173 npm start`); without it the
+page loads but every scan is rejected by the CSRF check.
 
 ## Everyday commands
 

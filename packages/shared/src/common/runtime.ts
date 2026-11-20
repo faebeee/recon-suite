@@ -2,10 +2,9 @@ import type { ToolId } from './tool.js';
 
 /**
  * Where a tool's work actually executes:
- * host:      natively on the machine running the API (`npm run dev`)
- * container: inside the API container (compose; the image is built on Kali)
+ * host: natively on the machine running the API (the app only runs on the host).
  */
-export type RuntimeLocation = 'host' | 'container';
+export type RuntimeLocation = 'host';
 
 /**
  * ok:          works fully on this setup.

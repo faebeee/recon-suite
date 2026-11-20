@@ -31,8 +31,7 @@ export function HostScanTool() {
           Runs an <code className="text-foreground">nmap -sn</code> host sweep
           over the chosen interface's subnet (subnets larger than /22 only the
           surrounding /24) to discover live hosts, MAC addresses and vendors.
-          ARP and MAC addresses need root on the API host (the compose API
-          container has it).
+          ARP and MAC addresses need root on the API host.
         </p>
         <div className="space-y-1.5">
           <label

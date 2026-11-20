@@ -46,7 +46,7 @@ describe('App (e2e)', () => {
           [...TOOL_IDS].sort(),
         );
         for (const t of body.tools) {
-          expect(['host', 'container']).toContain(t.location);
+          expect(t.location).toBe('host');
           expect(t.engine).toBeTruthy();
         }
       }));

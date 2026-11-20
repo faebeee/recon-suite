@@ -18,7 +18,6 @@ export interface HostFacts {
   has: (command: string) => boolean;
   macosHelperInstalled: boolean;
   isRoot: boolean;
-  inContainer: boolean;
   hasIpv4Interface: boolean;
   /** Third-party API keys that are configured (env var names). */
   apiKeys: { nvd: boolean; securityTrails: boolean };
@@ -27,8 +26,6 @@ export interface HostFacts {
 }
 
 const OK = { status: 'ok' } as const;
-const CONTAINER_HINT =
-  ' The API runs inside a container, which usually has no access to the host hardware; run it natively (`npm run dev`) instead.';
 
 type Check = (h: HostFacts) => Omit<ToolSupport, 'id'>;
 
@@ -88,10 +85,9 @@ const CHECKS: Record<ToolId, Check> = {
           status: 'unavailable',
           reason: '"nmap" is not installed on the API host.',
           fix:
-            (h.platform === 'darwin'
+            h.platform === 'darwin'
               ? 'brew install nmap'
-              : 'Install it, e.g. "sudo apt install nmap"') +
-            ', or run the API with "npm run compose:up" (its image is built on Kali).',
+              : 'Install it, e.g. "sudo apt install nmap"',
         };
   },
 
@@ -101,10 +97,9 @@ const CHECKS: Record<ToolId, Check> = {
         status: 'unavailable',
         reason: '"nmap" is not installed on the API host.',
         fix:
-          (h.platform === 'darwin'
+          h.platform === 'darwin'
             ? 'brew install nmap'
-            : 'Install it, e.g. "sudo apt install nmap"') +
-          ', or run the API with "npm run compose:up" (its image is built on Kali).',
+            : 'Install it, e.g. "sudo apt install nmap"',
       };
     }
     if (!h.isRoot) {
@@ -112,7 +107,7 @@ const CHECKS: Record<ToolId, Check> = {
         status: 'limited',
         reason:
           'Without root, nmap discovers hosts with TCP probes instead of ARP: no MAC addresses, and hosts with no open common port are missed.',
-        fix: 'Run the API as root, or with "npm run compose:up" (root inside its container).',
+        fix: 'Run the API as root (e.g. with sudo).',
       };
     }
     return OK;
@@ -123,7 +118,7 @@ const CHECKS: Record<ToolId, Check> = {
       return {
         status: 'unavailable',
         reason: 'Host Scan is not supported on Windows.',
-        fix: 'Run the API on Linux or macOS, or with "npm run compose:up".',
+        fix: 'Run the API on Linux or macOS.',
       };
     }
     if (!h.has('nmap')) {
@@ -131,10 +126,9 @@ const CHECKS: Record<ToolId, Check> = {
         status: 'unavailable',
         reason: '"nmap" is not installed.',
         fix:
-          (h.platform === 'darwin'
+          h.platform === 'darwin'
             ? 'brew install nmap'
-            : 'Install it, e.g. "sudo apt install nmap"') +
-          ', or run the API with "npm run compose:up" (its image is built on Kali).',
+            : 'Install it, e.g. "sudo apt install nmap"',
       };
     }
     if (!h.hasIpv4Interface) {
@@ -149,7 +143,7 @@ const CHECKS: Record<ToolId, Check> = {
         status: 'limited',
         reason:
           'Without root, nmap discovers hosts with TCP probes instead of ARP: no MAC addresses, and hosts with no open common port are missed.',
-        fix: 'Run the API as root, or with "npm run compose:up" (root inside its container).',
+        fix: 'Run the API as root (e.g. with sudo).',
       };
     }
     if (!h.netRawAllowed) {
@@ -157,9 +151,7 @@ const CHECKS: Record<ToolId, Check> = {
         status: 'unavailable',
         reason:
           'The process may not open raw sockets: NET_RAW is missing from its capability bounding set.',
-        fix: h.inContainer
-          ? 'Start the container with the NET_RAW capability (compose: cap_add: [NET_RAW], podman/docker: --cap-add NET_RAW).'
-          : 'Run the API without dropping the NET_RAW capability.',
+        fix: 'Run the API without dropping the NET_RAW capability.',
       };
     }
     return OK;
@@ -188,8 +180,7 @@ const CHECKS: Record<ToolId, Check> = {
           ? OK
           : {
               status: 'unavailable',
-              reason:
-                '"nmcli" (NetworkManager) is not installed.' + containerHint(h),
+              reason: '"nmcli" (NetworkManager) is not installed.',
               fix: 'Install NetworkManager, e.g. "sudo apt install network-manager".',
             };
       case 'win32':
@@ -226,8 +217,7 @@ const CHECKS: Record<ToolId, Check> = {
           ? OK
           : {
               status: 'unavailable',
-              reason:
-                '"bluetoothctl" (BlueZ) is not installed.' + containerHint(h),
+              reason: '"bluetoothctl" (BlueZ) is not installed.',
               fix: 'Install BlueZ, e.g. "sudo apt install bluez", and start bluetoothd.',
             };
       case 'win32':
@@ -269,10 +259,6 @@ export function formatDiagnosis(results: ToolSupport[]): string[] {
     if (r.fix) lines.push(`         fix: ${r.fix}`);
   }
   return lines;
-}
-
-function containerHint(h: HostFacts): string {
-  return h.inContainer ? CONTAINER_HINT : '';
 }
 
 function unsupportedPlatform(

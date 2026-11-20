@@ -1,4 +1,0 @@
-# Reverse proxy in front of api + web (see compose.yaml). Non-root, listens on 8080.
-FROM docker.io/nginxinc/nginx-unprivileged:stable-alpine
-COPY infra/proxy/nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 8080

@@ -55,12 +55,6 @@ export function HostPanel() {
         </span>
       }
     >
-      {data.location === 'container' && (
-        <p className="mb-4 text-xs text-neon-yellow">
-          The API runs in a container: addresses and gateway are the
-          container's, not your machine's.
-        </p>
-      )}
       <div className="grid gap-6 lg:grid-cols-3">
         <InternetSection internet={data.internet} />
         <NetworkSection network={data.network} />

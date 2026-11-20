@@ -2,11 +2,10 @@
 
 All configuration is done with environment variables. Example files:
 
-| File                    | Used by                                            |
-| ----------------------- | -------------------------------------------------- |
-| `apps/api/.env.example` | API in development (copy to `apps/api/.env`)       |
-| `apps/web/.env.example` | Web app in development (copy to `apps/web/.env`)   |
-| `.env.example`          | `podman compose` (copy to `.env` in the repo root) |
+| File                    | Used by                           |
+| ----------------------- | --------------------------------- |
+| `apps/api/.env.example` | API (copy to `apps/api/.env`)     |
+| `apps/web/.env.example` | Web app (copy to `apps/web/.env`) |
 
 The API validates its environment at startup and refuses to start with invalid values. Empty
 values count as "not set".
@@ -25,9 +24,8 @@ Booleans accept `true`, `false`, `1` and `0`.
 
 ### Access
 
-There is no login. The API accepts every request that reaches it. Compose publishes only the
-reverse proxy port, on `BIND_ADDRESS` (default `0.0.0.0`, reachable from the LAN); use
-`127.0.0.1` to keep it on one machine. Only run it on networks where everyone may use it.
+There is no login. The API accepts every request that reaches it and listens on every interface
+(`0.0.0.0`). Only run it on networks where everyone may use it.
 
 ### Database
 
@@ -45,22 +43,13 @@ removes all engagements and logs everyone out.
 `VITE_API_URL` is baked in at build time. When you set it to another origin, add that origin
 of the web app to the API's `CORS_ORIGIN`.
 
-## Containers (`podman compose`)
+## Start script (`npm start`)
 
-| Variable                                | Default   | Purpose                                                                                                                                                 |
-| --------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `APP_PORT`                              | `8090`    | Host port of the reverse proxy (UI and `/api`); also sets the API's `CORS_ORIGIN`                                                                       |
-| `BIND_ADDRESS`                          | `0.0.0.0` | Interface the proxy listens on; `127.0.0.1` keeps it on this machine                                                                                    |
-| `PUBLIC_ORIGINS`                        | not set   | Comma-separated URLs used from other devices (e.g. `http://192.168.1.20:8090`); added to `CORS_ORIGIN`, otherwise the CSRF check rejects their requests |
-| `NVD_API_KEY`, `SECURITYTRAILS_API_KEY` | not set   | Passed to the API                                                                                                                                       |
+`scripts/start.sh` builds everything, then runs the API and `vite preview` on this machine.
 
-The API image is built on Kali and runs nmap itself; see [Containers](local-tools.md#containers).
-
-The `proxy` service (`infra/proxy/`, nginx) is the only one with a published port: it routes
-`/api/` to the `api` service and everything else to the `web` service, which only serves the
-built UI. The API and web containers are reachable inside the compose network only. The API
-container has a health check on `/api/health`; the proxy starts once it reports healthy. The database lives in the named volume `recon-data`
-(`/app/data` in the container) and survives rebuilds; `podman volume rm recon-suite_recon-data`
-deletes it.
-
-To run local tools from a container, see [Local tools setup](local-tools.md#containers).
+| Variable         | Default   | Purpose                                                                                                                                       |
+| ---------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `API_PORT`       | `4000`    | API port (passed as `PORT`)                                                                                                                   |
+| `WEB_PORT`       | `4173`    | Port of the web app; also sets the API's `CORS_ORIGIN`                                                                                        |
+| `BIND_ADDRESS`   | `0.0.0.0` | Interface the web app listens on; `127.0.0.1` keeps it on this machine                                                                        |
+| `PUBLIC_ORIGINS` | not set   | Comma-separated URLs used from other devices (e.g. `http://192.168.1.20:4173`); added to `CORS_ORIGIN`, otherwise the CSRF check rejects them |

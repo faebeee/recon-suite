@@ -26,10 +26,10 @@ at `169.254.169.254`) and reserved addresses are **not** blocked.
 ## Access
 
 - **There is no login.** Anyone who can reach the API (or the UI in front of it) can use every
-  tool and read every engagement. Access control is the network: compose publishes only the bundled
-  reverse proxy, on `BIND_ADDRESS` (default `0.0.0.0`, so every device on the LAN can use it).
-  Only run it on a network where that is acceptable, set `BIND_ADDRESS=127.0.0.1` otherwise, and
-  never expose it to the internet without adding your own authentication in front.
+  tool and read every engagement. Access control is the network: the API listens on every interface
+  (port 4000) and `npm start` serves the UI on `BIND_ADDRESS` (default `0.0.0.0`), so every device
+  on the LAN can use it. Only run it on a network where that is acceptable, and never expose it
+  to the internet without adding your own authentication in front.
 - **CSRF:** state-changing requests from browser origins other than `CORS_ORIGIN` are rejected,
   so other web pages open in your browser cannot start scans through the API. LAN URLs are
   allowed through `PUBLIC_ORIGINS`.
@@ -59,9 +59,7 @@ subject to the target guard above.
 
 Local tools and Nmap Scan run fixed OS commands (`nmap`, `ip`, `nmcli`, `netsh`,
 `bluetoothctl`, the macOS helper) with hard-coded argument lists and never through a shell.
-In the containers the API image is built on Kali and runs `nmap`/`ip` itself, as root inside
-its container with only `NET_RAW`/`NET_ADMIN` added (no container-engine socket). A user-chosen value, such as
-an interface name, becomes an argument only after strict validation and a check that the OS
+A user-chosen value, such as an interface name, becomes an argument only after strict validation and a check that the OS
 actually reported it.
 
 ## Deployment advice

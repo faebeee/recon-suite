@@ -10,7 +10,6 @@ function facts(overrides: Partial<HostFacts> = {}): HostFacts {
     has: () => true,
     macosHelperInstalled: false,
     isRoot: true,
-    inContainer: false,
     hasIpv4Interface: true,
     netRawAllowed: true,
     apiKeys: { nvd: true, securityTrails: true },
@@ -41,13 +40,8 @@ describe('diagnosePlatform', () => {
     expect(r.wifi!.fix).toContain('network-manager');
     expect(r.bluetooth!.fix).toContain('bluez');
     expect(r['host-scan']!.fix).toContain('nmap');
-    expect(r.nmap!.fix).toContain('compose:up');
+    expect(r.nmap!.fix).toContain('nmap');
     expect(r.dns!.status).toBe('ok');
-  });
-
-  it('mentions containers when running inside one', () => {
-    const r = byId(facts({ has: () => false, inContainer: true }));
-    expect(r.wifi!.reason).toContain('container');
   });
 
   it('flags a non-root host scan as limited (no ARP)', () => {
@@ -57,7 +51,7 @@ describe('diagnosePlatform', () => {
   });
 
   it('reports a missing NET_RAW capability', () => {
-    const r = byId(facts({ inContainer: true, netRawAllowed: false }));
+    const r = byId(facts({ netRawAllowed: false }));
     expect(r['host-scan']).toMatchObject({ status: 'unavailable' });
     expect(r['host-scan']!.fix).toContain('NET_RAW');
   });

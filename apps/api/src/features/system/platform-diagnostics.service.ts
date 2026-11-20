@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { networkInterfaces } from 'node:os';
 import {
   Injectable,
@@ -65,8 +65,6 @@ export class PlatformDiagnosticsService implements OnApplicationBootstrap {
       },
       macosHelperInstalled: process.platform === 'darwin' && helperInstalled(),
       isRoot: process.getuid?.() === 0,
-      inContainer:
-        existsSync('/.dockerenv') || existsSync('/run/.containerenv'),
       hasIpv4Interface: Object.values(networkInterfaces()).some((infos) =>
         infos?.some((i) => !i.internal && i.family === 'IPv4'),
       ),

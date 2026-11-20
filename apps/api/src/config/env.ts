@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-/** Optional value where an empty string means "not set" (compose passes `${VAR:-}`). */
+/** Optional value where an empty string means "not set". */
 const optional = <T extends z.ZodType>(schema: T) =>
   z.preprocess((v) => (v === '' ? undefined : v), schema.optional());
 

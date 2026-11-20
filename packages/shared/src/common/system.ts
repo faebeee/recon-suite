@@ -102,12 +102,12 @@ export interface ConnectivityCheck {
  */
 export type InternetStatus = 'online' | 'degraded' | 'offline';
 
-/** Response of GET /api/system/host: the machine (or container) the API runs on. */
+/** Response of GET /api/system/host: the machine the API runs on. */
 export interface HostStats {
   generatedAt: string;
   hostname: string;
-  /** Where the API runs; in a container, network data is the container's. */
-  location: 'host' | 'container';
+  /** Where the API runs (always the host). */
+  location: RuntimeLocation;
   os: { platform: string; release: string; arch: string };
   uptimeSeconds: number;
   /** 1, 5 and 15 minute load averages (zeros on Windows). */

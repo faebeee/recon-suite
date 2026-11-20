@@ -129,7 +129,7 @@ const ENGINES: Record<ToolId, (h: HostFacts) => Engine> = {
 
 /** Where and with what every tool runs on this setup, plus its support status. */
 export function describeRuntime(h: HostFacts): RuntimeInfo {
-  const apiLocation = h.inContainer ? 'container' : 'host';
+  const apiLocation = 'host';
   const tools: ToolRuntime[] = diagnosePlatform(h).map((support) => {
     const { engine, services = [] } = ENGINES[support.id](h);
     return { ...support, location: apiLocation, engine, services };

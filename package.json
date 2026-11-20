@@ -20,10 +20,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "setup:macos-helper": "npm run setup:macos-helper -w @recon/api",
-    "setup:wifi-macos": "npm run setup:macos-helper",
-    "compose:up": "podman compose up --build -d",
-    "compose:down": "podman compose down",
-    "compose:logs": "podman compose logs -f"
+    "setup:wifi-macos": "npm run setup:macos-helper"
   },
   "devDependencies": {
     "prettier": "^3.10.1",
