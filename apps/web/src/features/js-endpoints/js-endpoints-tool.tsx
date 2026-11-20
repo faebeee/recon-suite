@@ -9,6 +9,7 @@ import {
 } from '@/components/tool';
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { JsEndpointsResults } from './js-endpoints-results';
+import { JsEndpointsRadar } from './js-endpoints-radar';
 
 const LIMITS = [5, 15, MAX_JS_SCRIPTS].map((value) => ({ value }));
 
@@ -43,7 +44,12 @@ export function JsEndpointsTool({ initialTarget }: { initialTarget?: string }) {
         mutation={runner.mutation}
         loadingLabel="Downloading and parsing scripts"
       >
-        {(data) => <JsEndpointsResults data={data} />}
+        {(data) => (
+          <>
+            <JsEndpointsRadar data={data} />
+            <JsEndpointsResults data={data} />
+          </>
+        )}
       </ToolResultView>
     </ToolPage>
   );

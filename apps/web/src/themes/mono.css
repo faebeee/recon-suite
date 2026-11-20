@@ -242,3 +242,8 @@
 :root[data-theme='mono'] [data-slot='score-chart'] [data-chart='line'] {
   filter: none;
 }
+
+/* Discovery radar: no sweep animation, flat blips. */
+:root[data-theme='mono'] [data-slot='radar'] [data-radar='sweep'] {
+  display: none;
+}

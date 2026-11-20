@@ -9,6 +9,7 @@ import {
 } from '@/components/tool';
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { CertSearchResults } from './cert-search-results';
+import { CertSearchRadar } from './cert-search-radar';
 
 export function CertSearchTool({ initialTarget }: { initialTarget?: string }) {
   const [includeExpired, setIncludeExpired] = useState(false);
@@ -42,7 +43,12 @@ export function CertSearchTool({ initialTarget }: { initialTarget?: string }) {
         mutation={runner.mutation}
         loadingLabel="Searching CT logs (can take ~60s)"
       >
-        {(data) => <CertSearchResults data={data} />}
+        {(data) => (
+          <>
+            <CertSearchRadar data={data} />
+            <CertSearchResults data={data} />
+          </>
+        )}
       </ToolResultView>
     </ToolPage>
   );

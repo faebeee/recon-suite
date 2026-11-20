@@ -12,3 +12,8 @@ export {
   CHANGE_TONE,
   RunChangesPanel,
 } from './run-changes';
+export {
+  DiscoveryRadar,
+  type RadarBlip,
+  type RadarGroup,
+} from './discovery-radar';

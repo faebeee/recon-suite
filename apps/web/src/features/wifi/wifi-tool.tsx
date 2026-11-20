@@ -8,6 +8,7 @@ import { useToolRunner } from '@/lib/use-tool-runner';
 import { InterfaceSelect } from './interface-select';
 import { wifiInterfacesQuery } from './interfaces-query';
 import { WifiResults } from './wifi-results';
+import { WifiRadar } from './wifi-radar';
 
 export function WifiTool() {
   const selectId = useId();
@@ -87,7 +88,12 @@ export function WifiTool() {
         mutation={runner.mutation}
         loadingLabel={`Sweeping the airwaves on ${selected ?? '…'}`}
       >
-        {(output) => <WifiResults data={output} />}
+        {(output, result) => (
+          <>
+            <WifiRadar data={output} host={result.target} />
+            <WifiResults data={output} />
+          </>
+        )}
       </ToolResultView>
     </ToolPage>
   );

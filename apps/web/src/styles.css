@@ -80,6 +80,7 @@
   --animate-flicker: flicker 6s infinite;
   --animate-blink: blink 1s steps(2, start) infinite;
   --animate-scan: scan 2.4s linear infinite;
+  --animate-radar-sweep: radar-sweep 6s linear infinite;
 }
 
 :root {
@@ -320,7 +321,16 @@
   }
 }
 
+@keyframes radar-sweep {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  [data-slot='radar'] [data-radar='sweep'] {
+    display: none;
+  }
   .glitch::before,
   .glitch::after {
     display: none;

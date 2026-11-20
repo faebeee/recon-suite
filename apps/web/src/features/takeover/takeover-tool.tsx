@@ -10,6 +10,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { TakeoverResults } from './takeover-results';
+import { TakeoverRadar } from './takeover-radar';
 
 type Source = 'ct' | 'list';
 
@@ -72,7 +73,12 @@ export function TakeoverTool({ initialTarget }: { initialTarget?: string }) {
             : 'Resolving hosts'
         }
       >
-        {(data) => <TakeoverResults data={data} />}
+        {(data) => (
+          <>
+            <TakeoverRadar data={data} />
+            <TakeoverResults data={data} />
+          </>
+        )}
       </ToolResultView>
     </ToolPage>
   );

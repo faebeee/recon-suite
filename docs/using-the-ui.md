@@ -45,6 +45,15 @@ and options such as the network interface.
 Many tools also list **findings**: pass, warning, fail or info, with a short explanation. These
 are what an engagement collects for the report.
 
+Discovery tools show a **radar** above their results: the target in the centre and every
+discovery as a blip connected to it, one ring per category (e.g. subdomains one level deep,
+deeper, wildcards). Click a ring name to hide or show that category; click a blip, or focus the
+radar and use the arrow keys, to see its details and pivot links. In the WiFi and Bluetooth
+radars, the distance from the centre is the signal strength (closer is stronger). Tools with a
+radar: Subdomain Finder, Org Cert Search, Reverse IP, Subdomain Takeover, JS Endpoints, API
+Discovery, Network Scan, Host Scan, WiFi Scanner and Bluetooth Scanner. Up to 150 blips are
+drawn; the tables below the radar always hold the full results.
+
 ## Engagements
 
 An engagement groups everything for one assessment: its scope, every tool run, findings and

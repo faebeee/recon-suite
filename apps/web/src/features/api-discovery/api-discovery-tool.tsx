@@ -2,6 +2,7 @@ import { TOOL_CATALOG } from '@recon/shared';
 import { TargetForm, ToolPage, ToolResultView } from '@/components/tool';
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { ApiDiscoveryResults } from './api-discovery-results';
+import { ApiDiscoveryRadar } from './api-discovery-radar';
 
 export function ApiDiscoveryTool({
   initialTarget,
@@ -28,7 +29,12 @@ export function ApiDiscoveryTool({
         mutation={runner.mutation}
         loadingLabel="Probing API locations"
       >
-        {(data) => <ApiDiscoveryResults data={data} />}
+        {(data) => (
+          <>
+            <ApiDiscoveryRadar data={data} />
+            <ApiDiscoveryResults data={data} />
+          </>
+        )}
       </ToolResultView>
     </ToolPage>
   );
