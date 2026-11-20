@@ -5,7 +5,7 @@
 #   API  http://localhost:${API_PORT:-4000}   (node apps/api/dist/main.js)
 #   Web  http://localhost:${WEB_PORT:-4173}   (vite preview of apps/web/dist, proxies /api)
 #
-# PIDs and logs go to .run/. Stop everything with scripts/stop.sh (pnpm stop).
+# PIDs and logs go to .run/. Stop everything with scripts/stop.sh (npm stop).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -33,13 +33,13 @@ for name in api web; do
 done
 for port in "$API_PORT" "$WEB_PORT"; do
   if port_in_use "$port"; then
-    echo "Port $port is already in use (pnpm dev or the compose stack still running?)." >&2
+    echo "Port $port is already in use (npm run dev or the compose stack still running?)." >&2
     exit 1
   fi
 done
 
 echo "==> Building"
-(cd "$ROOT" && pnpm build)
+(cd "$ROOT" && npm run build)
 
 # Each background job gets its own process group, so stop.sh can end it with its children.
 set -m
@@ -56,7 +56,7 @@ echo "==> Starting web on :$WEB_PORT"
 (
   cd "$ROOT/apps/web"
   API_PROXY_TARGET="http://localhost:$API_PORT" \
-    exec pnpm exec vite preview --port "$WEB_PORT" --strictPort
+    exec npm exec -- vite preview --port "$WEB_PORT" --strictPort
 ) >"$RUN_DIR/web.log" 2>&1 &
 echo $! >"$RUN_DIR/web.pid"
 
@@ -71,7 +71,7 @@ for _ in $(seq 1 30); do
     fi
   done
   if port_in_use "$API_PORT" && port_in_use "$WEB_PORT"; then
-    echo "==> Running: http://localhost:$WEB_PORT (logs in .run/, stop with pnpm stop)"
+    echo "==> Running: http://localhost:$WEB_PORT (logs in .run/, stop with npm stop)"
     exit 0
   fi
   sleep 1

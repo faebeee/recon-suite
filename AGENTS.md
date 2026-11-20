@@ -27,7 +27,7 @@ apps typecheck (`turbo` does this automatically through `dependsOn: ["^build"]`)
 | Task                              | Command                                                                                   |
 | --------------------------------- | ----------------------------------------------------------------------------------------- |
 | Dev (api :4000, web :5173)        | `pnpm dev`                                                                                |
-| Native run (api :4000, web :4173) | `pnpm start` / `pnpm stop` (builds first; pids + logs in `.run/`)                         |
+| Native run (api :4000, web :4173) | `npm start` / `npm stop` (builds first; pids + logs in `.run/`)                         |
 | Build everything                  | `pnpm build`                                                                              |
 | Typecheck                         | `pnpm typecheck`                                                                          |
 | Lint                              | `pnpm lint`                                                                               |
