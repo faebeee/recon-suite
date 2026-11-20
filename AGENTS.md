@@ -24,18 +24,19 @@ apps typecheck (`turbo` does this automatically through `dependsOn: ["^build"]`)
 
 ## Commands (run from repo root)
 
-| Task                       | Command                                                                                   |
-| -------------------------- | ----------------------------------------------------------------------------------------- |
-| Dev (api :4000, web :5173) | `pnpm dev`                                                                                |
-| Build everything           | `pnpm build`                                                                              |
-| Typecheck                  | `pnpm typecheck`                                                                          |
-| Lint                       | `pnpm lint`                                                                               |
-| Unit tests                 | `pnpm test`                                                                               |
-| API e2e tests              | `pnpm --filter @recon/api test:e2e`                                                       |
-| Format                     | `pnpm format`                                                                             |
-| Containers                 | `pnpm compose:up` / `pnpm compose:down`                                                   |
-| Add shadcn component       | `cd apps/web && pnpm dlx shadcn@latest add <name>`                                        |
-| macOS helper (once)        | `pnpm setup:macos-helper` (builds `apps/api/native/macos`, asks for Location + Bluetooth) |
+| Task                              | Command                                                                                   |
+| --------------------------------- | ----------------------------------------------------------------------------------------- |
+| Dev (api :4000, web :5173)        | `pnpm dev`                                                                                |
+| Native run (api :4000, web :4173) | `pnpm start` / `pnpm stop` (builds first; pids + logs in `.run/`)                         |
+| Build everything                  | `pnpm build`                                                                              |
+| Typecheck                         | `pnpm typecheck`                                                                          |
+| Lint                              | `pnpm lint`                                                                               |
+| Unit tests                        | `pnpm test`                                                                               |
+| API e2e tests                     | `pnpm --filter @recon/api test:e2e`                                                       |
+| Format                            | `pnpm format`                                                                             |
+| Containers                        | `pnpm compose:up` / `pnpm compose:down`                                                   |
+| Add shadcn component              | `cd apps/web && pnpm dlx shadcn@latest add <name>`                                        |
+| macOS helper (once)               | `pnpm setup:macos-helper` (builds `apps/api/native/macos`, asks for Location + Bluetooth) |
 
 **Definition of done** for any change:
 `pnpm format && pnpm build && pnpm typecheck && pnpm lint && pnpm test && pnpm --filter @recon/api test:e2e`

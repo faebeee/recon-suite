@@ -12,3 +12,6 @@ coverage/
 
 # Local SQLite database
 apps/api/data/
+
+# Native start/stop scripts (pids, logs)
+.run/

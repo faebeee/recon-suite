@@ -42,7 +42,9 @@ services:
       timeout: 3s
       retries: 5
       start_period: 5s
-    restart: unless-stopped
+    # on-failure, not always/unless-stopped: podman restarts those when the machine or
+    # podman-restart.service starts. The stack only runs after `pnpm compose:up`.
+    restart: on-failure
 
   web:
     build:
@@ -52,7 +54,7 @@ services:
     # Not published on the host: served through the proxy.
     expose:
       - '8090'
-    restart: unless-stopped
+    restart: on-failure
 
   # Single entry point: UI on /, API on /api. The only published port.
   proxy:
@@ -70,7 +72,7 @@ services:
         condition: service_healthy
       web:
         condition: service_started
-    restart: unless-stopped
+    restart: on-failure
 
 volumes:
   recon-data:
