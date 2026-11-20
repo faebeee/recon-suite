@@ -3,15 +3,15 @@
 ## Requirements
 
 - Node.js 24 or newer
-- pnpm 11 (`corepack enable` picks up the version pinned in `package.json`)
+- npm 11 (ships with Node.js)
 - Podman with `podman compose`, only for the container setup
 - Optional, for local tools: see [Local tools setup](local-tools.md)
 
 ## Run in development
 
 ```sh
-pnpm install
-pnpm dev
+npm install
+npm run dev
 ```
 
 | Service | URL                       |
@@ -47,9 +47,9 @@ There is no login, so only do this on a trusted network:
 
 ```sh
 cp .env.example .env
-pnpm compose:up             # builds and starts api, web and proxy
-pnpm compose:logs
-pnpm compose:down
+npm run compose:up             # builds and starts api, web and proxy
+npm run compose:logs
+npm run compose:down
 ```
 
 The proxy container (nginx) is the single entry point on http://localhost:8090: it routes `/api`
@@ -64,15 +64,15 @@ machine itself. The database is kept in the `recon-data` volume. Local tools are
 
 ## Everyday commands
 
-| Task                 | Command                             |
-| -------------------- | ----------------------------------- |
-| Build everything     | `pnpm build`                        |
-| Typecheck            | `pnpm typecheck`                    |
-| Lint                 | `pnpm lint`                         |
-| Unit tests           | `pnpm test`                         |
-| API end-to-end tests | `pnpm --filter @recon/api test:e2e` |
-| Format               | `pnpm format`                       |
-| macOS helper (once)  | `pnpm setup:macos-helper`           |
+| Task                 | Command                          |
+| -------------------- | -------------------------------- |
+| Build everything     | `npm run build`                  |
+| Typecheck            | `npm run typecheck`              |
+| Lint                 | `npm run lint`                   |
+| Unit tests           | `npm test`                       |
+| API end-to-end tests | `npm run test:e2e -w @recon/api` |
+| Format               | `npm run format`                 |
+| macOS helper (once)  | `npm run setup:macos-helper`     |
 
 Tests never touch the internet: network code is tested with fakes and local servers.
 

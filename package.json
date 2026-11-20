@@ -1,7 +1,11 @@
 {
   "name": "recon-suite",
   "private": true,
-  "packageManager": "pnpm@11.1.0",
+  "packageManager": "npm@11.19.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "engines": {
     "node": ">=24"
   },
@@ -15,8 +19,8 @@
     "test": "turbo run test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "setup:macos-helper": "pnpm --filter @recon/api setup:macos-helper",
-    "setup:wifi-macos": "pnpm setup:macos-helper",
+    "setup:macos-helper": "npm run setup:macos-helper -w @recon/api",
+    "setup:wifi-macos": "npm run setup:macos-helper",
     "compose:up": "podman compose up --build -d",
     "compose:down": "podman compose down",
     "compose:logs": "podman compose logs -f"

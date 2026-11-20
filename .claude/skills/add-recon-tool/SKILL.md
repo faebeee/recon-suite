@@ -54,7 +54,7 @@ Then register it:
   category, mode, targetHint).
 - `io.ts`: add to `TOOL_INPUT_SCHEMAS` and `ToolIO`.
 - `index.ts`: `export * from './features/security-txt.js';`
-- `pnpm --filter @recon/shared build`
+- `npm run build -w @recon/shared`
 
 If the tool grades or flags anything, add `findings: Finding[]` (from `common/finding.ts`) to the
 output and pass it to `runTool` (see step 2); engagements pick it up automatically. Active tools
@@ -251,10 +251,10 @@ macOS helper + fallback, Linux CLI). Files: shared `features/<id>.ts`, api `feat
 ## 4. Verify
 
 ```sh
-pnpm format && pnpm build && pnpm typecheck && pnpm lint && pnpm test && pnpm --filter @recon/api test:e2e
+npm run format && npm run build && npm run typecheck && npm run lint && npm test && npm run test:e2e -w @recon/api
 ```
 
-Then smoke-test the endpoint against a public target while `pnpm dev` runs:
+Then smoke-test the endpoint against a public target while `npm run dev` runs:
 
 ```sh
 curl -s -X POST localhost:4000/api/tools/security-txt -H 'content-type: application/json' \

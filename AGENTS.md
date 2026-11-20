@@ -19,27 +19,27 @@ packages/shared   @recon/shared  Zod schemas, types and tool catalog shared by b
 infra/proxy       nginx reverse proxy: the compose stack's single entry point (/ -> web, /api -> api)
 ```
 
-pnpm workspaces + Turborepo. `@recon/shared` is compiled to `dist/` and must be built before the
+npm workspaces + Turborepo. `@recon/shared` is compiled to `dist/` and must be built before the
 apps typecheck (`turbo` does this automatically through `dependsOn: ["^build"]`).
 
 ## Commands (run from repo root)
 
-| Task                              | Command                                                                                   |
-| --------------------------------- | ----------------------------------------------------------------------------------------- |
-| Dev (api :4000, web :5173)        | `pnpm dev`                                                                                |
-| Native run (api :4000, web :4173) | `npm start` / `npm stop` (builds first; pids + logs in `.run/`)                         |
-| Build everything                  | `pnpm build`                                                                              |
-| Typecheck                         | `pnpm typecheck`                                                                          |
-| Lint                              | `pnpm lint`                                                                               |
-| Unit tests                        | `pnpm test`                                                                               |
-| API e2e tests                     | `pnpm --filter @recon/api test:e2e`                                                       |
-| Format                            | `pnpm format`                                                                             |
-| Containers                        | `pnpm compose:up` / `pnpm compose:down`                                                   |
-| Add shadcn component              | `cd apps/web && pnpm dlx shadcn@latest add <name>`                                        |
-| macOS helper (once)               | `pnpm setup:macos-helper` (builds `apps/api/native/macos`, asks for Location + Bluetooth) |
+| Task                              | Command                                                                                      |
+| --------------------------------- | -------------------------------------------------------------------------------------------- |
+| Dev (api :4000, web :5173)        | `npm run dev`                                                                                |
+| Native run (api :4000, web :4173) | `npm start` / `npm stop` (builds first; pids + logs in `.run/`)                              |
+| Build everything                  | `npm run build`                                                                              |
+| Typecheck                         | `npm run typecheck`                                                                          |
+| Lint                              | `npm run lint`                                                                               |
+| Unit tests                        | `npm test`                                                                                   |
+| API e2e tests                     | `npm run test:e2e -w @recon/api`                                                             |
+| Format                            | `npm run format`                                                                             |
+| Containers                        | `npm run compose:up` / `npm run compose:down`                                                |
+| Add shadcn component              | `cd apps/web && npx shadcn@latest add <name>`                                                |
+| macOS helper (once)               | `npm run setup:macos-helper` (builds `apps/api/native/macos`, asks for Location + Bluetooth) |
 
 **Definition of done** for any change:
-`pnpm format && pnpm build && pnpm typecheck && pnpm lint && pnpm test && pnpm --filter @recon/api test:e2e`
+`npm run format && npm run build && npm run typecheck && npm run lint && npm test && npm run test:e2e -w @recon/api`
 all succeed. Report failures honestly; do not skip or weaken tests to make them pass.
 
 ## Architecture: feature-driven
@@ -146,7 +146,7 @@ apps/web/src/
    OS reported (see `WifiService.scan`: the interface must be in `listInterfaces()`).
 8. Never trust `X-Forwarded-For` or other client-supplied headers for security decisions.
 9. Database changes only through the Drizzle schema plus a generated migration
-   (`pnpm --filter @recon/api db:generate --name=<change>`); never edit applied migrations.
+   (`npm run db:generate -w @recon/api -- --name=<change>`); never edit applied migrations.
 10. Local tools expose the server's surroundings (e.g. nearby WiFi networks reveal its location)
     and can't be turned off: one more reason to only run it on trusted networks (rule 6).
 
@@ -178,7 +178,7 @@ pure analysis function with tests).
 - Tests must not depend on the internet. Use fakes (see `http-headers.service.spec.ts`) or local
   servers (see `ports.service.spec.ts`).
 - Prettier: single quotes, trailing commas, semicolons (root `.prettierrc`).
-- Do not edit generated files: `apps/web/src/routeTree.gen.ts`, `pnpm-lock.yaml` (manually).
+- Do not edit generated files: `apps/web/src/routeTree.gen.ts`, `package-lock.json` (manually).
 - Do not add dependencies when the platform or an existing dependency covers it. Check the
   first-party Nest packages listed in `apps/api/AGENTS.md` first.
 
@@ -204,7 +204,7 @@ Port 3000 is often taken by other local projects on dev machines; that is why th
   (`--mode wifi`: CoreWLAN; `--mode bluetooth`: CoreBluetooth for BLE + IOBluetooth inquiry for
   Classic). The API runs it via `core/native/macos-helper.ts` (`runHelper(mode, args)`, through
   `open` so macOS attributes the permission to the helper; results come back as a JSON file).
-  Scan modes never prompt; `pnpm setup:macos-helper` builds it and requests both permissions.
+  Scan modes never prompt; `npm run setup:macos-helper` builds it and requests both permissions.
   New macOS-native features go into this helper as another `--mode`, not a new app.
 - Without permission the tools degrade instead of failing: WiFi falls back to `system_profiler`
   (names `<redacted>`; treat as unknown, never group or dedupe on it) and Bluetooth to the paired

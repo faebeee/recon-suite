@@ -36,7 +36,7 @@ export function BluetoothTool() {
           Listens for BLE advertisements and runs a Classic inquiry (only
           discoverable devices answer) from the API host's Bluetooth adapter.
           Requires the API to run natively (e.g.{' '}
-          <code className="text-foreground">pnpm dev</code>).
+          <code className="text-foreground">npm run dev</code>).
         </p>
         <FormOption label="Transport">
           <Segmented

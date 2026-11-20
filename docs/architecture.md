@@ -6,7 +6,7 @@ security rules, definition of done) are in [`AGENTS.md`](../AGENTS.md),
 
 ## Monorepo
 
-pnpm workspaces and Turborepo:
+npm workspaces and Turborepo:
 
 | Path              | Package         | Stack                                                                  |
 | ----------------- | --------------- | ---------------------------------------------------------------------- |
@@ -81,7 +81,7 @@ Because the interceptor wraps every tool endpoint, a new tool is recorded and sc
 without extra code. To feed the findings export it only has to pass a `findings` extractor to
 `runTool()`.
 
-Schema changes: edit `src/core/db/schema.ts`, then `pnpm --filter @recon/api db:generate
+Schema changes: edit `src/core/db/schema.ts`, then `npm run db:generate -w @recon/api --
 --name=<change>` and commit the generated folder under `apps/api/drizzle/`.
 
 ## Design system and themes
@@ -102,5 +102,5 @@ HTTP with a pure analysis function), `web-files` (several guarded requests, per-
 Before a change is done, all of these must pass:
 
 ```sh
-pnpm format && pnpm build && pnpm typecheck && pnpm lint && pnpm test && pnpm --filter @recon/api test:e2e
+npm run format && npm run build && npm run typecheck && npm run lint && npm test && npm run test:e2e -w @recon/api
 ```

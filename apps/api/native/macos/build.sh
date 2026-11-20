@@ -2,7 +2,7 @@
 # Builds the ReconHelper app (macOS only) and asks for the permissions it needs:
 #   Location  -> unredacted WiFi names/BSSIDs
 #   Bluetooth -> BLE + Classic scanning
-# Usage: pnpm setup:macos-helper [--no-auth]
+# Usage: npm run setup:macos-helper [--no-auth]
 set -euo pipefail
 
 if [[ "$(uname)" != "Darwin" ]]; then

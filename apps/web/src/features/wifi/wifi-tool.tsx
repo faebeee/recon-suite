@@ -30,8 +30,8 @@ export function WifiTool() {
         <p className="text-xs text-muted-foreground">
           Lists the networks the API host's wireless adapter can see. Requires
           the API to run natively (e.g.{' '}
-          <code className="text-foreground">pnpm dev</code>); containers have no
-          WiFi adapter.
+          <code className="text-foreground">npm run dev</code>); containers have
+          no WiFi adapter.
         </p>
         <div className="space-y-1.5">
           <label

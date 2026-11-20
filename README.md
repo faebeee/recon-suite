@@ -84,24 +84,24 @@ can be opened in any other compatible tool with one click. Every tool also accep
 
 ## Getting started
 
-Requirements: Node 24+, pnpm 11, Podman (for containers).
+Requirements: Node 24+, npm 11, Podman (for containers).
 
 ```sh
-pnpm install
-pnpm dev        # api http://localhost:4000, web http://localhost:5173
+npm install
+npm run dev        # api http://localhost:4000, web http://localhost:5173
 ```
 
 ```sh
-pnpm build | typecheck | lint | test
-pnpm --filter @recon/api test:e2e
-pnpm compose:up     # http://localhost:8090 (proxy -> web + api on a Kali image)
-pnpm compose:down
+npm run build | typecheck | lint | test
+npm run test:e2e -w @recon/api
+npm run compose:up     # http://localhost:8090 (proxy -> web + api on a Kali image)
+npm run compose:down
 ```
 
 Configuration: see `.env.example`, `apps/api/.env.example` and `apps/web/.env.example`.
 
 > **Local tools** (WiFi, Bluetooth, Host Scan) inspect the machine running the API and are off
-> by default in containers. On macOS run `pnpm setup:macos-helper` once. Details per OS:
+> by default in containers. On macOS run `npm run setup:macos-helper` once. Details per OS:
 > [docs/local-tools.md](docs/local-tools.md).
 
 ## Security model

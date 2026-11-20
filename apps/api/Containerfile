@@ -1,6 +1,6 @@
 # Build context: repository root (see compose.yaml)
 FROM docker.io/library/node:26-alpine AS base
-RUN npm install -g pnpm@11.1.0 turbo@2.11.11
+RUN npm install -g turbo@2.11.11
 WORKDIR /app
 
 # 1. Prune the monorepo down to @recon/api and its workspace deps
@@ -12,10 +12,12 @@ RUN turbo prune @recon/api --docker
 #    so the output built on Alpine runs unchanged on the glibc-based Kali runtime below.
 FROM base AS builder
 COPY --from=pruner /app/out/json/ .
-RUN pnpm install --frozen-lockfile
+RUN npm ci
 COPY --from=pruner /app/out/full/ .
 RUN turbo run build --filter=@recon/api
-RUN pnpm --filter=@recon/api deploy --prod --legacy /prod/api
+# Drop dev dependencies; the runtime keeps the pruned workspace layout (@recon/shared is a
+# workspace symlink in node_modules).
+RUN npm prune --omit=dev
 
 # 3. Runtime: Kali with the scanning tools, so the API runs nmap itself (no separate
 #    Kali container, no container-engine socket).
@@ -35,11 +37,19 @@ RUN apt-get update \
 COPY --from=docker.io/library/node:26-slim /usr/local/bin/node /usr/local/bin/node
 ENV NODE_ENV=production
 WORKDIR /app
-COPY --from=builder /prod/api .
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/packages/shared/package.json ./packages/shared/package.json
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
+COPY --from=builder /app/apps/api/drizzle ./apps/api/drizzle
 COPY apps/api/healthcheck.mjs /app/healthcheck.mjs
 # SQLite database (engagements, history, notes, sessions); mounted as a volume by compose.
 RUN mkdir -p /app/data
+ENV DATABASE_PATH=/app/data/recon.db
 # Runs as root inside the container so nmap can use raw sockets (ARP discovery, MAC/vendor);
 # compose adds only NET_RAW/NET_ADMIN on top of the default capability set.
 EXPOSE 4000
+WORKDIR /app/apps/api
 CMD ["node", "dist/main.js"]

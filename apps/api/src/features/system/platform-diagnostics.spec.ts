@@ -65,7 +65,7 @@ describe('diagnosePlatform', () => {
   it('suggests the macOS helper when it is not built', () => {
     const r = byId(facts({ platform: 'darwin', isRoot: false }));
     expect(r.wifi).toMatchObject({ status: 'limited' });
-    expect(r.bluetooth!.fix).toContain('pnpm setup:macos-helper');
+    expect(r.bluetooth!.fix).toContain('npm run setup:macos-helper');
     expect(r['host-scan']!.status).toBe('limited');
   });
 

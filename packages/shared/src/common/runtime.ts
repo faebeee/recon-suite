@@ -2,7 +2,7 @@ import type { ToolId } from './tool.js';
 
 /**
  * Where a tool's work actually executes:
- * host:      natively on the machine running the API (`pnpm dev`)
+ * host:      natively on the machine running the API (`npm run dev`)
  * container: inside the API container (compose; the image is built on Kali)
  */
 export type RuntimeLocation = 'host' | 'container';

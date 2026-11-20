@@ -97,7 +97,7 @@ export class HostScanService {
     if (err instanceof CommandNotFoundError) {
       return new ServiceUnavailableException(
         `${err.message}. Host scanning needs "nmap" on the API host ` +
-          '(e.g. "sudo apt install nmap" / "brew install nmap"), or run the API with "pnpm compose:up".',
+          '(e.g. "sudo apt install nmap" / "brew install nmap"), or run the API with "npm run compose:up".',
       );
     }
     if (err instanceof CommandFailedError) {

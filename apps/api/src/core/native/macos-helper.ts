@@ -9,14 +9,14 @@ import { CommandFailedError, runCommand } from '../process/run-command.js';
 /**
  * ReconHelper.app (apps/api/native/macos): a signed app bundle that holds the macOS privacy
  * permissions CLI tools can't get (Location -> WiFi names, Bluetooth -> BT scanning).
- * Built by `pnpm setup:macos-helper`.
+ * Built by `npm run setup:macos-helper`.
  */
 export const HELPER_APP = resolve(
   import.meta.dirname,
   '../../../native/macos/build/ReconHelper.app',
 );
 
-export const HELPER_SETUP_COMMAND = 'pnpm setup:macos-helper';
+export const HELPER_SETUP_COMMAND = 'npm run setup:macos-helper';
 
 export type HelperMode = 'wifi' | 'bluetooth';
 

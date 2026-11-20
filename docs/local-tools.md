@@ -2,7 +2,7 @@
 
 WiFi Scanner (R-01), Bluetooth Scanner (R-02) and Host Scan (N-02) inspect the surroundings of
 the machine that runs the **API**, not the browser's machine. They need real hardware and OS
-permissions, so they work best with the API running natively (`pnpm dev`).
+permissions, so they work best with the API running natively (`npm run dev`).
 
 They are always enabled. When a tool can't run, it answers 503 with a message that says why. At startup the API also logs
 the status of every tool on this host, with a fix for each one that is unavailable or limited.
@@ -28,7 +28,7 @@ Recon Suite ships a small Swift helper app for this, `ReconHelper`
 Run once:
 
 ```sh
-pnpm setup:macos-helper
+npm run setup:macos-helper
 ```
 
 It builds the helper and asks for **Location** and then **Bluetooth** access. Click **Allow**
@@ -67,14 +67,14 @@ It scans the subnet of one interface. Pick the interface in the UI; the list com
 
 ## Containers
 
-`pnpm compose:up` builds the API image on Kali (`kalilinux/kali-rolling` with `nmap`, `iproute2`
+`npm run compose:up` builds the API image on Kali (`kalilinux/kali-rolling` with `nmap`, `iproute2`
 and `nmcli`), so Host Scan, Network Scan and Nmap Scan run nmap inside the API container itself:
 no separate Kali container and no container-engine socket. The API runs as root inside its
 container with `NET_RAW`/`NET_ADMIN` (ARP discovery with MAC and vendor).
 
 ```sh
-pnpm compose:up     # builds and starts api and web
-pnpm compose:down
+npm run compose:up     # builds and starts api and web
+npm run compose:down
 ```
 
 By default the API container has no wireless adapter and only its own bridge network:

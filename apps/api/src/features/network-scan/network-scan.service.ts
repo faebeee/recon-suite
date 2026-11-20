@@ -59,7 +59,7 @@ export class NetworkScanService {
     if (err instanceof CommandNotFoundError) {
       return new ServiceUnavailableException(
         'nmap is not installed on the API host. Install it (e.g. "brew install nmap" / ' +
-          '"sudo apt install nmap"), or run the API with "pnpm compose:up" (its image includes nmap).',
+          '"sudo apt install nmap"), or run the API with "npm run compose:up" (its image includes nmap).',
       );
     }
     if (err instanceof CommandFailedError) {

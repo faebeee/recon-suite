@@ -27,7 +27,7 @@ services:
     # nmap reaches internet targets through NAT, but the Host Scan sweep only sees the compose
     # bridge network. Do not switch the api to `network_mode: host` to sweep your LAN: the
     # API would then listen on every host interface, not just loopback. Run the API natively
-    # (`pnpm dev`) for LAN sweeps instead.
+    # (`npm run dev`) for LAN sweeps instead.
     #
     # WiFi (R-01): the container has no wireless adapter and no view of the host's
     # NetworkManager by default. The /run/dbus mount below lets nmcli talk to the host's
@@ -43,7 +43,7 @@ services:
       retries: 5
       start_period: 5s
     # on-failure, not always/unless-stopped: podman restarts those when the machine or
-    # podman-restart.service starts. The stack only runs after `pnpm compose:up`.
+    # podman-restart.service starts. The stack only runs after `npm run compose:up`.
     restart: on-failure
 
   web:

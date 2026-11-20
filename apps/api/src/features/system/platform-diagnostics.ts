@@ -28,7 +28,7 @@ export interface HostFacts {
 
 const OK = { status: 'ok' } as const;
 const CONTAINER_HINT =
-  ' The API runs inside a container, which usually has no access to the host hardware; run it natively (`pnpm dev`) instead.';
+  ' The API runs inside a container, which usually has no access to the host hardware; run it natively (`npm run dev`) instead.';
 
 type Check = (h: HostFacts) => Omit<ToolSupport, 'id'>;
 
@@ -91,7 +91,7 @@ const CHECKS: Record<ToolId, Check> = {
             (h.platform === 'darwin'
               ? 'brew install nmap'
               : 'Install it, e.g. "sudo apt install nmap"') +
-            ', or run the API with "pnpm compose:up" (its image is built on Kali).',
+            ', or run the API with "npm run compose:up" (its image is built on Kali).',
         };
   },
 
@@ -104,7 +104,7 @@ const CHECKS: Record<ToolId, Check> = {
           (h.platform === 'darwin'
             ? 'brew install nmap'
             : 'Install it, e.g. "sudo apt install nmap"') +
-          ', or run the API with "pnpm compose:up" (its image is built on Kali).',
+          ', or run the API with "npm run compose:up" (its image is built on Kali).',
       };
     }
     if (!h.isRoot) {
@@ -112,7 +112,7 @@ const CHECKS: Record<ToolId, Check> = {
         status: 'limited',
         reason:
           'Without root, nmap discovers hosts with TCP probes instead of ARP: no MAC addresses, and hosts with no open common port are missed.',
-        fix: 'Run the API as root, or with "pnpm compose:up" (root inside its container).',
+        fix: 'Run the API as root, or with "npm run compose:up" (root inside its container).',
       };
     }
     return OK;
@@ -123,7 +123,7 @@ const CHECKS: Record<ToolId, Check> = {
       return {
         status: 'unavailable',
         reason: 'Host Scan is not supported on Windows.',
-        fix: 'Run the API on Linux or macOS, or with "pnpm compose:up".',
+        fix: 'Run the API on Linux or macOS, or with "npm run compose:up".',
       };
     }
     if (!h.has('nmap')) {
@@ -134,7 +134,7 @@ const CHECKS: Record<ToolId, Check> = {
           (h.platform === 'darwin'
             ? 'brew install nmap'
             : 'Install it, e.g. "sudo apt install nmap"') +
-          ', or run the API with "pnpm compose:up" (its image is built on Kali).',
+          ', or run the API with "npm run compose:up" (its image is built on Kali).',
       };
     }
     if (!h.hasIpv4Interface) {
@@ -149,7 +149,7 @@ const CHECKS: Record<ToolId, Check> = {
         status: 'limited',
         reason:
           'Without root, nmap discovers hosts with TCP probes instead of ARP: no MAC addresses, and hosts with no open common port are missed.',
-        fix: 'Run the API as root, or with "pnpm compose:up" (root inside its container).',
+        fix: 'Run the API as root, or with "npm run compose:up" (root inside its container).',
       };
     }
     if (!h.netRawAllowed) {
@@ -181,7 +181,7 @@ const CHECKS: Record<ToolId, Check> = {
               status: 'limited',
               reason:
                 'ReconHelper is not built: macOS redacts WiFi names and BSSIDs without Location permission.',
-              fix: 'pnpm setup:macos-helper (then click "Allow" for Location access)',
+              fix: 'npm run setup:macos-helper (then click "Allow" for Location access)',
             };
       case 'linux':
         return h.has('nmcli')
@@ -219,7 +219,7 @@ const CHECKS: Record<ToolId, Check> = {
               status: 'limited',
               reason:
                 'ReconHelper is not built: without Bluetooth permission only paired devices are listed.',
-              fix: 'pnpm setup:macos-helper (then click "Allow" for Bluetooth access)',
+              fix: 'npm run setup:macos-helper (then click "Allow" for Bluetooth access)',
             };
       case 'linux':
         return h.has('bluetoothctl')
