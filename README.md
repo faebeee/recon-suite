@@ -83,7 +83,7 @@ pnpm dev        # api http://localhost:4000, web http://localhost:5173
 ```sh
 pnpm build | typecheck | lint | test
 pnpm --filter @recon/api test:e2e
-pnpm compose:up     # web http://localhost:8090 (nginx + api on a Kali image)
+pnpm compose:up     # http://localhost:8090 (proxy -> web + api on a Kali image)
 pnpm compose:down
 ```
 

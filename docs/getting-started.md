@@ -42,17 +42,18 @@ lists every tool that accepts it.
 
 ## Run with containers
 
-The containers publish their ports on `127.0.0.1` only, since there is no login:
+Compose publishes a single port, the reverse proxy, on `127.0.0.1` only, since there is no login:
 
 ```sh
 cp .env.example .env
-pnpm compose:up             # builds and starts api + web
+pnpm compose:up             # builds and starts api, web and proxy
 pnpm compose:logs
 pnpm compose:down
 ```
 
-The web container (nginx) serves the UI on http://localhost:8090 and proxies `/api` to the API
-container. The database is kept in the `recon-data` volume. Local tools are disabled in containers by default; see
+The proxy container (nginx) is the single entry point on http://localhost:8090: it routes `/api`
+to the API container and everything else to the web container. Neither of those publishes a host
+port, so they can't collide with other local projects; change `APP_PORT` if 8090 is taken. The database is kept in the `recon-data` volume. Local tools are disabled in containers by default; see
 [Local tools setup](local-tools.md#containers).
 
 ## Everyday commands

@@ -26,7 +26,7 @@ Booleans accept `true`, `false`, `1` and `0`.
 ### Access
 
 There is no login. The API accepts every request that reaches it, so keep it on your own
-machine: compose publishes the API and web ports on `127.0.0.1` only.
+machine: compose publishes only the reverse proxy port, on `127.0.0.1`.
 
 ### Database
 
@@ -46,17 +46,17 @@ of the web app to the API's `CORS_ORIGIN`.
 
 ## Containers (`podman compose`)
 
-| Variable                                | Default | Purpose                                                                    |
-| --------------------------------------- | ------- | -------------------------------------------------------------------------- |
-| `API_PORT`                              | `4000`  | Host port for the API container                                            |
-| `WEB_PORT`                              | `8090`  | Host port for the web container (nginx); also sets the API's `CORS_ORIGIN` |
-| `NVD_API_KEY`, `SECURITYTRAILS_API_KEY` | not set | Passed to the API                                                          |
+| Variable                                | Default | Purpose                                                                           |
+| --------------------------------------- | ------- | --------------------------------------------------------------------------------- |
+| `APP_PORT`                              | `8090`  | Host port of the reverse proxy (UI and `/api`); also sets the API's `CORS_ORIGIN` |
+| `NVD_API_KEY`, `SECURITYTRAILS_API_KEY` | not set | Passed to the API                                                                 |
 
 The API image is built on Kali and runs nmap itself; see [Containers](local-tools.md#containers).
 
-The web container serves the built UI and proxies `/api/` to the `api` service, so browsers
-only need the web port. The API container has a health check on `/api/health`; the web
-container starts once it reports healthy. The database lives in the named volume `recon-data`
+The `proxy` service (`infra/proxy/`, nginx) is the only one with a published port: it routes
+`/api/` to the `api` service and everything else to the `web` service, which only serves the
+built UI. The API and web containers are reachable inside the compose network only. The API
+container has a health check on `/api/health`; the proxy starts once it reports healthy. The database lives in the named volume `recon-data`
 (`/app/data` in the container) and survives rebuilds; `podman volume rm recon-suite_recon-data`
 deletes it.
 

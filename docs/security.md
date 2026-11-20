@@ -26,9 +26,9 @@ at `169.254.169.254`) and reserved addresses are **not** blocked.
 ## Access
 
 - **There is no login.** Anyone who can reach the API (or the UI in front of it) can use every
-  tool and read every engagement. Access control is the network: compose publishes the ports on
-  `127.0.0.1` only. Do not expose them, and do not put a reverse proxy in front without adding
-  your own authentication there.
+  tool and read every engagement. Access control is the network: compose publishes only the bundled
+  reverse proxy, on `127.0.0.1`. Do not expose it, and do not publish it beyond loopback (or put
+  another proxy in front) without adding your own authentication there.
 - **CSRF:** state-changing requests from browser origins other than `CORS_ORIGIN` are rejected,
   so other web pages open in your browser cannot start scans through the API.
 

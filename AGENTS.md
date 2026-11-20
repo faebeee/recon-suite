@@ -16,6 +16,7 @@ It is meant for authorised security assessments of systems the operator owns or 
 apps/api          @recon/api     NestJS 12 (ESM), Vitest, oxlint
 apps/web          @recon/web     Vite + React 19, TanStack Router/Query, Tailwind 4, shadcn/ui
 packages/shared   @recon/shared  Zod schemas, types and tool catalog shared by both apps
+infra/proxy       nginx reverse proxy: the compose stack's single entry point (/ -> web, /api -> api)
 ```
 
 pnpm workspaces + Turborepo. `@recon/shared` is compiled to `dist/` and must be built before the
@@ -104,7 +105,7 @@ apps/web/src/
   messages for humans.
 - `GET /api/tools` returns the catalog, `GET /api/health` is the health check.
 - There is **no authentication**: every route is open to whoever can reach the API. Access
-  control is the network (compose binds the ports to `127.0.0.1`). CSRF protection
+  control is the network (compose publishes only the reverse proxy, on `127.0.0.1`). CSRF protection
   (`app.enableCsrfProtection`, trusted origins = `CORS_ORIGIN`) stops other web pages in the
   operator's browser from calling the API; keep it.
 - Tools may expose helper sub-resources for their UI as `GET /api/tools/<id>/<name>` (plain
@@ -130,9 +131,9 @@ apps/web/src/
    credentials, DoS-style flooding, or evasion features.
 5. Tools that connect to the target are `mode: 'active'` in the catalog; the UI then shows the
    authorisation notice automatically.
-6. There is no rate limit and no login. Keep the published ports bound to loopback in
-   `compose.yaml` (the API runs as root with NET_RAW/NET_ADMIN in its container) and keep CSRF
-   protection on.
+6. There is no rate limit and no login. Keep the proxy's published port bound to loopback in
+   `compose.yaml`, don't publish the `api`/`web` ports (the API runs as root with
+   NET_RAW/NET_ADMIN in its container) and keep CSRF protection on.
 7. OS commands only through `runCommand()` (or `ToolExecService.run()` for the closed
    closed `EXEC_COMMANDS` list) with a hard-coded command and
    argument array.

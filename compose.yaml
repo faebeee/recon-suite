@@ -14,13 +14,14 @@ services:
       - NET_ADMIN
     environment:
       PORT: 4000
-      CORS_ORIGIN: http://localhost:${WEB_PORT:-8090}
+      # The browser only sees the proxy origin (both spellings of loopback).
+      CORS_ORIGIN: http://localhost:${APP_PORT:-8090},http://127.0.0.1:${APP_PORT:-8090}
       # Optional third-party API keys (CVE Lookup, Reverse IP).
       NVD_API_KEY: ${NVD_API_KEY:-}
       SECURITYTRAILS_API_KEY: ${SECURITYTRAILS_API_KEY:-}
-    # No login: anyone who can reach these ports can use every tool. Loopback only.
-    ports:
-      - '127.0.0.1:${API_PORT:-4000}:4000'
+    # Not published on the host: only the proxy (and other compose services) reach it.
+    expose:
+      - '4000'
     # nmap reaches internet targets through NAT, but the Host Scan sweep only sees the compose
     # bridge network. Do not switch the api to `network_mode: host` to sweep your LAN: the
     # API would then listen on every host interface, not just loopback. Run the API natively
@@ -51,11 +52,25 @@ services:
       context: .
       dockerfile: apps/web/Containerfile
     image: localhost/recon-suite/web:latest
+    # Not published on the host: served through the proxy.
+    expose:
+      - '8090'
+    restart: unless-stopped
+
+  # Single entry point: UI on /, API on /api. The only published port.
+  proxy:
+    build:
+      context: .
+      dockerfile: infra/proxy/Containerfile
+    image: localhost/recon-suite/proxy:latest
+    # No login: anyone who can reach this port can use every tool. Loopback only.
     ports:
-      - '127.0.0.1:${WEB_PORT:-8090}:8090'
+      - '127.0.0.1:${APP_PORT:-8090}:8080'
     depends_on:
       api:
         condition: service_healthy
+      web:
+        condition: service_started
     restart: unless-stopped
 
 volumes:

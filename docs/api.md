@@ -4,8 +4,8 @@ The web UI is a client of a plain JSON API. You can call it directly from script
 
 - Base URL in development: `http://localhost:4000/api` (or `http://localhost:5173/api`
   through the Vite proxy)
-- Base URL with containers: `http://localhost:8090/api` (through nginx) or
-  `http://localhost:4000/api`
+- Base URL with containers: `http://localhost:8090/api` (through the reverse proxy; the API
+  container publishes no port of its own)
 - No authentication: see [Access](#access).
 
 ## Endpoints
