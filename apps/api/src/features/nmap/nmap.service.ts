@@ -10,16 +10,12 @@ import {
   CommandFailedError,
   CommandNotFoundError,
 } from '../../core/process/run-command.js';
-import {
-  KALI_HINT,
-  KaliUnavailableError,
-} from '../../core/process/tool-exec.js';
 import { ToolExecService } from '../../core/process/tool-exec.service.js';
 import { buildNmapArgs, nmapFindings, parseNmapXml } from './nmap.parser.js';
 
 /**
- * Active: runs nmap against the guard-resolved IP of the target, in the Kali container
- * (KALI_CONTAINER) or on the API host. The hostname never reaches nmap; it scans the IP
+ * Active: runs nmap against the guard-resolved IP of the target on the API host (in compose:
+ * the Kali-based API container). The hostname never reaches nmap; it scans the IP
  * TargetGuardService resolved, like every other tool.
  * No time limit and no cap on parallel scans: a scan runs until nmap is done.
  */
@@ -55,8 +51,7 @@ export class NmapService {
       return {
         address,
         ...parsed,
-        method: this.exec.via ? `${this.exec.via} ${command}` : command,
-        runner: this.exec.target.kind,
+        method: command,
         findings: nmapFindings(parsed.ports),
       };
     } catch (err) {
@@ -65,15 +60,10 @@ export class NmapService {
   }
 
   private toHttpError(err: unknown): unknown {
-    if (err instanceof KaliUnavailableError) {
-      return new ServiceUnavailableException(`${err.message}. ${KALI_HINT}`);
-    }
     if (err instanceof CommandNotFoundError) {
       return new ServiceUnavailableException(
-        this.exec.target.kind === 'kali'
-          ? 'nmap is not installed in the Kali container. Rebuild it (pnpm compose:up).'
-          : 'nmap is not installed on the API host. Install it (e.g. "brew install nmap" / ' +
-              '"sudo apt install nmap") or run it in a Kali container (KALI_CONTAINER).',
+        'nmap is not installed on the API host. Install it (e.g. "brew install nmap" / ' +
+          '"sudo apt install nmap"), or run the API with "pnpm compose:up" (its image includes nmap).',
       );
     }
     if (err instanceof CommandFailedError) {

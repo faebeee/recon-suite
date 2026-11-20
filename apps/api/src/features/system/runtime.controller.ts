@@ -5,7 +5,7 @@ import { PlatformDiagnosticsService } from './platform-diagnostics.service.js';
 import { SystemOverviewService } from './system-overview.service.js';
 
 /**
- * GET /api/system/runtime: where each tool runs (API host, API container, Kali container),
+ * GET /api/system/runtime: where each tool runs (API host or API container),
  * which engine does the work and whether it is available.
  */
 @Controller('system')

@@ -58,7 +58,7 @@ apps/api/src/
     net/             TargetGuardService: resolves targets (no private-range block)
     http/            HttpClientService (guarded + trusted undici agents), readTextLimited
     process/         runCommand(): fixed OS commands via execFile (local tools)
-                     ToolExecService: nmap/ip locally or in the Kali container
+                     ToolExecService: nmap on the API host (the compose API image is built on Kali)
     util/            mapConcurrent
     db/              Drizzle schema (schema.ts) on node:sqlite; migrations in apps/api/drizzle/
     tool-runner.ts   runTool(id, target, fn, { findings }): ToolResult envelope (+ findings)
@@ -131,9 +131,10 @@ apps/web/src/
 5. Tools that connect to the target are `mode: 'active'` in the catalog; the UI then shows the
    authorisation notice automatically.
 6. There is no rate limit and no login. Keep the published ports bound to loopback in
-   `compose.yaml` (the API also holds the container-engine socket) and keep CSRF protection on.
+   `compose.yaml` (the API runs as root with NET_RAW/NET_ADMIN in its container) and keep CSRF
+   protection on.
 7. OS commands only through `runCommand()` (or `ToolExecService.run()` for the closed
-   `EXEC_COMMANDS` list that may run in the Kali container) with a hard-coded command and
+   closed `EXEC_COMMANDS` list) with a hard-coded command and
    argument array.
    Never build commands from user input and never use a shell. A user-chosen value may only
    become an argument after strict schema validation **and** an allowlist check against what the
@@ -178,18 +179,15 @@ pure analysis function with tests).
 
 ## Environment
 
-| Variable                 | App | Default                 | Purpose                                 |
-| ------------------------ | --- | ----------------------- | --------------------------------------- |
-| `PORT`                   | api | `4000`                  | HTTP port                               |
-| `CORS_ORIGIN`            | api | `http://localhost:5173` | Comma-separated allowed origins         |
-| `DATABASE_PATH`          | api | `data/recon.db`         | SQLite file (`:memory:` in e2e tests)   |
-| `NVD_API_KEY`            | api | unset                   | Enables CVE Lookup                      |
-| `SECURITYTRAILS_API_KEY` | api | unset                   | Enables Reverse IP                      |
-| `KALI_CONTAINER`         | api | unset                   | Run nmap via `docker exec`              |
-| `CONTAINER_CLI`          | api | `docker`                | `docker` or `podman` for KALI_CONTAINER |
-| `KALI_IMAGE`             | api | unset                   | Create KALI_CONTAINER if it is missing  |
-| `API_PROXY_TARGET`       | web | `http://localhost:4000` | Vite dev proxy target for `/api`        |
-| `VITE_API_URL`           | web | `/api`                  | API base URL used by the browser        |
+| Variable                 | App | Default                 | Purpose                               |
+| ------------------------ | --- | ----------------------- | ------------------------------------- |
+| `PORT`                   | api | `4000`                  | HTTP port                             |
+| `CORS_ORIGIN`            | api | `http://localhost:5173` | Comma-separated allowed origins       |
+| `DATABASE_PATH`          | api | `data/recon.db`         | SQLite file (`:memory:` in e2e tests) |
+| `NVD_API_KEY`            | api | unset                   | Enables CVE Lookup                    |
+| `SECURITYTRAILS_API_KEY` | api | unset                   | Enables Reverse IP                    |
+| `API_PROXY_TARGET`       | web | `http://localhost:4000` | Vite dev proxy target for `/api`      |
+| `VITE_API_URL`           | web | `/api`                  | API base URL used by the browser      |
 
 Port 3000 is often taken by other local projects on dev machines; that is why the API uses 4000.
 

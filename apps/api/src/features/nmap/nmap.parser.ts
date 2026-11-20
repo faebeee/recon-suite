@@ -14,7 +14,7 @@ export interface NmapArgsOptions {
 }
 
 /**
- * Fixed nmap flags. -sT works without raw sockets (same result locally and in Kali),
+ * Fixed nmap flags. -sT works without raw sockets (same result as root or not),
  * -Pn skips host discovery (many hosts drop ICMP), -n disables reverse DNS so nmap does no
  * lookups of its own, --open keeps the output to open ports. No NSE scripts and no
  * --host-timeout: the scan runs until nmap is done.

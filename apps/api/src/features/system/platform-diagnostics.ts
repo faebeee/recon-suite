@@ -24,8 +24,6 @@ export interface HostFacts {
   apiKeys: { nvd: boolean; securityTrails: boolean };
   /** Linux: NET_RAW is in the capability bounding set (always true elsewhere). */
   netRawAllowed: boolean;
-  /** KALI_CONTAINER: nmap (Host Scan, Nmap Scan) runs there via `<cli> exec`. */
-  kali?: { container: string; cli: 'docker' | 'podman' };
 }
 
 const OK = { status: 'ok' } as const;
@@ -78,7 +76,6 @@ const CHECKS: Record<ToolId, Check> = {
   ports: () => OK,
 
   nmap: (h) => {
-    if (h.kali) return kaliCheck(h);
     return h.has('nmap')
       ? OK
       : {
@@ -88,12 +85,11 @@ const CHECKS: Record<ToolId, Check> = {
             (h.platform === 'darwin'
               ? 'brew install nmap'
               : 'Install it, e.g. "sudo apt install nmap"') +
-            ', or run it in the Kali container (pnpm compose:up, KALI_CONTAINER).',
+            ', or run the API with "pnpm compose:up" (its image is built on Kali).',
         };
   },
 
   'network-scan': (h) => {
-    if (h.kali) return kaliCheck(h);
     if (!h.has('nmap')) {
       return {
         status: 'unavailable',
@@ -102,7 +98,7 @@ const CHECKS: Record<ToolId, Check> = {
           (h.platform === 'darwin'
             ? 'brew install nmap'
             : 'Install it, e.g. "sudo apt install nmap"') +
-          ', or run it in the Kali container (pnpm compose:up, KALI_CONTAINER).',
+          ', or run the API with "pnpm compose:up" (its image is built on Kali).',
       };
     }
     if (!h.isRoot) {
@@ -110,19 +106,18 @@ const CHECKS: Record<ToolId, Check> = {
         status: 'limited',
         reason:
           'Without root, nmap discovers hosts with TCP probes instead of ARP: no MAC addresses, and hosts with no open common port are missed.',
-        fix: 'Use the Kali container (KALI_CONTAINER) or run the API as root.',
+        fix: 'Run the API as root, or with "pnpm compose:up" (root inside its container).',
       };
     }
     return OK;
   },
 
   'host-scan': (h) => {
-    if (h.kali) return kaliCheck(h);
     if (h.platform === 'win32') {
       return {
         status: 'unavailable',
         reason: 'Host Scan is not supported on Windows.',
-        fix: 'Run the API on Linux or macOS, or use the Kali container (KALI_CONTAINER).',
+        fix: 'Run the API on Linux or macOS, or with "pnpm compose:up".',
       };
     }
     if (!h.has('nmap')) {
@@ -133,7 +128,7 @@ const CHECKS: Record<ToolId, Check> = {
           (h.platform === 'darwin'
             ? 'brew install nmap'
             : 'Install it, e.g. "sudo apt install nmap"') +
-          ', or use the Kali container (pnpm compose:up, KALI_CONTAINER).',
+          ', or run the API with "pnpm compose:up" (its image is built on Kali).',
       };
     }
     if (!h.hasIpv4Interface) {
@@ -148,7 +143,7 @@ const CHECKS: Record<ToolId, Check> = {
         status: 'limited',
         reason:
           'Without root, nmap discovers hosts with TCP probes instead of ARP: no MAC addresses, and hosts with no open common port are missed.',
-        fix: 'Use the Kali container (KALI_CONTAINER) or run the API as root.',
+        fix: 'Run the API as root, or with "pnpm compose:up" (root inside its container).',
       };
     }
     if (!h.netRawAllowed) {
@@ -268,18 +263,6 @@ export function formatDiagnosis(results: ToolSupport[]): string[] {
     if (r.fix) lines.push(`         fix: ${r.fix}`);
   }
   return lines;
-}
-
-/** Only checks the CLI; whether the container runs is seen on the first call (503 then). */
-function kaliCheck(h: HostFacts): Omit<ToolSupport, 'id'> {
-  const { cli, container } = h.kali!;
-  return h.has(cli)
-    ? OK
-    : {
-        status: 'unavailable',
-        reason: `KALI_CONTAINER is set but the "${cli}" CLI is missing, so "${container}" can't be reached.`,
-        fix: `Install the ${cli} CLI on the API host, or unset KALI_CONTAINER.`,
-      };
 }
 
 function containerHint(h: HostFacts): string {

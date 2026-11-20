@@ -8,7 +8,8 @@ FROM base AS pruner
 COPY . .
 RUN turbo prune @recon/api --docker
 
-# 2. Install deps (cached layer) and build
+# 2. Install deps (cached layer) and build. Production deps are pure JS (SQLite is node:sqlite),
+#    so the output built on Alpine runs unchanged on the glibc-based Kali runtime below.
 FROM base AS builder
 COPY --from=pruner /app/out/json/ .
 RUN pnpm install --frozen-lockfile
@@ -16,20 +17,28 @@ COPY --from=pruner /app/out/full/ .
 RUN turbo run build --filter=@recon/api
 RUN pnpm --filter=@recon/api deploy --prod --legacy /prod/api
 
-# 3. Minimal runtime image
-FROM docker.io/library/node:26-alpine AS runner
+# 3. Runtime: Kali with the scanning tools, so the API runs nmap itself (no separate
+#    Kali container, no container-engine socket).
+FROM docker.io/kalilinux/kali-rolling:latest AS runner
+# nmap: Host Scan, Network Scan, Nmap Scan. iproute2: default gateway for the system page (`ip -j route`).
+# network-manager: nmcli for the WiFi tool; a no-op unless the host's NetworkManager D-Bus
+# socket is mounted (see compose.yaml). libstdc++6: needed by the Node binary.
+RUN apt-get update \
+  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    nmap \
+    iproute2 \
+    network-manager \
+    ca-certificates \
+    libstdc++6 \
+  && rm -rf /var/lib/apt/lists/*
+# Official glibc Node build (Kali's own nodejs package lags behind).
+COPY --from=docker.io/library/node:26-slim /usr/local/bin/node /usr/local/bin/node
 ENV NODE_ENV=production
 WORKDIR /app
-# nmcli client for the WiFi tool (R-01). It is a no-op unless the container is also granted
-# access to the host's wireless adapter and NetworkManager D-Bus socket (see compose.yaml).
-RUN apk add --no-cache networkmanager-cli
-# docker CLI for the Kali container (compose.yaml sets WITH_DOCKER_CLI=true): Host Scan and
-# Nmap Scan run as `docker exec recon-kali nmap ...`; this image has no scanning tools itself.
-ARG WITH_DOCKER_CLI=false
-RUN if [ "$WITH_DOCKER_CLI" = "true" ]; then apk add --no-cache docker-cli; fi
-COPY --from=builder --chown=node:node /prod/api .
+COPY --from=builder /prod/api .
 # SQLite database (engagements, history, notes, sessions); mounted as a volume by compose.
-RUN mkdir -p /app/data && chown node:node /app/data
-USER node
+RUN mkdir -p /app/data
+# Runs as root inside the container so nmap can use raw sockets (ARP discovery, MAC/vendor);
+# compose adds only NET_RAW/NET_ADMIN on top of the default capability set.
 EXPOSE 4000
 CMD ["node", "dist/main.js"]

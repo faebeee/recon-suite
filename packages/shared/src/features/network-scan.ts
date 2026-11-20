@@ -31,7 +31,6 @@ export interface NetworkScanOutput {
   network: string;
   /** The OS command used for the scan. */
   method: string;
-  runner: 'kali' | 'local';
   hosts: NetworkScanHost[];
   findings: Finding[];
 }

@@ -3,10 +3,9 @@ import type { ToolId } from './tool.js';
 /**
  * Where a tool's work actually executes:
  * host:      natively on the machine running the API (`pnpm dev`)
- * container: inside the API container (compose)
- * kali:      inside the Kali container, via `docker|podman exec`
+ * container: inside the API container (compose; the image is built on Kali)
  */
-export type RuntimeLocation = 'host' | 'container' | 'kali';
+export type RuntimeLocation = 'host' | 'container';
 
 /**
  * ok:          works fully on this setup.
@@ -23,8 +22,6 @@ export interface ToolRuntime {
   engine: string;
   /** Third-party services the tool queries (never the target itself), e.g. "crt.sh". */
   services: string[];
-  /** How the engine is reached when it is not in-process, e.g. "podman exec recon-kali". */
-  via?: string;
   status: SupportStatus;
   /** Why the tool is limited/unavailable (human readable). */
   reason?: string;
@@ -35,11 +32,9 @@ export interface ToolRuntime {
 /** Response of GET /api/system/runtime (authenticated: it describes the server). */
 export interface RuntimeInfo {
   api: {
-    location: Exclude<RuntimeLocation, 'kali'>;
+    location: RuntimeLocation;
     platform: string;
   };
-  /** Set when KALI_CONTAINER is configured. */
-  kali?: { container: string; cli: 'docker' | 'podman' };
   tools: ToolRuntime[];
 }
 

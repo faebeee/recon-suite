@@ -38,11 +38,11 @@ describe('describeSettings', () => {
       value: '4100',
       isDefault: false,
     });
-    expect(settings.find((s) => s.key === 'CONTAINER_CLI')).toMatchObject({
-      value: 'docker',
+    expect(settings.find((s) => s.key === 'DATABASE_PATH')).toMatchObject({
+      value: 'data/recon.db',
       isDefault: true,
     });
-    expect(settings.find((s) => s.key === 'KALI_CONTAINER')).toMatchObject({
+    expect(settings.find((s) => s.key === 'NVD_API_KEY')).toMatchObject({
       isSet: false,
       value: undefined,
     });
@@ -64,32 +64,18 @@ describe('buildChecks', () => {
       database: { ok: true },
       tools,
     });
-    expect(check(checks, 'kali').status).toBe('off');
     expect(check(checks, 'nvd').status).toBe('off');
     expect(overallStatus(checks)).toBe('ok');
   });
 
-  it('reports database and Kali failures as errors', () => {
+  it('reports database failures as errors', () => {
     const checks = buildChecks({
-      env: env({ KALI_CONTAINER: 'recon-kali' }),
-      kali: { state: 'missing' },
+      env: defaults,
       database: { ok: false, error: 'disk I/O error' },
       tools,
     });
     expect(check(checks, 'database')).toMatchObject({ status: 'error' });
-    expect(check(checks, 'kali')).toMatchObject({ status: 'error' });
-    expect(check(checks, 'kali').fix).toMatch(/compose:up/);
     expect(overallStatus(checks)).toBe('error');
-  });
-
-  it('treats a missing container as recoverable when KALI_IMAGE is set', () => {
-    const checks = buildChecks({
-      env: env({ KALI_CONTAINER: 'recon-kali', KALI_IMAGE: 'kali:latest' }),
-      kali: { state: 'missing' },
-      database: { ok: true },
-      tools,
-    });
-    expect(check(checks, 'kali').status).toBe('warn');
   });
 
   it('warns when tools are unavailable', () => {

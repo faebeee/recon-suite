@@ -1,13 +1,8 @@
-import {
-  BadRequestException,
-  BadGatewayException,
-  ServiceUnavailableException,
-} from '@nestjs/common';
+import { BadRequestException, BadGatewayException } from '@nestjs/common';
 import {
   CommandFailedError,
   CommandNotFoundError,
 } from '../../core/process/run-command.js';
-import { KaliUnavailableError } from '../../core/process/tool-exec.js';
 import type { ToolExecService } from '../../core/process/tool-exec.service.js';
 import { NetworkScanService } from './network-scan.service.js';
 
@@ -17,16 +12,8 @@ const exec = (
     args: readonly string[],
     opts?: { timeoutMs?: number | null },
   ) => Promise<string>,
-  kind: 'local' | 'kali' = 'kali',
 ) => {
-  const fake = {
-    target:
-      kind === 'kali'
-        ? { kind, cli: 'docker', container: 'recon-kali' }
-        : { kind },
-    via: kind === 'kali' ? 'docker exec recon-kali' : undefined,
-    run: vi.fn(run),
-  };
+  const fake = { run: vi.fn(run) };
   return Object.assign(fake as unknown as ToolExecService, {
     mockRun: fake.run,
   });
@@ -45,9 +32,9 @@ describe('NetworkScanService', () => {
     const [cmd, args] = e.mockRun.mock.calls[0]!;
     expect(cmd).toBe('nmap');
     expect(args.at(-1)).toBe('10.0.0.0/24');
-    expect(out).toMatchObject({ network: '10.0.0.0/24', runner: 'kali' });
+    expect(out).toMatchObject({ network: '10.0.0.0/24' });
     expect(out.hosts).toEqual([{ ip: '10.0.0.1' }]);
-    expect(out.method).toMatch(/^docker exec recon-kali nmap /);
+    expect(out.method).toMatch(/^nmap /);
   });
 
   it('rejects networks larger than the max prefix', async () => {
@@ -59,19 +46,16 @@ describe('NetworkScanService', () => {
   });
 
   it('maps executor errors to HTTP errors', async () => {
-    const svc = (err: Error, kind: 'local' | 'kali' = 'kali') =>
+    const svc = (err: Error) =>
       new NetworkScanService(
         exec(async () => {
           throw err;
-        }, kind),
+        }),
       ).scan({ target: '10.0.0.0/24' });
 
-    await expect(svc(new KaliUnavailableError('gone'))).rejects.toBeInstanceOf(
-      ServiceUnavailableException,
+    await expect(svc(new CommandNotFoundError('nmap'))).rejects.toThrow(
+      /not installed on the API host/,
     );
-    await expect(
-      svc(new CommandNotFoundError('nmap'), 'local'),
-    ).rejects.toThrow(/not installed on the API host/);
     await expect(
       svc(new CommandFailedError('nmap', 'boom', false, 1)),
     ).rejects.toBeInstanceOf(BadGatewayException);

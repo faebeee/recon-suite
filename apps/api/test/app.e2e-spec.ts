@@ -46,7 +46,7 @@ describe('App (e2e)', () => {
           [...TOOL_IDS].sort(),
         );
         for (const t of body.tools) {
-          expect(['host', 'container', 'kali']).toContain(t.location);
+          expect(['host', 'container']).toContain(t.location);
           expect(t.engine).toBeTruthy();
         }
       }));

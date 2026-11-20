@@ -18,14 +18,11 @@ export interface SystemCheck {
   fix?: string;
 }
 
-export type SettingGroup =
-  'server' | 'security' | 'storage' | 'tooling' | 'integrations';
+export type SettingGroup = 'server' | 'storage' | 'integrations';
 
 export const SETTING_GROUP_LABELS: Record<SettingGroup, string> = {
   server: 'Server',
-  security: 'Security',
   storage: 'Storage',
-  tooling: 'Tool execution',
   integrations: 'Integrations',
 };
 
@@ -50,7 +47,7 @@ export interface SystemOverview {
     nodeVersion: string;
     platform: string;
     arch: string;
-    location: Exclude<RuntimeLocation, 'kali'>;
+    location: RuntimeLocation;
     startedAt: string;
     uptimeSeconds: number;
     memoryRssBytes: number;

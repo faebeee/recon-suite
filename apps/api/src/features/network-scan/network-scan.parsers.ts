@@ -36,7 +36,7 @@ export function networkScanArgs(range: string): string[] {
 /**
  * nmap `<status reason>` values that only a real, online host produces. nmap also marks a host
  * "up" on a TCP RST (`reset`), but RSTs are routinely generated on behalf of every address in a
- * range by NAT layers (the Docker Desktop / podman machine network stack the Kali container
+ * range by NAT layers (the Docker Desktop / podman machine network stack the API container
  * runs behind), stateful firewalls and gateways, which made every address appear online.
  * `arp-response` is excluded for the same reason (proxy ARP); `--send-ip` avoids it anyway.
  */

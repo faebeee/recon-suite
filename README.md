@@ -34,9 +34,9 @@ Turborepo monorepo with a feature-driven architecture.
 | W-08 | JS Endpoints       | active  | API paths, hosts, exposed source maps and leaked keys in JavaScript                      |
 | W-09 | Exposed Files      | active  | .git, .env, .DS_Store, server-status, actuator, config backups (content-verified)        |
 | N-01 | Port Probe         | active  | TCP connect check on preset or custom ports (max 64)                                     |
-| N-02 | Host Scan          | local   | Live hosts, MACs and vendors on the scanner's subnet (`nmap -sn`, in the Kali container) |
+| N-02 | Host Scan          | local   | Live hosts, MACs and vendors on the scanner's subnet (`nmap -sn`)                        |
 | N-03 | Banner Grab        | active  | Service greetings (SSH, SMTP, FTP, IMAP, POP3, MySQL) with product and version           |
-| N-04 | Nmap Scan          | active  | nmap TCP scan (top 100/1000 or custom ports) with service/version detection, via Kali    |
+| N-04 | Nmap Scan          | active  | nmap TCP scan (top 100/1000 or custom ports) with service/version detection              |
 | R-01 | WiFi Scanner       | local   | Nearby WiFi networks seen by the API host: SSID, band, channel, security, signal         |
 | R-02 | Bluetooth Scanner  | local   | BLE advertisements + Classic inquiry: name, vendor, class, RSSI, services (macOS, Linux) |
 
@@ -83,7 +83,7 @@ pnpm dev        # api http://localhost:4000, web http://localhost:5173
 ```sh
 pnpm build | typecheck | lint | test
 pnpm --filter @recon/api test:e2e
-pnpm compose:up     # web http://localhost:8090 (nginx + api + kali)
+pnpm compose:up     # web http://localhost:8090 (nginx + api on a Kali image)
 pnpm compose:down
 ```
 

@@ -32,20 +32,12 @@ describe('describeRuntime', () => {
     const info = describeRuntime(facts());
     expect(info.api).toEqual({ location: 'host', platform: 'linux' });
     expect(info.tools.every((t) => t.location === 'host')).toBe(true);
-    expect(info.tools.every((t) => t.via === undefined)).toBe(true);
   });
 
-  it('moves only the nmap tools into the Kali container', () => {
-    const kali = { container: 'recon-kali', cli: 'podman' } as const;
-    const r = byId(facts({ inContainer: true, kali }));
-    expect(r.nmap).toMatchObject({
-      location: 'kali',
-      via: 'podman exec recon-kali',
-      engine: expect.stringContaining('nmap'),
-    });
-    expect(r['host-scan']!.location).toBe('kali');
-    expect(r.dns!.location).toBe('container');
-    expect(r.wifi!.location).toBe('container');
+  it('puts every tool in the API container when running in one', () => {
+    const info = describeRuntime(facts({ inContainer: true }));
+    expect(info.api.location).toBe('container');
+    expect(info.tools.every((t) => t.location === 'container')).toBe(true);
   });
 
   it('names third-party services and platform engines', () => {

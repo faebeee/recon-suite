@@ -1,5 +1,5 @@
 import { queryOptions, useQuery } from '@tanstack/react-query';
-import { Box, Container, Laptop, type LucideIcon } from 'lucide-react';
+import { Box, Laptop, type LucideIcon } from 'lucide-react';
 import {
   SYSTEM_RUNTIME_ENDPOINT,
   type RuntimeInfo,
@@ -47,14 +47,7 @@ export const LOCATION_META: Record<RuntimeLocation, LocationMeta> = {
     short: 'ctr',
     icon: Box,
     tone: 'cyan',
-    description: 'Runs inside the API container.',
-  },
-  kali: {
-    label: 'Kali container',
-    short: 'kali',
-    icon: Container,
-    tone: 'green',
-    description: 'Runs inside the Kali container via exec.',
+    description: 'Runs inside the API container (built on Kali).',
   },
 };
 

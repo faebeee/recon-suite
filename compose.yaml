@@ -1,58 +1,18 @@
 name: recon-suite
 
 services:
-  kali:
-    build:
-      context: .
-      dockerfile: infra/kali/Containerfile
-    image: localhost/recon-suite/kali:latest
-    # Fixed name: the API addresses the container by it (KALI_CONTAINER in the api service).
-    container_name: recon-kali
-    init: true
-    cap_add:
-      - NET_RAW
-      - NET_ADMIN
-    # Without host networking, nmap reaches internet targets through NAT, but the Host Scan
-    # sweep only sees the compose bridge network. To sweep your LAN (Linux hosts only; Docker
-    # Desktop and podman machine on macOS/Windows run inside a VM and never see the LAN),
-    # uncomment:
-    # network_mode: host
-    restart: unless-stopped
-
-  # One-shot: make the data volume writable for the api user (uid 1000 = node). Docker/Podman
-  # only copy the image's /app/data ownership into a volume when it is first populated; a
-  # volume created earlier (or by another engine) stays root-owned and SQLite then fails with
-  # "unable to open database file".
-  data-init:
-    image: docker.io/library/node:26-alpine
-    user: '0'
-    entrypoint: ['chown', '1000:1000', '/app/data']
-    volumes:
-      - recon-data:/app/data
-    restart: 'no'
-
+  # The API image is built on Kali: nmap runs inside it directly (no separate Kali container).
   api:
     build:
       context: .
       dockerfile: apps/api/Containerfile
-      args:
-        # docker CLI for `docker exec recon-kali ...`; it also speaks Podman's Docker API.
-        WITH_DOCKER_CLI: 'true'
     image: localhost/recon-suite/api:latest
+    init: true
+    # Raw sockets for nmap (ARP discovery with MAC/vendor in Host Scan and Network Scan).
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
     environment:
-      # Kali container for nmap (Host Scan, Nmap Scan). SECURITY: the engine socket mounted below is
-      # root-equivalent on the host, and the API has no login: keep both ports bound to
-      # 127.0.0.1 (below) and never expose them.
-      # Socket path: Docker /var/run/docker.sock (default), Podman rootful/podman machine
-      # /run/podman/podman.sock, rootless /run/user/<uid>/podman/podman.sock
-      # (podman info --format '{{.Host.RemoteSocket.Path}}'). Set CONTAINER_SOCKET_GID to
-      # the socket's group, or KALI_API_USER=0 for rootless Podman.
-      CONTAINER_CLI: docker
-      DOCKER_HOST: unix:///run/container-engine.sock
-      KALI_CONTAINER: recon-kali
-      # If recon-kali is stopped the API starts it; if it was removed, the API recreates it
-      # from this locally built image before running the command.
-      KALI_IMAGE: localhost/recon-suite/kali:latest
       PORT: 4000
       CORS_ORIGIN: http://localhost:${WEB_PORT:-8090}
       # Optional third-party API keys (CVE Lookup, Reverse IP).
@@ -61,33 +21,30 @@ services:
     # No login: anyone who can reach these ports can use every tool. Loopback only.
     ports:
       - '127.0.0.1:${API_PORT:-4000}:4000'
-    # --- WiFi adapter access (R-01), opt-in, all disabled by default ---
-    # The container has no wireless adapter and no view of the host's NetworkManager by
-    # default. To let the WiFi tool see the host's networks: uncomment the four lines below, and make sure NetworkManager runs on the host
-    # (nmcli talks to it over D-Bus; the wireless device itself stays on the host, it is
-    # never moved into the container network namespace).
+    # nmap reaches internet targets through NAT, but the Host Scan sweep only sees the compose
+    # bridge network. Do not switch the api to `network_mode: host` to sweep your LAN: the
+    # API would then listen on every host interface, not just loopback. Run the API natively
+    # (`pnpm dev`) for LAN sweeps instead.
     #
-    # Host Scan (N-02) and Nmap Scan (N-04) run nmap in the kali service, which holds the
-    # NET_RAW/NET_ADMIN capabilities; the api container needs none.
+    # WiFi (R-01): the container has no wireless adapter and no view of the host's
+    # NetworkManager by default. The /run/dbus mount below lets nmcli talk to the host's
+    # NetworkManager over D-Bus (the wireless device itself stays on the host).
     volumes:
       - recon-data:/app/data
       - /run/dbus:/run/dbus:ro
-      - '${CONTAINER_SOCKET:-/var/run/docker.sock}:/run/container-engine.sock'
     healthcheck:
-      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:4000/api/health']
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:4000/api/health').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))",
+        ]
       interval: 10s
       timeout: 3s
       retries: 5
       start_period: 5s
     restart: unless-stopped
-    user: '${KALI_API_USER:-node}'
-    group_add:
-      - '${CONTAINER_SOCKET_GID:-0}'
-    depends_on:
-      kali:
-        condition: service_started
-      data-init:
-        condition: service_completed_successfully
 
   web:
     build:

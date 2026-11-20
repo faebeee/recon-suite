@@ -16,7 +16,7 @@ the status of every tool on this host, with a fix for each one that is unavailab
 | ----------------- | ----------------------------------------- | ------------------------ | --------------------- |
 | WiFi Scanner      | ReconHelper (CoreWLAN)                    | `nmcli` (NetworkManager) | `netsh wlan`          |
 | Bluetooth Scanner | ReconHelper (CoreBluetooth + IOBluetooth) | `bluetoothctl` (BlueZ)   | not implemented (503) |
-| Host Scan         | `nmap`, root                              | `nmap`, root             | Kali container only   |
+| Host Scan         | `nmap`, root                              | `nmap`, root             | containers only       |
 
 ## macOS
 
@@ -53,12 +53,12 @@ inquiry only finds devices that are discoverable.
 
 - **WiFi:** Windows 11 24H2 and later also require Location permission for `netsh wlan show
 networks`: _Settings > Privacy & security > Location_, allow desktop apps.
-- **Bluetooth** is not available; **Host Scan** only through the Kali container.
+- **Bluetooth** is not available; **Host Scan** only through the containers.
 
 ## Host Scan
 
-Host Scan runs an `nmap -sn` host sweep, preferably in the [Kali container](#kali-container),
-which runs nmap as root with `NET_RAW`. Natively the API needs `nmap` (`brew install nmap`,
+Host Scan runs an `nmap -sn` host sweep. In the [containers](#containers) the API image is built
+on Kali and runs nmap as root with `NET_RAW`. Natively the API needs `nmap` (`brew install nmap`,
 `sudo apt install nmap`); without root nmap can't send ARP and falls back to TCP probes, so MAC
 addresses and hosts without open common ports are missing.
 
@@ -67,51 +67,21 @@ It scans the subnet of one interface. Pick the interface in the UI; the list com
 
 ## Containers
 
-By default the API container has no wireless adapter, no view of the host's NetworkManager
-and only its own bridge network, so local tools answer 503. To make them work on a Linux host:
-
-1. For Host Scan, enable host networking for the `kali` service (`network_mode: host`) so
-   its nmap sweep sees your LAN (see [Kali container](#kali-container)).
-2. Keep the `/run/dbus` volume for the `api` service: `nmcli` reaches the host's
-   NetworkManager over D-Bus; the wireless device stays on the host.
-
-Read the comments in `compose.yaml` before enabling this: host networking removes the network
-isolation of the container.
-
-## Kali container
-
-`compose.yaml` has a `kali` service (`infra/kali/Containerfile`: kali-rolling with
-`nmap`, `iproute2`) and points the API at it with `KALI_CONTAINER=recon-kali`.
-Host Scan and Nmap Scan then run nmap there via `docker exec recon-kali nmap ...` (no time limit)
-instead of on the API host; Host Scan lists the Kali container's interfaces (`ip -j addr`).
+`pnpm compose:up` builds the API image on Kali (`kalilinux/kali-rolling` with `nmap`, `iproute2`
+and `nmcli`), so Host Scan, Network Scan and Nmap Scan run nmap inside the API container itself:
+no separate Kali container and no container-engine socket. The API runs as root inside its
+container with `NET_RAW`/`NET_ADMIN` (ARP discovery with MAC and vendor).
 
 ```sh
-pnpm compose:up     # builds and starts kali, api and web
+pnpm compose:up     # builds and starts api and web
 pnpm compose:down
 ```
 
-| Variable               | Default                | Purpose                                                         |
-| ---------------------- | ---------------------- | --------------------------------------------------------------- |
-| `KALI_CONTAINER`       | not set                | Container to `exec` into; unset = run tools on the API host     |
-| `CONTAINER_CLI`        | `docker`               | `docker` or `podman` (the docker CLI also works against Podman) |
-| `KALI_IMAGE`           | not set                | Local image to recreate the container from when it was removed  |
-| `CONTAINER_SOCKET`     | `/var/run/docker.sock` | compose only: engine socket mounted into the API container      |
-| `CONTAINER_SOCKET_GID` | `0`                    | compose only: group the API process needs to use the socket     |
-| `KALI_API_USER`        | `node`                 | compose only: set `0` for rootless Podman sockets               |
+By default the API container has no wireless adapter and only its own bridge network:
 
-**Self-healing:** if the container is stopped, the API runs `<cli> start <container>` and retries
-the command once. If it does not exist (e.g. after `pnpm compose:down`) and `KALI_IMAGE` is set
-(compose sets it), the API creates it with fixed flags (`run -d --init --cap-add NET_RAW
---cap-add NET_ADMIN --pull never <image>`, default network) and retries. Without `KALI_IMAGE` a
-missing container is reported as 503. The image must already be built locally; nothing is
-pulled at request time.
-
-**Security:** the API needs the container engine socket for `exec`, which is root-equivalent on
-the host. Use this setup only on machines you control, on a private network, never publicly.
-
-**Networks:** nmap reaches internet targets from the default bridge network. The Host Scan sweep only sees
-the LAN with `network_mode: host` on the `kali` service, which works on Linux hosts only (Docker
-Desktop and podman machine run containers in a VM).
-
-The same works with a natively running API (`pnpm dev`): start the `kali` service, then set
-`KALI_CONTAINER=recon-kali` (and `CONTAINER_CLI=podman` if you use Podman) in `apps/api/.env`.
+- **Host Scan** sweeps the compose bridge network, not your LAN. Don't switch the `api` service
+  to `network_mode: host` for this: the API would then listen on every host interface instead
+  of loopback only. Run the API natively for LAN sweeps.
+- **WiFi:** keep the `/run/dbus` volume so `nmcli` reaches the host's NetworkManager over
+  D-Bus (Linux hosts; the wireless device stays on the host).
+- **Bluetooth** is not available in the container.

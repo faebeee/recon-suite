@@ -4,7 +4,6 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import type {
-  HostScanInterface,
   HostScanInterfacesOutput,
   HostScanOutput,
   HostScanParams,
@@ -13,24 +12,19 @@ import {
   CommandFailedError,
   CommandNotFoundError,
 } from '../../core/process/run-command.js';
-import {
-  KALI_HINT,
-  KaliUnavailableError,
-} from '../../core/process/tool-exec.js';
 import { ToolExecService } from '../../core/process/tool-exec.service.js';
 import {
   hostScanRange,
   listHostScanInterfaces,
   nmapDiscoveryArgs,
-  parseIpAddrJson,
   parseNmapDiscovery,
   pickDefaultHostScanInterface,
 } from './host-scan.parsers.js';
 
 /**
  * Discovers live hosts on the subnet of a chosen network interface with an nmap ping sweep
- * (`nmap -sn`: ARP as root, with MAC + vendor). Runs inside the Kali container when
- * KALI_CONTAINER is set (interfaces are then those of the Kali container), else on the API host.
+ * (`nmap -sn`: ARP as root, with MAC + vendor) on the API host (in compose: the Kali-based
+ * API container).
  */
 
 @Injectable()
@@ -41,7 +35,7 @@ export class HostScanService {
   constructor(private readonly exec: ToolExecService) {}
 
   async listInterfaces(): Promise<HostScanInterfacesOutput> {
-    const interfaces = await this.readInterfaces();
+    const interfaces = listHostScanInterfaces();
     return {
       interfaces,
       defaultInterface: pickDefaultHostScanInterface(interfaces),
@@ -91,7 +85,7 @@ export class HostScanService {
         interface: iface,
         network: range,
         limitedFrom,
-        method: this.exec.via ? `${this.exec.via} ${method}` : method,
+        method,
         hosts: parseNmapDiscovery(xml),
       };
     } catch (err) {
@@ -99,37 +93,17 @@ export class HostScanService {
     }
   }
 
-  private async readInterfaces(): Promise<HostScanInterface[]> {
-    if (this.exec.target.kind === 'local') return listHostScanInterfaces();
-    try {
-      return parseIpAddrJson(
-        await this.exec.run('ip', ['-j', 'addr', 'show'], {
-          timeoutMs: 5_000,
-        }),
-      );
-    } catch (err) {
-      throw this.toHttpError(err);
-    }
-  }
-
   private toHttpError(err: unknown): unknown {
-    if (err instanceof KaliUnavailableError) {
-      return new ServiceUnavailableException(`${err.message}. ${KALI_HINT}`);
-    }
     if (err instanceof CommandNotFoundError) {
       return new ServiceUnavailableException(
-        this.exec.target.kind === 'kali'
-          ? `${err.message} in the Kali container. Rebuild it (pnpm compose:up).`
-          : `${err.message}. Host scanning needs "nmap" on the API host ` +
-              '(e.g. "sudo apt install nmap" / "brew install nmap"), or a Kali container (KALI_CONTAINER).',
+        `${err.message}. Host scanning needs "nmap" on the API host ` +
+          '(e.g. "sudo apt install nmap" / "brew install nmap"), or run the API with "pnpm compose:up".',
       );
     }
     if (err instanceof CommandFailedError) {
       return new ServiceUnavailableException(
         `nmap failed: ${err.stderr.trim().split(/\r?\n/)[0] || 'unknown error'}` +
-          (this.exec.target.kind === 'kali'
-            ? '. The Kali container needs the NET_RAW capability (cap_add).'
-            : '. ARP discovery needs root (sudo) or the cap_net_raw capability.'),
+          '. ARP discovery needs root (sudo) or the cap_net_raw capability.',
       );
     }
     return err;

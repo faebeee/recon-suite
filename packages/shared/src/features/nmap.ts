@@ -49,8 +49,7 @@ export interface NmapOutput {
   scannedPorts: number;
   nmapVersion?: string;
   elapsedSeconds?: number;
-  /** The command that ran, including where (Kali container or API host). */
+  /** The command that ran. */
   method: string;
-  runner: 'kali' | 'local';
   findings: Finding[];
 }

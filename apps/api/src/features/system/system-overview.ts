@@ -7,7 +7,6 @@ import type {
   SystemSetting,
 } from '@recon/shared';
 import type { Env } from '../../config/env.js';
-import type { KaliState } from '../../core/process/tool-exec.js';
 
 interface SettingMeta {
   group: SettingGroup;
@@ -26,18 +25,6 @@ export const SETTING_META: Record<keyof Env, SettingMeta> = {
   DATABASE_PATH: {
     group: 'storage',
     description: 'SQLite file for engagements, runs and notes.',
-  },
-  KALI_CONTAINER: {
-    group: 'tooling',
-    description: 'Container that runs nmap/ip instead of the API host.',
-  },
-  KALI_IMAGE: {
-    group: 'tooling',
-    description: 'Image to create KALI_CONTAINER from when it is missing.',
-  },
-  CONTAINER_CLI: {
-    group: 'tooling',
-    description: 'CLI used to reach the Kali container.',
   },
   NVD_API_KEY: {
     group: 'integrations',
@@ -72,8 +59,6 @@ export function describeSettings(env: Env, defaults: Env): SystemSetting[] {
 
 export interface CheckFacts {
   env: Env;
-  /** undefined when KALI_CONTAINER is not set. */
-  kali?: KaliState;
   database: { ok: true } | { ok: false; error: string };
   tools: SystemOverview['tools'];
 }
@@ -97,7 +82,6 @@ export function buildChecks(f: CheckFacts): SystemCheck[] {
           detail: `Query failed: ${f.database.error}`,
           fix: 'Check DATABASE_PATH and the file permissions, then restart the API.',
         },
-    kaliCheck(env, f.kali),
     toolsCheck(f.tools),
   ];
 
@@ -133,48 +117,6 @@ export function countTools(statuses: SupportStatus[]): SystemOverview['tools'] {
   const counts = { ok: 0, limited: 0, unavailable: 0, disabled: 0 };
   for (const s of statuses) counts[s]++;
   return { ...counts, total: statuses.length };
-}
-
-function kaliCheck(env: Env, kali?: KaliState): SystemCheck {
-  const base = { id: 'kali', label: 'Kali container' };
-  if (!env.KALI_CONTAINER || !kali) {
-    return {
-      ...base,
-      status: 'off',
-      detail: 'Not configured: nmap and ip run on the API host.',
-    };
-  }
-  const name = env.KALI_CONTAINER;
-  switch (kali.state) {
-    case 'running':
-      return { ...base, status: 'ok', detail: `"${name}" is running.` };
-    case 'stopped':
-      return {
-        ...base,
-        status: 'warn',
-        detail: `"${name}" is ${kali.detail}; it is started on the next scan.`,
-      };
-    case 'missing':
-      return env.KALI_IMAGE
-        ? {
-            ...base,
-            status: 'warn',
-            detail: `"${name}" does not exist; it is created from ${env.KALI_IMAGE} on the next scan.`,
-          }
-        : {
-            ...base,
-            status: 'error',
-            detail: `"${name}" does not exist.`,
-            fix: 'Run "pnpm compose:up", or set KALI_IMAGE so the API can create it.',
-          };
-    case 'unreachable':
-      return {
-        ...base,
-        status: 'error',
-        detail: `Container engine not reachable: ${kali.detail}.`,
-        fix: `Start ${env.CONTAINER_CLI} and make sure the API can use its socket.`,
-      };
-  }
 }
 
 function toolsCheck(tools: SystemOverview['tools']): SystemCheck {

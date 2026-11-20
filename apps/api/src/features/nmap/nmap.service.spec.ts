@@ -1,14 +1,9 @@
-import {
-  NotFoundException,
-  BadGatewayException,
-  ServiceUnavailableException,
-} from '@nestjs/common';
+import { NotFoundException, BadGatewayException } from '@nestjs/common';
 import type { TargetGuardService } from '../../core/net/target-guard.service.js';
 import {
   CommandFailedError,
   CommandNotFoundError,
 } from '../../core/process/run-command.js';
-import { KaliUnavailableError } from '../../core/process/tool-exec.js';
 import type { ToolExecService } from '../../core/process/tool-exec.service.js';
 import { NmapService } from './nmap.service.js';
 
@@ -21,16 +16,8 @@ const exec = (
     args: readonly string[],
     opts?: { timeoutMs?: number | null },
   ) => Promise<string>,
-  kind: 'local' | 'kali' = 'kali',
 ) => {
-  const fake = {
-    target:
-      kind === 'kali'
-        ? { kind, cli: 'docker', container: 'recon-kali' }
-        : { kind },
-    via: kind === 'kali' ? 'docker exec recon-kali' : undefined,
-    run: vi.fn(run),
-  };
+  const fake = { run: vi.fn(run) };
   return Object.assign(fake as unknown as ToolExecService, {
     mockRun: fake.run,
   });
@@ -60,9 +47,8 @@ describe('NmapService', () => {
     expect(out).toMatchObject({
       address: '192.0.2.10',
       hostState: 'up',
-      runner: 'kali',
     });
-    expect(out.method).toMatch(/^docker exec recon-kali nmap /);
+    expect(out.method).toMatch(/^nmap /);
     expect(out.findings).toHaveLength(1);
   });
 
@@ -80,20 +66,17 @@ describe('NmapService', () => {
   });
 
   it('maps executor errors to HTTP errors', async () => {
-    const svc = (err: Error, kind: 'local' | 'kali' = 'kali') =>
+    const svc = (err: Error) =>
       new NmapService(
         guard(async () => ({ addresses: ['192.0.2.10'] })),
         exec(async () => {
           throw err;
-        }, kind),
+        }),
       ).scan(params);
 
-    await expect(svc(new KaliUnavailableError('gone'))).rejects.toBeInstanceOf(
-      ServiceUnavailableException,
+    await expect(svc(new CommandNotFoundError('nmap'))).rejects.toThrow(
+      /not installed on the API host/,
     );
-    await expect(
-      svc(new CommandNotFoundError('nmap'), 'local'),
-    ).rejects.toThrow(/not installed on the API host/);
     await expect(
       svc(new CommandFailedError('nmap', 'boom', false, 1)),
     ).rejects.toBeInstanceOf(BadGatewayException);

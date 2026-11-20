@@ -52,8 +52,7 @@ of the web app to the API's `CORS_ORIGIN`.
 | `WEB_PORT`                              | `8090`  | Host port for the web container (nginx); also sets the API's `CORS_ORIGIN` |
 | `NVD_API_KEY`, `SECURITYTRAILS_API_KEY` | not set | Passed to the API                                                          |
 
-The Kali container (part of `pnpm compose:up`) uses `CONTAINER_SOCKET`, `CONTAINER_SOCKET_GID` and
-`KALI_API_USER`; see [Kali container](local-tools.md#kali-container).
+The API image is built on Kali and runs nmap itself; see [Containers](local-tools.md#containers).
 
 The web container serves the built UI and proxies `/api/` to the `api` service, so browsers
 only need the web port. The API container has a health check on `/api/health`; the web

@@ -9,14 +9,13 @@ import { toneText } from '@/lib/tones';
 export function runtimeSummary(r: ToolRuntime): string {
   const where = LOCATION_META[r.location].label;
   const parts = [`Runs in: ${where}`, `Engine: ${r.engine}`];
-  if (r.via) parts.push(`Via: ${r.via}`);
   if (r.services.length) parts.push(`Services: ${r.services.join(', ')}`);
   if (r.status !== 'ok') parts.push(`Status: ${r.status}`);
   return parts.join('. ');
 }
 
 /**
- * Compact location tag (host / ctr / kali) with a status dot when the tool is not fully
+ * Compact location tag (host / ctr) with a status dot when the tool is not fully
  * available. Renders nothing until the runtime is known.
  */
 export function RuntimeBadge({
@@ -55,7 +54,7 @@ export function RuntimeBadge({
   );
 }
 
-/** Full runtime line for the tool page header: location, engine, via, services, status. */
+/** Full runtime line for the tool page header: location, engine, services, status. */
 export function RuntimeDetails({ toolId }: { toolId: ToolId }) {
   const runtime = useToolRuntime(toolId);
   if (!runtime) return null;
@@ -69,11 +68,6 @@ export function RuntimeDetails({ toolId }: { toolId: ToolId }) {
           <span className="sr-only">Engine:</span>
           <span className="text-foreground">{runtime.engine}</span>
         </span>
-        {runtime.via && (
-          <code className="text-[11px] text-muted-foreground">
-            {runtime.via}
-          </code>
-        )}
         {runtime.services.length > 0 && (
           <span className="flex items-center gap-1.5 text-muted-foreground">
             <Globe2 className="size-3.5 shrink-0" aria-hidden />

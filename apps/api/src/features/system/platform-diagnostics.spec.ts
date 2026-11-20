@@ -53,25 +53,13 @@ describe('diagnosePlatform', () => {
   it('flags a non-root host scan as limited (no ARP)', () => {
     const r = byId(facts({ isRoot: false }));
     expect(r['host-scan']).toMatchObject({ status: 'limited' });
-    expect(r['host-scan']!.fix).toContain('KALI_CONTAINER');
+    expect(r['host-scan']!.fix).toContain('root');
   });
 
   it('reports a missing NET_RAW capability', () => {
     const r = byId(facts({ inContainer: true, netRawAllowed: false }));
     expect(r['host-scan']).toMatchObject({ status: 'unavailable' });
     expect(r['host-scan']!.fix).toContain('NET_RAW');
-  });
-
-  it('delegates host scan and nmap to the Kali container', () => {
-    const kali = { container: 'recon-kali', cli: 'docker' } as const;
-    const r = byId(
-      facts({ platform: 'win32', kali, has: (c) => c === 'docker' }),
-    );
-    expect(r['host-scan']!.status).toBe('ok');
-    expect(r.nmap!.status).toBe('ok');
-    const missing = byId(facts({ kali, has: () => false }));
-    expect(missing.nmap).toMatchObject({ status: 'unavailable' });
-    expect(missing.nmap!.reason).toContain('docker');
   });
 
   it('suggests the macOS helper when it is not built', () => {

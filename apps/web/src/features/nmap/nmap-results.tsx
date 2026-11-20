@@ -29,14 +29,6 @@ export function NmapResults({ data }: { data: NmapOutput }) {
                 </Tag>
               ),
             },
-            {
-              label: 'Runner',
-              value: (
-                <Tag tone={data.runner === 'kali' ? 'cyan' : 'muted'}>
-                  {data.runner === 'kali' ? 'kali container' : 'api host'}
-                </Tag>
-              ),
-            },
             { label: 'nmap', value: data.nmapVersion },
             {
               label: 'Elapsed',

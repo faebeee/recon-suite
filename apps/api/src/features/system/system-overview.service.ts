@@ -8,7 +8,6 @@ import type { SystemOverview } from '@recon/shared';
 import { envSchema, type Env } from '../../config/env.js';
 import type { Db } from '../../core/db/database.js';
 import { engagements, notes, runs } from '../../core/db/schema.js';
-import { ToolExecService } from '../../core/process/tool-exec.service.js';
 import { PlatformDiagnosticsService } from './platform-diagnostics.service.js';
 import {
   buildChecks,
@@ -22,7 +21,7 @@ const STARTED_AT = new Date();
 
 /**
  * Settings and live status of the API for the system page. Read-only: it counts database
- * rows and inspects the Kali container's state, but never starts or changes anything.
+ * rows, but never starts or changes anything.
  */
 @Injectable()
 export class SystemOverviewService {
@@ -32,7 +31,6 @@ export class SystemOverviewService {
   constructor(
     config: ConfigService<Env, true>,
     private readonly diagnostics: PlatformDiagnosticsService,
-    private readonly exec: ToolExecService,
     @InjectDrizzle() private readonly db: Db,
   ) {
     this.env = Object.fromEntries(
@@ -45,14 +43,10 @@ export class SystemOverviewService {
 
   async overview(): Promise<SystemOverview> {
     const runtime = this.diagnostics.runtime;
-    const [database, kali] = await Promise.all([
-      this.database(),
-      this.exec.kaliState(),
-    ]);
+    const database = await this.database();
     const tools = countTools(runtime.tools.map((t) => t.status));
     const checks = buildChecks({
       env: this.env,
-      kali,
       database: database.ok
         ? { ok: true }
         : { ok: false, error: database.error },

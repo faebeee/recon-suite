@@ -337,15 +337,15 @@ timeout).
 
 Local tool. Runs an `nmap -sn` host sweep (no port scan) on one network interface and lists
 live hosts with IP, MAC address and NIC vendor. Subnets up to /22 are swept whole; for larger
-ones only the /24 around the interface address (`limitedFrom` names the full subnet). Runs in
-the Kali container when `KALI_CONTAINER` is set (the interfaces are then the container's),
-otherwise on the API host.
+ones only the /24 around the interface address (`limitedFrom` names the full subnet). Runs on the
+API host (in the containers that is the Kali-based API container, and the interfaces are the
+container's).
 
 | Option      | Default                          | Values                                                  |
 | ----------- | -------------------------------- | ------------------------------------------------------- |
 | `interface` | first non-virtual IPv4 interface | an interface from `GET /api/tools/host-scan/interfaces` |
 
-As root (Kali container, or a root API) nmap uses ARP and reports MAC addresses; unprivileged
+As root (the API container, or a root native API) nmap uses ARP and reports MAC addresses; unprivileged
 it falls back to TCP probes without MACs. See
 [Local tools setup](local-tools.md#host-scan).
 
@@ -376,8 +376,7 @@ versions to CVE Lookup and records one `info` finding per open port.
 | `ports`            | not set | 1-1000 explicit ports; replaces `topPorts`     |
 | `serviceDetection` | `true`  | `false` for a plain port scan (faster)         |
 
-Runs in the Kali container when `KALI_CONTAINER` is set (see
-[Kali container](local-tools.md#kali-container)), otherwise needs `nmap` on the API host. Scans
+Runs nmap on the API host (the compose API image is built on Kali and includes it). Scans
 have no time limit and any number can run at the same time; a large scan with version
 detection can take several minutes.
 

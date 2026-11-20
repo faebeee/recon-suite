@@ -8,9 +8,9 @@ import { LOCATION_META, STATUS_TONE, runtimeQuery } from '@/lib/runtime';
 import { cn } from '@/lib/utils';
 import { toneBorder, toneText } from '@/lib/tones';
 
-const LOCATIONS: RuntimeLocation[] = ['host', 'container', 'kali'];
+const LOCATIONS: RuntimeLocation[] = ['host', 'container'];
 
-/** Overview: which tools run on the API host, in the API container and in Kali. */
+/** Overview: which tools run on the API host or in the API container. */
 export function RuntimePanel() {
   const { data } = useQuery(runtimeQuery);
   if (!data) return null;
@@ -26,7 +26,6 @@ export function RuntimePanel() {
       actions={
         <span className="text-[11px] tracking-wider text-muted-foreground uppercase">
           api: {LOCATION_META[data.api.location].label} ({data.api.platform})
-          {data.kali && <> · kali: {data.kali.container}</>}
         </span>
       }
     >

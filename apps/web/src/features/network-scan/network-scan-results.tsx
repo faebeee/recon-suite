@@ -11,14 +11,6 @@ export function NetworkScanResults({ data }: { data: NetworkScanOutput }) {
           className="lg:grid-cols-4"
           items={[
             { label: 'Network', value: data.network },
-            {
-              label: 'Runner',
-              value: (
-                <Tag tone={data.runner === 'kali' ? 'cyan' : 'muted'}>
-                  {data.runner === 'kali' ? 'kali container' : 'api host'}
-                </Tag>
-              ),
-            },
             { label: 'Hosts found', value: data.hosts.length },
             {
               label: 'Method',
