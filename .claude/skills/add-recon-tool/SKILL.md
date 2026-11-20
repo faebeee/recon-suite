@@ -233,8 +233,7 @@ macOS helper + fallback, Linux CLI). Files: shared `features/<id>.ts`, api `feat
   `GET /api/tools/<id>/<name>` endpoint listing valid values for a UI dropdown, and an allowlist
   check in the service before the value is used as a command argument.
 - API: run OS tooling only via `runCommand(cmd, FIXED_ARGS)` from `core/process/`, parse the
-  output in pure per-platform parsers with fixture-based specs, check `LOCAL_TOOLS_ENABLED` and
-  map `CommandNotFoundError` / `CommandFailedError` to `ServiceUnavailableException` with a
+  output in pure per-platform parsers with fixture-based specs, and map `CommandNotFoundError` / `CommandFailedError` to `ServiceUnavailableException` with a
   message explaining the requirement (native run, hardware, OS package). Controller passes
   `os.hostname()` as target to `runTool`.
 - Web: `TOOL_UI` entry with `accepts: []`; page = `ToolPage` + a `Panel` with a Scan button
@@ -256,5 +255,4 @@ curl -s -X POST localhost:4000/api/tools/security-txt -H 'content-type: applicat
   -d '{"target":"github.com"}'
 ```
 
-Also confirm a private target is rejected for active tools (`{"target":"127.0.0.1"}` -> 403).
 Report what you verified and anything you could not verify (e.g. no browser check).

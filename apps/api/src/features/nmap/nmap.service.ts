@@ -19,8 +19,8 @@ import { buildNmapArgs, nmapFindings, parseNmapXml } from './nmap.parser.js';
 
 /**
  * Active: runs nmap against the guard-resolved IP of the target, in the Kali container
- * (KALI_CONTAINER) or on the API host. The hostname never reaches nmap, so DNS rebinding
- * and blocked ranges are handled by TargetGuardService like for every other tool.
+ * (KALI_CONTAINER) or on the API host. The hostname never reaches nmap; it scans the IP
+ * TargetGuardService resolved, like every other tool.
  * No time limit and no cap on parallel scans: a scan runs until nmap is done.
  */
 @Injectable()

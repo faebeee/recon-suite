@@ -1,4 +1,4 @@
-import { BadGatewayException, ForbiddenException } from '@nestjs/common';
+import { BadGatewayException, NotFoundException } from '@nestjs/common';
 import { Response } from 'undici';
 import type { HttpClientService } from '../../core/http/http-client.service.js';
 import {
@@ -200,7 +200,7 @@ describe('TakeoverService', () => {
     const targetFollow = vi.fn(async (url: string) => {
       const host = new URL(url).hostname;
       if (host === 'blocked.x.test')
-        throw new ForbiddenException('private address');
+        throw new NotFoundException('unresolvable');
       return {
         res: new Response(opts.bodies?.[host] ?? 'fine'),
         finalUrl: url,

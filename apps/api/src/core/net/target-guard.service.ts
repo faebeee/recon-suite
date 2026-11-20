@@ -1,13 +1,6 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { lookup as dnsLookup } from 'node:dns/promises';
 import { isIP, type LookupFunction } from 'node:net';
-import type { Env } from '../../config/env.js';
-import { isBlockedAddress } from './blocked-ranges.js';
 
 export interface ResolvedTarget {
   host: string;
@@ -15,49 +8,26 @@ export interface ResolvedTarget {
 }
 
 /**
- * Gatekeeper for every outbound connection to a user-supplied target.
- * Any feature that connects to a target MUST go through this service
- * (directly, or via HttpClientService which uses `lookup`).
+ * Resolves user-supplied targets for outbound connections. Features that connect to a
+ * target go through this service (directly, or via HttpClientService which uses `lookup`)
+ * so they connect to the resolved IP. Private, loopback and reserved addresses are allowed.
  */
 @Injectable()
 export class TargetGuardService {
-  private readonly allowPrivate: boolean;
-
-  constructor(config: ConfigService<Env, true>) {
-    this.allowPrivate = config.get('ALLOW_PRIVATE_TARGETS', { infer: true });
-  }
-
-  isAllowed(address: string): boolean {
-    return this.allowPrivate || !isBlockedAddress(address);
-  }
-
-  /** Resolves a hostname (or validates an IP literal) and rejects blocked addresses. */
+  /** Resolves a hostname (or passes an IP literal through). */
   async resolve(host: string): Promise<ResolvedTarget> {
-    let addresses: string[];
-    if (isIP(host)) {
-      addresses = [host];
-    } else {
-      try {
-        const results = await dnsLookup(host, { all: true, verbatim: true });
-        addresses = results.map((r) => r.address);
-      } catch {
-        throw new NotFoundException(`Could not resolve host "${host}"`);
-      }
+    if (isIP(host)) return { host, addresses: [host] };
+    try {
+      const results = await dnsLookup(host, { all: true, verbatim: true });
+      return { host, addresses: results.map((r) => r.address) };
+    } catch {
+      throw new NotFoundException(`Could not resolve host "${host}"`);
     }
-
-    const blocked = addresses.filter((a) => !this.isAllowed(a));
-    if (blocked.length > 0) {
-      throw new ForbiddenException(
-        `Target "${host}" resolves to a private or reserved address (${blocked.join(', ')}). ` +
-          'Set ALLOW_PRIVATE_TARGETS=true to allow internal targets.',
-      );
-    }
-    return { host, addresses };
   }
 
   /**
-   * Drop-in `lookup` for net/tls/undici sockets. Validates the address that is
-   * actually connected to, which also covers redirects and DNS rebinding.
+   * Drop-in `lookup` for net/tls/undici sockets. Resolve failures carry the code
+   * `ENOTRESOLVED` so HttpClientService can answer 404 instead of 502.
    */
   readonly lookup: LookupFunction = (hostname, options, callback) => {
     this.resolve(hostname).then(
@@ -72,7 +42,8 @@ export class TargetGuardService {
           callback(null, address, isIP(address));
         }
       },
-      (err: Error) => callback(Object.assign(err, { code: 'EBLOCKED' }), ''),
+      (err: Error) =>
+        callback(Object.assign(err, { code: 'ENOTRESOLVED' }), ''),
     );
   };
 }

@@ -1,4 +1,4 @@
-import { ForbiddenException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import type { TargetGuardService } from '../../core/net/target-guard.service.js';
 import { TlsAuditService } from './tls-audit.service.js';
 import type { ProbeOptions, ProbeResult } from './tls-probe.js';
@@ -6,7 +6,7 @@ import type { ProbeOptions, ProbeResult } from './tls-probe.js';
 const guard = (blocked = false) =>
   ({
     resolve: vi.fn(async (host: string) => {
-      if (blocked) throw new ForbiddenException('blocked');
+      if (blocked) throw new NotFoundException('unresolvable');
       return { host, addresses: ['93.184.216.34'] };
     }),
   }) as unknown as TargetGuardService;
@@ -165,10 +165,10 @@ describe('TlsAuditService', () => {
     ).toBe(true);
   });
 
-  it('propagates blocked targets', async () => {
+  it('propagates resolve errors', async () => {
     const { probe } = fakeServer({});
     await expect(
       makeService(probe, guard(true)).audit({ target: 'x.test', port: 443 }),
-    ).rejects.toBeInstanceOf(ForbiddenException);
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 });

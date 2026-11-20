@@ -59,9 +59,6 @@ export class PlatformDiagnosticsService implements OnApplicationBootstrap {
     const cache = new Map<string, boolean>();
     return {
       platform: process.platform,
-      localToolsEnabled: this.config.get('LOCAL_TOOLS_ENABLED', {
-        infer: true,
-      }),
       has: (cmd) => {
         if (!cache.has(cmd)) cache.set(cmd, !!findExecutable(cmd));
         return cache.get(cmd)!;

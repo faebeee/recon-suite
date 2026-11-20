@@ -4,23 +4,9 @@ import { z } from 'zod';
 const optional = <T extends z.ZodType>(schema: T) =>
   z.preprocess((v) => (v === '' ? undefined : v), schema.optional());
 
-const bool = z
-  .enum(['true', 'false', '1', '0'])
-  .transform((v) => v === 'true' || v === '1');
-
 export const envSchema = z.object({
   PORT: z.coerce.number().int().default(4000),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
-  /**
-   * Allow tools to connect to loopback / private / link-local targets.
-   * Keep false for any shared deployment (prevents SSRF into internal networks).
-   */
-  ALLOW_PRIVATE_TARGETS: bool.default(false),
-  /**
-   * Enable tools that inspect the API host itself (e.g. WiFi scan).
-   * Disable for shared deployments: they expose the server's surroundings.
-   */
-  LOCAL_TOOLS_ENABLED: bool.default(true),
   /**
    * SQLite file for engagements, history and notes. Relative paths resolve from
    * the working directory; ":memory:" keeps everything in memory (tests).

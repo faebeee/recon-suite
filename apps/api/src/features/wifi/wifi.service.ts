@@ -3,7 +3,6 @@ import {
   Injectable,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import type {
   WifiInterfacesOutput,
   WifiNetwork,
@@ -11,7 +10,6 @@ import type {
   WifiParams,
   WifiPlatform,
 } from '@recon/shared';
-import type { Env } from '../../config/env.js';
 import {
   HELPER_SETUP_COMMAND,
   helperInstalled,
@@ -45,16 +43,10 @@ import {
  */
 @Injectable()
 export class WifiService {
-  private readonly enabled: boolean;
   /** Concurrent requests for the same interface share one scan (scans take seconds). */
   private readonly inFlight = new Map<string, Promise<WifiOutput>>();
 
-  constructor(config: ConfigService<Env, true>) {
-    this.enabled = config.get('LOCAL_TOOLS_ENABLED', { infer: true });
-  }
-
   async listInterfaces(): Promise<WifiInterfacesOutput> {
-    this.assertEnabled();
     const platform = currentPlatform();
     const interfaces = await this.withCommandErrors(async () => {
       switch (platform) {
@@ -190,14 +182,6 @@ export class WifiService {
           }
         : undefined,
     };
-  }
-
-  private assertEnabled() {
-    if (!this.enabled) {
-      throw new ServiceUnavailableException(
-        'Local tools are disabled on this server (LOCAL_TOOLS_ENABLED=false).',
-      );
-    }
   }
 
   private async withCommandErrors<T>(fn: () => Promise<T>): Promise<T> {

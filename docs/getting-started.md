@@ -51,7 +51,7 @@ pnpm compose:logs
 pnpm compose:down
 ```
 
-The web container (nginx) serves the UI on http://localhost:8080 and proxies `/api` to the API
+The web container (nginx) serves the UI on http://localhost:8090 and proxies `/api` to the API
 container. The database is kept in the `recon-data` volume. Local tools are disabled in containers by default; see
 [Local tools setup](local-tools.md#containers).
 
@@ -71,11 +71,10 @@ Tests never touch the internet: network code is tested with fakes and local serv
 
 ## Troubleshooting
 
-| Symptom                                             | Cause and fix                                                                                              |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `403 ... resolves to a private or reserved address` | The target is internal. Intended; set `ALLOW_PRIVATE_TARGETS=true` only for local, single-user use.        |
-| `503` on WiFi, Bluetooth or Host Scan               | Local tools are disabled or the host lacks the hardware/software. See the API startup log.                 |
-| Top bar shows `uplink down`                         | API not running, or `API_PROXY_TARGET` points to the wrong port.                                           |
-| `EADDRINUSE` on 4000 or 5173                        | Another process uses the port. Change `PORT` / `API_PROXY_TARGET` or stop the other process.               |
-| `503` on CVE Lookup or Reverse IP                   | `NVD_API_KEY` / `SECURITYTRAILS_API_KEY` not set.                                                          |
-| `403 Out of scope for engagement ...`               | The active engagement's scope does not cover the target. Add it in the Scope tab, or pick "No engagement". |
+| Symptom                               | Cause and fix                                                                                              |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `503` on WiFi, Bluetooth or Host Scan | Local tools are disabled or the host lacks the hardware/software. See the API startup log.                 |
+| Top bar shows `uplink down`           | API not running, or `API_PROXY_TARGET` points to the wrong port.                                           |
+| `EADDRINUSE` on 4000 or 5173          | Another process uses the port. Change `PORT` / `API_PROXY_TARGET` or stop the other process.               |
+| `503` on CVE Lookup or Reverse IP     | `NVD_API_KEY` / `SECURITYTRAILS_API_KEY` not set.                                                          |
+| `403 Out of scope for engagement ...` | The active engagement's scope does not cover the target. Add it in the Scope tab, or pick "No engagement". |

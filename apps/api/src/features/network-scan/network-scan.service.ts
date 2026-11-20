@@ -1,15 +1,11 @@
 import {
   BadRequestException,
   BadGatewayException,
-  ForbiddenException,
   Injectable,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { MAX_NETWORK_SCAN_PREFIX } from '@recon/shared';
 import type { NetworkScanOutput, NetworkScanParams } from '@recon/shared';
-import type { Env } from '../../config/env.js';
-import { TargetGuardService } from '../../core/net/target-guard.service.js';
 import {
   CommandFailedError,
   CommandNotFoundError,
@@ -34,15 +30,7 @@ import {
  */
 @Injectable()
 export class NetworkScanService {
-  private readonly allowPrivate: boolean;
-
-  constructor(
-    config: ConfigService<Env, true>,
-    private readonly guard: TargetGuardService,
-    private readonly exec: ToolExecService,
-  ) {
-    this.allowPrivate = config.get('ALLOW_PRIVATE_TARGETS', { infer: true });
-  }
+  constructor(private readonly exec: ToolExecService) {}
 
   async scan({ target }: NetworkScanParams): Promise<NetworkScanOutput> {
     const { network, prefix } = parseCidr(target);
@@ -53,13 +41,6 @@ export class NetworkScanService {
           `or smaller (at most ${2 ** (32 - MAX_NETWORK_SCAN_PREFIX)} addresses).`,
       );
     }
-    if (!this.allowPrivate && !this.guard.isAllowed(network)) {
-      throw new ForbiddenException(
-        `Target "${target}" is a private or reserved network (${network}). ` +
-          'Set ALLOW_PRIVATE_TARGETS=true to scan internal networks.',
-      );
-    }
-
     const range = `${network}/${prefix}`;
     const args = networkScanArgs(range);
 

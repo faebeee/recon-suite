@@ -5,7 +5,6 @@ import { describeRuntime } from './tool-runtime.js';
 function facts(overrides: Partial<HostFacts> = {}): HostFacts {
   return {
     platform: 'linux',
-    localToolsEnabled: true,
     has: () => true,
     macosHelperInstalled: false,
     isRoot: true,

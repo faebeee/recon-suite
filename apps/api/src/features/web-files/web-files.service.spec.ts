@@ -1,4 +1,4 @@
-import { ForbiddenException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { Response } from 'undici';
 import type { HttpClientService } from '../../core/http/http-client.service.js';
 import { followRedirects } from '../../core/http/follow-redirects.js';
@@ -8,7 +8,7 @@ import { WebFilesService } from './web-files.service.js';
 const guard = (blocked = false) =>
   ({
     resolve: vi.fn(async (host: string) => {
-      if (blocked) throw new ForbiddenException('blocked');
+      if (blocked) throw new NotFoundException('unresolvable');
       return { host, addresses: ['93.184.216.34'] };
     }),
   }) as unknown as TargetGuardService;
@@ -67,13 +67,13 @@ describe('WebFilesService', () => {
     expect(out.humans).toBeUndefined();
   });
 
-  it('rejects blocked targets before any request', async () => {
+  it('stops before any request when the target does not resolve', async () => {
     const { http, send } = fakeHttp({});
     await expect(
       new WebFilesService(http, guard(true)).fetch({
         target: 'http://127.0.0.1/',
       }),
-    ).rejects.toBeInstanceOf(ForbiddenException);
+    ).rejects.toBeInstanceOf(NotFoundException);
     expect(send).not.toHaveBeenCalled();
   });
 

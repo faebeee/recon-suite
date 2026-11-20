@@ -1,11 +1,9 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import type {
   BluetoothDevice,
   BluetoothOutput,
   BluetoothParams,
 } from '@recon/shared';
-import type { Env } from '../../config/env.js';
 import {
   HELPER_SETUP_COMMAND,
   helperInstalled,
@@ -33,20 +31,10 @@ import {
  */
 @Injectable()
 export class BluetoothService {
-  private readonly enabled: boolean;
   /** One radio, one scan at a time: concurrent requests share the running scan. */
   private inFlight?: Promise<BluetoothOutput>;
 
-  constructor(config: ConfigService<Env, true>) {
-    this.enabled = config.get('LOCAL_TOOLS_ENABLED', { infer: true });
-  }
-
   scan(params: BluetoothParams): Promise<BluetoothOutput> {
-    if (!this.enabled) {
-      throw new ServiceUnavailableException(
-        'Local tools are disabled on this server (LOCAL_TOOLS_ENABLED=false).',
-      );
-    }
     this.inFlight ??= this.scanPlatform(params).finally(() => {
       this.inFlight = undefined;
     });

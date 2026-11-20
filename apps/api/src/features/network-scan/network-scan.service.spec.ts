@@ -1,12 +1,8 @@
 import {
   BadRequestException,
-  ForbiddenException,
   BadGatewayException,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import type { ConfigService } from '@nestjs/config';
-import type { Env } from '../../config/env.js';
-import type { TargetGuardService } from '../../core/net/target-guard.service.js';
 import {
   CommandFailedError,
   CommandNotFoundError,
@@ -14,12 +10,6 @@ import {
 import { KaliUnavailableError } from '../../core/process/tool-exec.js';
 import type { ToolExecService } from '../../core/process/tool-exec.service.js';
 import { NetworkScanService } from './network-scan.service.js';
-
-const config = (allowPrivate = false) =>
-  ({ get: () => allowPrivate }) as unknown as ConfigService<Env, true>;
-
-const guard = (isAllowed: (address: string) => boolean = () => true) =>
-  ({ isAllowed: vi.fn(isAllowed) }) as unknown as TargetGuardService;
 
 const exec = (
   run: (
@@ -48,7 +38,7 @@ const XML =
 describe('NetworkScanService', () => {
   it('scans the requested range and reports hosts that are up', async () => {
     const e = exec(async () => XML);
-    const out = await new NetworkScanService(config(true), guard(), e).scan({
+    const out = await new NetworkScanService(e).scan({
       target: '10.0.0.0/24',
     });
 
@@ -62,31 +52,15 @@ describe('NetworkScanService', () => {
 
   it('rejects networks larger than the max prefix', async () => {
     await expect(
-      new NetworkScanService(
-        config(true),
-        guard(),
-        exec(async () => XML),
-      ).scan({ target: '10.0.0.0/16' }),
+      new NetworkScanService(exec(async () => XML)).scan({
+        target: '10.0.0.0/16',
+      }),
     ).rejects.toBeInstanceOf(BadRequestException);
-  });
-
-  it('rejects private networks unless ALLOW_PRIVATE_TARGETS is set', async () => {
-    const e = exec(async () => XML);
-    await expect(
-      new NetworkScanService(
-        config(false),
-        guard(() => false),
-        e,
-      ).scan({ target: '192.168.1.0/24' }),
-    ).rejects.toBeInstanceOf(ForbiddenException);
-    expect(e.mockRun).not.toHaveBeenCalled();
   });
 
   it('maps executor errors to HTTP errors', async () => {
     const svc = (err: Error, kind: 'local' | 'kali' = 'kali') =>
       new NetworkScanService(
-        config(true),
-        guard(),
         exec(async () => {
           throw err;
         }, kind),
@@ -110,7 +84,7 @@ describe('NetworkScanService', () => {
       await gate;
       return XML;
     });
-    const svc = new NetworkScanService(config(true), guard(), e);
+    const svc = new NetworkScanService(e);
     const scans = [
       svc.scan({ target: '10.0.0.0/24' }),
       svc.scan({ target: '10.0.0.0/24' }),

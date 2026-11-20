@@ -1,4 +1,4 @@
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { createServer, type Server, type Socket } from 'node:net';
 import type { TargetGuardService } from '../../core/net/target-guard.service.js';
 import { encodeName, frameTcp, TcpMessageReader } from './dns-wire.js';
@@ -93,7 +93,7 @@ describe('ZoneTransferService', () => {
     ({
       resolve: vi.fn(async (host: string) => {
         if (blocked.includes(host))
-          throw new ForbiddenException(`${host} is private`);
+          throw new NotFoundException(`${host} does not resolve`);
         return { host, addresses: ['127.0.0.1'] };
       }),
     }) as unknown as TargetGuardService;
@@ -141,7 +141,7 @@ describe('ZoneTransferService', () => {
       ['a.zone.test', 'refused'],
       ['b.zone.test', 'error'],
     ]);
-    expect(out.attempts[1]!.error).toMatch(/private/);
+    expect(out.attempts[1]!.error).toMatch(/does not resolve/);
     expect(out.findings).toEqual([expect.objectContaining({ status: 'pass' })]);
   });
 

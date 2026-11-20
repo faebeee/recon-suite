@@ -4,12 +4,11 @@ WiFi Scanner (R-01), Bluetooth Scanner (R-02) and Host Scan (N-02) inspect the s
 the machine that runs the **API**, not the browser's machine. They need real hardware and OS
 permissions, so they work best with the API running natively (`pnpm dev`).
 
-They are controlled by `LOCAL_TOOLS_ENABLED` (default `true` natively, `false` in containers).
-When a tool can't run, it answers 503 with a message that says why. At startup the API also logs
+They are always enabled. When a tool can't run, it answers 503 with a message that says why. At startup the API also logs
 the status of every tool on this host, with a fix for each one that is unavailable or limited.
 
 > Local tools reveal information about the server's location and network (nearby WiFi
-> networks, Bluetooth devices, LAN hosts). Disable them on any shared deployment.
+> networks, Bluetooth devices, LAN hosts). They can't be turned off, so never share the API.
 
 ## Support matrix
 
@@ -69,12 +68,11 @@ It scans the subnet of one interface. Pick the interface in the UI; the list com
 ## Containers
 
 By default the API container has no wireless adapter, no view of the host's NetworkManager
-and only its own bridge network, so local tools are off. To enable them on a Linux host:
+and only its own bridge network, so local tools answer 503. To make them work on a Linux host:
 
-1. Set `LOCAL_TOOLS_ENABLED=true` in `.env`.
-2. For Host Scan, enable host networking for the `kali` service (`network_mode: host`) so
+1. For Host Scan, enable host networking for the `kali` service (`network_mode: host`) so
    its nmap sweep sees your LAN (see [Kali container](#kali-container)).
-3. Keep the `/run/dbus` volume for the `api` service: `nmcli` reaches the host's
+2. Keep the `/run/dbus` volume for the `api` service: `nmcli` reaches the host's
    NetworkManager over D-Bus; the wireless device stays on the host.
 
 Read the comments in `compose.yaml` before enabling this: host networking removes the network
@@ -113,8 +111,7 @@ the host. Use this setup only on machines you control, on a private network, nev
 
 **Networks:** nmap reaches internet targets from the default bridge network. The Host Scan sweep only sees
 the LAN with `network_mode: host` on the `kali` service, which works on Linux hosts only (Docker
-Desktop and podman machine run containers in a VM). Host Scan also still needs
-`LOCAL_TOOLS_ENABLED=true`.
+Desktop and podman machine run containers in a VM).
 
 The same works with a natively running API (`pnpm dev`): start the `kali` service, then set
 `KALI_CONTAINER=recon-kali` (and `CONTAINER_CLI=podman` if you use Podman) in `apps/api/.env`.

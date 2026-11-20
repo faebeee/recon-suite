@@ -23,15 +23,6 @@ export const SETTING_META: Record<keyof Env, SettingMeta> = {
     group: 'server',
     description: 'Browser origins allowed to call the API.',
   },
-  ALLOW_PRIVATE_TARGETS: {
-    group: 'security',
-    description: 'Allow loopback, private and reserved targets (SSRF guard).',
-  },
-  LOCAL_TOOLS_ENABLED: {
-    group: 'security',
-    description:
-      'Tools that inspect the API host surroundings (WiFi, Bluetooth).',
-  },
   DATABASE_PATH: {
     group: 'storage',
     description: 'SQLite file for engagements, runs and notes.',
@@ -111,33 +102,6 @@ export function buildChecks(f: CheckFacts): SystemCheck[] {
   ];
 
   checks.push(
-    env.ALLOW_PRIVATE_TARGETS
-      ? {
-          id: 'private-targets',
-          label: 'Private targets',
-          status: 'warn',
-          detail: 'Allowed: tools can reach loopback and internal networks.',
-          fix: 'Set ALLOW_PRIVATE_TARGETS=false on shared deployments.',
-        }
-      : {
-          id: 'private-targets',
-          label: 'Private targets',
-          status: 'ok',
-          detail: 'Blocked by the SSRF guard.',
-        },
-    env.LOCAL_TOOLS_ENABLED
-      ? {
-          id: 'local-tools',
-          label: 'Local tools',
-          status: 'ok',
-          detail: 'Enabled (WiFi, Bluetooth, Host Scan).',
-        }
-      : {
-          id: 'local-tools',
-          label: 'Local tools',
-          status: 'off',
-          detail: 'Disabled by LOCAL_TOOLS_ENABLED=false.',
-        },
     apiKeyCheck('nvd', 'NVD API', env.NVD_API_KEY, 'CVE Lookup', 'NVD_API_KEY'),
     apiKeyCheck(
       'securitytrails',

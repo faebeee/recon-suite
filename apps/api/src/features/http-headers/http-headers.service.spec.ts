@@ -1,4 +1,4 @@
-import { ForbiddenException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { Response } from 'undici';
 import type { HttpClientService } from '../../core/http/http-client.service.js';
 import { HttpHeadersService } from './http-headers.service.js';
@@ -29,7 +29,8 @@ describe('HttpHeadersService', () => {
 
   it('routes every redirect hop through the guarded client', async () => {
     const http = fakeHttp((url) => {
-      if (url.includes('127.0.0.1')) throw new ForbiddenException('blocked');
+      if (url.includes('127.0.0.1'))
+        throw new NotFoundException('unresolvable');
       return new Response(null, {
         status: 302,
         headers: { location: 'http://127.0.0.1/' },
@@ -41,6 +42,6 @@ describe('HttpHeadersService', () => {
         method: 'GET',
         followRedirects: true,
       }),
-    ).rejects.toBeInstanceOf(ForbiddenException);
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 });

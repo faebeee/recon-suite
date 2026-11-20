@@ -14,7 +14,6 @@ export interface ToolSupport {
 /** Facts about the host, gathered once at boot. Injected so the logic stays pure. */
 export interface HostFacts {
   platform: NodeJS.Platform;
-  localToolsEnabled: boolean;
   /** Is a command available on PATH? */
   has: (command: string) => boolean;
   macosHelperInstalled: boolean;
@@ -243,17 +242,10 @@ const CHECKS: Record<ToolId, Check> = {
 };
 
 export function diagnosePlatform(h: HostFacts): ToolSupport[] {
-  return (Object.keys(CHECKS) as ToolId[]).map((id) => {
-    if (TOOL_CATALOG[id].scope === 'local' && !h.localToolsEnabled) {
-      return {
-        id,
-        status: 'disabled',
-        reason: 'Local tools are disabled (LOCAL_TOOLS_ENABLED=false).',
-        fix: 'Set LOCAL_TOOLS_ENABLED=true when the API runs on a trusted machine.',
-      };
-    }
-    return { id, ...CHECKS[id](h) };
-  });
+  return (Object.keys(CHECKS) as ToolId[]).map((id) => ({
+    id,
+    ...CHECKS[id](h),
+  }));
 }
 
 const ICONS: Record<SupportStatus, string> = {

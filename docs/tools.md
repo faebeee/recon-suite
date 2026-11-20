@@ -100,7 +100,7 @@ selector that was not probed.
 
 Asks every authoritative nameserver of the domain (max 6) for a full zone transfer (AXFR over
 TCP). A server that sends the zone leaks every record in it, which is a finding (`fail` per
-nameserver). Nameservers resolving to private addresses are reported as errors, not contacted.
+nameserver).
 Up to 500 records per nameserver are returned; the count is always complete.
 
 Enter the zone apex (e.g. `example.com`), not a subdomain.
@@ -365,7 +365,7 @@ States: `banner`, `silent` (connected, but the service waits for the client, e.g
 
 ### N-04 Nmap Scan
 
-Runs `nmap` against the target's resolved, guard-checked IP (the hostname never reaches nmap):
+Runs `nmap` against the target's resolved IP (the hostname never reaches nmap):
 TCP connect scan (`-sT -Pn -n --open`) with optional service and version detection (`-sV`). No
 NSE scripts. Lists open ports with service, product, version, extra info and CPEs, links
 versions to CVE Lookup and records one `info` finding per open port.

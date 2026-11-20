@@ -7,7 +7,6 @@ import {
 function facts(overrides: Partial<HostFacts> = {}): HostFacts {
   return {
     platform: 'linux',
-    localToolsEnabled: true,
     has: () => true,
     macosHelperInstalled: false,
     isRoot: true,
@@ -93,14 +92,6 @@ describe('diagnosePlatform', () => {
     expect(r.bluetooth!.status).toBe('unavailable');
     expect(r['host-scan']!.status).toBe('unavailable');
     expect(r.wifi!.status).toBe('limited');
-  });
-
-  it('marks local tools disabled when LOCAL_TOOLS_ENABLED=false', () => {
-    const r = byId(facts({ localToolsEnabled: false, has: () => false }));
-    expect(r.wifi!.status).toBe('disabled');
-    expect(r.bluetooth!.status).toBe('disabled');
-    expect(r['host-scan']!.status).toBe('disabled');
-    expect(r.ports!.status).toBe('ok');
   });
 });
 

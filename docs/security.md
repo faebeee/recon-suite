@@ -1,8 +1,8 @@
 # Security model
 
-Recon Suite makes outbound connections on behalf of whoever can reach its API. Without
-safeguards that would turn it into a proxy into your internal network (SSRF) or a tool for
-flooding third parties. These protections are built in.
+Recon Suite makes outbound connections on behalf of whoever can reach its API. It does not
+block internal targets, so anyone who can reach the API can use it as a proxy into your
+internal network (SSRF). Keep it on your own machine. The protections below are built in.
 
 ## Authorised use
 
@@ -14,31 +14,14 @@ Use the tools only against systems you own or have written permission to test.
 - The toolkit deliberately stays at the level of standard reconnaissance: no exploitation, no
   credential brute-forcing, no flooding and no evasion features.
 
-## Target guard (SSRF protection)
+## Target resolution
 
-Every connection to a user-supplied target goes through `TargetGuardService`. It resolves the
-host and rejects it (403) when any address is in a blocked range:
+Every connection to a user-supplied target goes through `TargetGuardService`, which resolves the
+host (404 when it does not resolve). Loopback, private, link-local (including cloud metadata
+at `169.254.169.254`) and reserved addresses are **not** blocked.
 
-| IPv4                                                                | IPv6                                      |
-| ------------------------------------------------------------------- | ----------------------------------------- |
-| `0.0.0.0/8`, `127.0.0.0/8` (this host, loopback)                    | `::`, `::1`                               |
-| `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16` (private)           | `fc00::/7` (unique local)                 |
-| `100.64.0.0/10` (carrier-grade NAT)                                 | `fe80::/10` (link-local)                  |
-| `169.254.0.0/16` (link-local, cloud metadata)                       | `ff00::/8` (multicast)                    |
-| `192.0.0.0/24`, `198.18.0.0/15` (special purpose, benchmarking)     | `64:ff9b:1::/48`, `100::/64`              |
-| `192.0.2.0/24`, `198.51.100.0/24`, `203.0.113.0/24` (documentation) | `2001:db8::/32` (documentation)           |
-| `224.0.0.0/4`, `240.0.0.0/4` (multicast, reserved)                  | IPv4-mapped addresses are checked as IPv4 |
-
-The guard covers more than the first request:
-
-- **Redirects** are followed one hop at a time, and every hop is checked again, including
-  redirects to raw IP addresses.
-- **DNS rebinding:** HTTP connections use the guard as their DNS lookup, so the address that is
-  actually connected to is the one that was checked. Raw TCP/TLS tools connect to the
-  resolved, checked IP and never to the hostname.
-
-`ALLOW_PRIVATE_TARGETS=true` disables the range check. Use it only for local, single-user setups
-where you want to scan your own LAN.
+- HTTP tools use the guard as their DNS lookup, so redirects are resolved the same way.
+- Raw TCP/TLS tools connect to the resolved IP, never to the hostname.
 
 ## Access
 
@@ -84,7 +67,8 @@ actually reported it.
 
 - Run it for a single operator on their own machine. If others must reach it, put it behind a
   VPN or an authenticating reverse proxy; never expose it publicly.
-- Keep `ALLOW_PRIVATE_TARGETS=false` and `LOCAL_TOOLS_ENABLED=false` on anything shared.
+- Internal targets are always reachable and local tools (WiFi, Bluetooth, Host Scan) are always
+  on, so never share the API with people who should not see your network or surroundings.
 - The database (`DATABASE_PATH`) contains assessment results: store and back it up like other
   confidential engagement data.
 - Third-party API keys (`NVD_API_KEY`, `SECURITYTRAILS_API_KEY`) are only sent to their

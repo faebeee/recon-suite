@@ -4,7 +4,7 @@ The web UI is a client of a plain JSON API. You can call it directly from script
 
 - Base URL in development: `http://localhost:4000/api` (or `http://localhost:5173/api`
   through the Vite proxy)
-- Base URL with containers: `http://localhost:8080/api` (through nginx) or
+- Base URL with containers: `http://localhost:8090/api` (through nginx) or
   `http://localhost:4000/api`
 - No authentication: see [Access](#access).
 
@@ -73,22 +73,22 @@ Errors use HTTP status codes and a JSON body with a human-readable `message`:
 
 ```json
 {
-  "message": "Target \"127.0.0.1\" resolves to a private or reserved address (127.0.0.1). Set ALLOW_PRIVATE_TARGETS=true to allow internal targets.",
-  "error": "Forbidden",
-  "statusCode": 403
+  "message": "Could not resolve host \"does-not-exist.example\"",
+  "error": "Not Found",
+  "statusCode": 404
 }
 ```
 
-| Status | Meaning                                                                                |
-| ------ | -------------------------------------------------------------------------------------- |
-| 400    | Invalid input; `message` is a list of field errors                                     |
-| 403    | Target blocked (private/reserved address), out of engagement scope, cross-origin write |
-| 404    | Domain does not exist (NXDOMAIN), nothing found, unknown engagement/run/note           |
-| 409    | The engagement is archived                                                             |
-| 413    | An upstream response exceeded the size limit                                           |
-| 502    | Upstream failure (target or third-party service refused, reset, errored, invalid key)  |
-| 503    | Tool unavailable: local tool on the wrong host, or a required API key is not set       |
-| 504    | Timeout                                                                                |
+| Status | Meaning                                                                               |
+| ------ | ------------------------------------------------------------------------------------- |
+| 400    | Invalid input; `message` is a list of field errors                                    |
+| 403    | Out of engagement scope, cross-origin write                                           |
+| 404    | Domain/host does not exist (NXDOMAIN), nothing found, unknown engagement/run/note     |
+| 409    | The engagement is archived                                                            |
+| 413    | An upstream response exceeded the size limit                                          |
+| 502    | Upstream failure (target or third-party service refused, reset, errored, invalid key) |
+| 503    | Tool unavailable: local tool on the wrong host, or a required API key is not set      |
+| 504    | Timeout                                                                               |
 
 ## Access
 

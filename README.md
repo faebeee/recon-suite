@@ -60,7 +60,7 @@ can be opened in any other compatible tool with one click. Every tool also accep
 | [HTTP API](docs/api.md)                    | Endpoints, response envelope, errors, `curl` examples |
 | [Configuration](docs/configuration.md)     | Environment variables                                 |
 | [Local tools setup](docs/local-tools.md)   | WiFi, Bluetooth, Host Scan per OS; macOS helper       |
-| [Security model](docs/security.md)         | Target guard, limits, deployment advice               |
+| [Security model](docs/security.md)         | Target resolution, limits, deployment advice          |
 | [Architecture](docs/architecture.md)       | Monorepo, feature slices, request flow                |
 
 ## Stack
@@ -83,7 +83,7 @@ pnpm dev        # api http://localhost:4000, web http://localhost:5173
 ```sh
 pnpm build | typecheck | lint | test
 pnpm --filter @recon/api test:e2e
-pnpm compose:up     # web http://localhost:8080 (nginx + api + kali)
+pnpm compose:up     # web http://localhost:8090 (nginx + api + kali)
 pnpm compose:down
 ```
 
@@ -95,9 +95,8 @@ Configuration: see `.env.example`, `apps/api/.env.example` and `apps/web/.env.ex
 
 ## Security model
 
-- Every connection to a user-supplied target passes `TargetGuardService`, which blocks
-  loopback, private, link-local, CGNAT, multicast and reserved ranges (including on redirects
-  and against DNS rebinding). Set `ALLOW_PRIVATE_TARGETS=true` only for local, single-user use.
+- Every connection to a user-supplied target is resolved by `TargetGuardService`. There is no
+  private-range block: tools can reach loopback, your LAN and cloud metadata addresses.
 - Timeouts (except nmap scans), response size limits and port count limits apply to all
   tools. There is no rate limit.
 - No login: anyone who can reach the API can use it, so keep it on your machine or a private

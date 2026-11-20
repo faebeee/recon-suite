@@ -80,9 +80,9 @@ describe('App (e2e)', () => {
       .send({ target: 'not a domain' })
       .expect(400));
 
-  it('blocks private targets with 403', () =>
+  it('allows private targets', () =>
     request(app.getHttpServer())
       .post('/api/tools/ports')
-      .send({ target: '127.0.0.1', ports: [22] })
-      .expect(403));
+      .send({ target: '127.0.0.1', ports: [1], timeoutMs: 500 })
+      .expect(200));
 });

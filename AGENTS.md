@@ -55,7 +55,7 @@ packages/shared/src/
 
 apps/api/src/
   core/              cross-cutting infra (global CoreModule)
-    net/             TargetGuardService: SSRF protection, blocked IP ranges
+    net/             TargetGuardService: resolves targets (no private-range block)
     http/            HttpClientService (guarded + trusted undici agents), readTextLimited
     process/         runCommand(): fixed OS commands via execFile (local tools)
                      ToolExecService: nmap/ip locally or in the Kali container
@@ -97,9 +97,9 @@ apps/web/src/
 - **Local tools** (`scope: 'local'`, e.g. `wifi`) have no target: their input schema is
   `z.object({})` (or options only), `runTool` gets `os.hostname()` as target, `TOOL_UI.accepts`
   is `[]`, and the web page uses a scan panel instead of `TargetForm`. They only work when the
-  API runs natively on a machine with the needed hardware, and are gated by
-  `LOCAL_TOOLS_ENABLED` (answer 503 with a helpful message when unavailable).
-- Errors are Nest HTTP exceptions: 400 invalid input, 403 blocked target, 404 not found/NXDOMAIN,
+  API runs natively on a machine with the needed hardware (answer 503 with a helpful message
+  when unavailable). They are always enabled.
+- Errors are Nest HTTP exceptions: 400 invalid input, 403 out of scope, 404 not found/NXDOMAIN,
   502 upstream failure, 504 timeout. The web `ApiError` shows `message` to the user, so write
   messages for humans.
 - `GET /api/tools` returns the catalog, `GET /api/health` is the health check.
@@ -114,12 +114,14 @@ apps/web/src/
 ## Security rules (non-negotiable)
 
 1. **Any connection to a user-supplied target must go through `TargetGuardService`.**
+   It resolves the target; private, loopback and reserved addresses are allowed (no block).
    - HTTP: use `HttpClientService.target()` (guarded lookup also covers redirects and DNS rebinding).
    - Raw sockets (net/tls): call `guard.resolve(host)` and connect to the returned IP, never to
      the raw hostname.
    - `HttpClientService.trusted()` is only for fixed third-party APIs (rdap.org, crt.sh) where
      the target is URL-encoded data, never the host.
-2. Never weaken `blocked-ranges.ts` or default `ALLOW_PRIVATE_TARGETS` to true.
+2. Internal targets are always reachable, so the network binding (rule 6) is the only thing
+   keeping the API from being an SSRF proxy. Do not loosen it.
 3. Bound everything: timeouts on every outbound call, response size limits (`readTextLimited`),
    capped list sizes in schemas (see `MAX_PORTS_PER_SCAN`), concurrency limits (`mapConcurrent`).
    Exception: nmap scans (Nmap Scan, Network Scan, Host Scan sweep) run without a time limit
@@ -139,8 +141,8 @@ apps/web/src/
 8. Never trust `X-Forwarded-For` or other client-supplied headers for security decisions.
 9. Database changes only through the Drizzle schema plus a generated migration
    (`pnpm --filter @recon/api db:generate --name=<change>`); never edit applied migrations.
-10. Local tools expose the server's surroundings (e.g. nearby WiFi networks reveal its location):
-    check `LOCAL_TOOLS_ENABLED` in the service. Compose sets it to `false` by default.
+10. Local tools expose the server's surroundings (e.g. nearby WiFi networks reveal its location)
+    and can't be turned off: one more reason the API must stay on loopback (rule 6).
 
 ## Adding a new tool
 
@@ -180,8 +182,6 @@ pure analysis function with tests).
 | ------------------------ | --- | ----------------------- | --------------------------------------- |
 | `PORT`                   | api | `4000`                  | HTTP port                               |
 | `CORS_ORIGIN`            | api | `http://localhost:5173` | Comma-separated allowed origins         |
-| `ALLOW_PRIVATE_TARGETS`  | api | `false`                 | Allow loopback/private/reserved targets |
-| `LOCAL_TOOLS_ENABLED`    | api | `true`                  | Enable host-local tools (WiFi scan)     |
 | `DATABASE_PATH`          | api | `data/recon.db`         | SQLite file (`:memory:` in e2e tests)   |
 | `NVD_API_KEY`            | api | unset                   | Enables CVE Lookup                      |
 | `SECURITYTRAILS_API_KEY` | api | unset                   | Enables Reverse IP                      |

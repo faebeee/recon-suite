@@ -1,4 +1,4 @@
-import { ForbiddenException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { Response } from 'undici';
 import type { HttpClientService } from '../../core/http/http-client.service.js';
 import { CloudStorageService } from './cloud-storage.service.js';
@@ -20,7 +20,7 @@ function setup(
 ) {
   const target = vi.fn(async (url: string, opts?: { redirect?: string }) => {
     expect(opts?.redirect).toBe('manual');
-    if (url.includes('blocked')) throw new ForbiddenException('blocked');
+    if (url.includes('blocked')) throw new NotFoundException('unresolvable');
     const route = routes[url];
     if (route) return route();
     if (url.startsWith('https://s3.')) return notFoundS3();
@@ -105,7 +105,7 @@ describe('CloudStorageService', () => {
       's3:blocked-name',
       'gcs:blocked-name',
     ]);
-    expect(errors[0]?.error).toBe('blocked');
+    expect(errors[0]?.error).toBe('unresolvable');
     expect(out.findings).toEqual([
       expect.objectContaining({ id: 'cloud.public', status: 'pass' }),
     ]);

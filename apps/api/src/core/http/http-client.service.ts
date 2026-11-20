@@ -1,8 +1,8 @@
 import {
   BadGatewayException,
-  ForbiddenException,
   GatewayTimeoutException,
   Injectable,
+  NotFoundException,
   OnModuleDestroy,
   PayloadTooLargeException,
 } from '@nestjs/common';
@@ -140,8 +140,8 @@ function toHttpException(err: unknown, url: string): Error {
   ) {
     return new GatewayTimeoutException(`Request to ${host} timed out`);
   }
-  if (cause?.code === 'EBLOCKED') {
-    return new ForbiddenException(cause.message);
+  if (cause?.code === 'ENOTRESOLVED') {
+    return new NotFoundException(cause.message);
   }
   return new BadGatewayException(
     `Request to ${host} failed: ${cause?.message ?? (err as Error).message}`,

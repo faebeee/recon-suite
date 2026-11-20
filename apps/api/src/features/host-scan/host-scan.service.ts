@@ -3,14 +3,12 @@ import {
   Injectable,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import type {
   HostScanInterface,
   HostScanInterfacesOutput,
   HostScanOutput,
   HostScanParams,
 } from '@recon/shared';
-import type { Env } from '../../config/env.js';
 import {
   CommandFailedError,
   CommandNotFoundError,
@@ -37,19 +35,12 @@ import {
 
 @Injectable()
 export class HostScanService {
-  private readonly enabled: boolean;
   /** Concurrent requests for the same interface share one scan (scans take seconds). */
   private readonly inFlight = new Map<string, Promise<HostScanOutput>>();
 
-  constructor(
-    config: ConfigService<Env, true>,
-    private readonly exec: ToolExecService,
-  ) {
-    this.enabled = config.get('LOCAL_TOOLS_ENABLED', { infer: true });
-  }
+  constructor(private readonly exec: ToolExecService) {}
 
   async listInterfaces(): Promise<HostScanInterfacesOutput> {
-    this.assertEnabled();
     const interfaces = await this.readInterfaces();
     return {
       interfaces,
@@ -142,13 +133,5 @@ export class HostScanService {
       );
     }
     return err;
-  }
-
-  private assertEnabled() {
-    if (!this.enabled) {
-      throw new ServiceUnavailableException(
-        'Local tools are disabled on this server (LOCAL_TOOLS_ENABLED=false).',
-      );
-    }
   }
 }

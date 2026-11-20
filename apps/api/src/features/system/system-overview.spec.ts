@@ -38,9 +38,10 @@ describe('describeSettings', () => {
       value: '4100',
       isDefault: false,
     });
-    expect(
-      settings.find((s) => s.key === 'ALLOW_PRIVATE_TARGETS'),
-    ).toMatchObject({ value: 'false', isDefault: true });
+    expect(settings.find((s) => s.key === 'CONTAINER_CLI')).toMatchObject({
+      value: 'docker',
+      isDefault: true,
+    });
     expect(settings.find((s) => s.key === 'KALI_CONTAINER')).toMatchObject({
       isSet: false,
       value: undefined,
@@ -57,16 +58,6 @@ describe('describeSettings', () => {
 });
 
 describe('buildChecks', () => {
-  it('flags weakened security settings as warnings', () => {
-    const checks = buildChecks({
-      env: env({ ALLOW_PRIVATE_TARGETS: 'true' }),
-      database: { ok: true },
-      tools,
-    });
-    expect(check(checks, 'private-targets').status).toBe('warn');
-    expect(overallStatus(checks)).toBe('warn');
-  });
-
   it('is ok with the recommended configuration and optional parts off', () => {
     const checks = buildChecks({
       env: defaults,

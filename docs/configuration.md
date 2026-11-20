@@ -17,8 +17,6 @@ values count as "not set".
 | ------------------------ | ----------------------- | ----------------------------------------------------------------------------------- |
 | `PORT`                   | `4000`                  | HTTP port                                                                           |
 | `CORS_ORIGIN`            | `http://localhost:5173` | Allowed browser origins, comma separated (also trusted for state-changing requests) |
-| `ALLOW_PRIVATE_TARGETS`  | `false`                 | Allow loopback, private, link-local and reserved targets. Keep `false` when shared. |
-| `LOCAL_TOOLS_ENABLED`    | `true`                  | Enable WiFi, Bluetooth and Host Scan (they expose the server's surroundings)        |
 | `DATABASE_PATH`          | `data/recon.db`         | SQLite file for engagements, history and notes (relative to the working directory)  |
 | `NVD_API_KEY`            | not set                 | Enables CVE Lookup ([free key](https://nvd.nist.gov/developers/request-an-api-key)) |
 | `SECURITYTRAILS_API_KEY` | not set                 | Enables Reverse IP ([SecurityTrails](https://securitytrails.com))                   |
@@ -51,9 +49,7 @@ of the web app to the API's `CORS_ORIGIN`.
 | Variable                                | Default | Purpose                                                                    |
 | --------------------------------------- | ------- | -------------------------------------------------------------------------- |
 | `API_PORT`                              | `4000`  | Host port for the API container                                            |
-| `WEB_PORT`                              | `8080`  | Host port for the web container (nginx); also sets the API's `CORS_ORIGIN` |
-| `ALLOW_PRIVATE_TARGETS`                 | `false` | Passed to the API                                                          |
-| `LOCAL_TOOLS_ENABLED`                   | `false` | Passed to the API. Off by default in containers                            |
+| `WEB_PORT`                              | `8090`  | Host port for the web container (nginx); also sets the API's `CORS_ORIGIN` |
 | `NVD_API_KEY`, `SECURITYTRAILS_API_KEY` | not set | Passed to the API                                                          |
 
 The Kali container (part of `pnpm compose:up`) uses `CONTAINER_SOCKET`, `CONTAINER_SOCKET_GID` and

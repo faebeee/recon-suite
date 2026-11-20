@@ -15,8 +15,8 @@ RUN pnpm install --frozen-lockfile
 COPY --from=pruner /app/out/full/ .
 RUN turbo run build --filter=@recon/web
 
-# 3. Serve with nginx (non-root, listens on 8080)
+# 3. Serve with nginx (non-root, listens on 8090)
 FROM docker.io/nginxinc/nginx-unprivileged:stable-alpine AS runner
 COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/apps/web/dist /usr/share/nginx/html
-EXPOSE 8080
+EXPOSE 8090

@@ -1,5 +1,5 @@
 import {
-  ForbiddenException,
+  NotFoundException,
   BadGatewayException,
   ServiceUnavailableException,
 } from '@nestjs/common';
@@ -66,16 +66,16 @@ describe('NmapService', () => {
     expect(out.findings).toHaveLength(1);
   });
 
-  it('does not run nmap when the guard blocks the target', async () => {
+  it('does not run nmap when the target does not resolve', async () => {
     const e = exec(async () => XML);
     await expect(
       new NmapService(
         guard(async () => {
-          throw new ForbiddenException('blocked');
+          throw new NotFoundException('unresolvable');
         }),
         e,
       ).scan({ ...params, target: '127.0.0.1' }),
-    ).rejects.toBeInstanceOf(ForbiddenException);
+    ).rejects.toBeInstanceOf(NotFoundException);
     expect(e.mockRun).not.toHaveBeenCalled();
   });
 

@@ -1,4 +1,4 @@
-import { ForbiddenException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { createServer, type Server, type Socket } from 'node:net';
 import type { TargetGuardService } from '../../core/net/target-guard.service.js';
 import { BannerGrabService, grabBanner } from './banner-grab.service.js';
@@ -128,10 +128,10 @@ describe('BannerGrabService', () => {
     ]);
   });
 
-  it('rejects blocked targets', async () => {
+  it('propagates resolve errors', async () => {
     const guard = {
       resolve: vi.fn(async () => {
-        throw new ForbiddenException('blocked');
+        throw new NotFoundException('unresolvable');
       }),
     } as unknown as TargetGuardService;
     await expect(
@@ -140,6 +140,6 @@ describe('BannerGrabService', () => {
         ports: [22],
         timeoutMs: 500,
       }),
-    ).rejects.toBeInstanceOf(ForbiddenException);
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 });
