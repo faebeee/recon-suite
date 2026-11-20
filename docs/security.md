@@ -31,8 +31,10 @@ at `169.254.169.254`) and reserved addresses are **not** blocked.
   on the LAN can use it. Only run it on a network where that is acceptable, and never expose it
   to the internet without adding your own authentication in front.
 - **CSRF:** state-changing requests from browser origins other than `CORS_ORIGIN` are rejected,
-  so other web pages open in your browser cannot start scans through the API. LAN URLs are
-  allowed through `PUBLIC_ORIGINS`.
+  so other web pages open in your browser cannot start scans through the API. The UI works from
+  any address of the machine: Vite forwards `/api` with the original `Host`, so its requests are
+  same-origin. Vite's host check (`allowedHosts`: IPs and `localhost` only) blocks DNS
+  rebinding, which would otherwise make a foreign page look same-origin.
 
 ## Engagement scope
 

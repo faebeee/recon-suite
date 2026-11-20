@@ -63,9 +63,9 @@ of the web app to the API's `CORS_ORIGIN`.
 
 `scripts/start.sh` builds everything, then runs the API and `vite preview` on this machine.
 
-| Variable         | Default   | Purpose                                                                                                                                       |
-| ---------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `API_PORT`       | `4000`    | API port (passed as `PORT`)                                                                                                                   |
-| `WEB_PORT`       | `4173`    | Port of the web app; also sets the API's `CORS_ORIGIN`                                                                                        |
-| `BIND_ADDRESS`   | `0.0.0.0` | Interface the web app listens on; `127.0.0.1` keeps it on this machine                                                                        |
-| `PUBLIC_ORIGINS` | not set   | Comma-separated URLs used from other devices (e.g. `http://192.168.1.20:4173`); added to `CORS_ORIGIN`, otherwise the CSRF check rejects them |
+| Variable         | Default   | Purpose                                                                                                                                           |
+| ---------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `API_PORT`       | `4000`    | API port (passed as `PORT`)                                                                                                                       |
+| `WEB_PORT`       | `4173`    | Port of the web app; also sets the API's `CORS_ORIGIN`                                                                                            |
+| `BIND_ADDRESS`   | `0.0.0.0` | Interface the web app listens on; `127.0.0.1` keeps it on this machine                                                                            |
+| `PUBLIC_ORIGINS` | not set   | Extra origins added to `CORS_ORIGIN`; only needed for pages on another origin calling the API directly (the UI works from any address without it) |

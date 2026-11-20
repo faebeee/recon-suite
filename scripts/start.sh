@@ -6,7 +6,8 @@
 #   Web  http://localhost:${WEB_PORT:-4173}   (vite preview of apps/web/dist, proxies /api)
 #
 # The web app listens on BIND_ADDRESS (default 0.0.0.0: the LAN; 127.0.0.1 = this machine only).
-# The API always listens on every interface. Add the URLs other devices use to PUBLIC_ORIGINS.
+# The API always listens on every interface. The UI works from any address of this machine;
+# PUBLIC_ORIGINS only adds origins for other pages that call the API directly.
 #
 # PIDs and logs go to .run/. Stop everything with scripts/stop.sh (npm stop).
 set -euo pipefail

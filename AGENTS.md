@@ -135,7 +135,9 @@ apps/web/src/
 6. There is no rate limit and no login. The app runs on the host (no containers): the UI from
    `npm start` listens on `BIND_ADDRESS` (default `0.0.0.0`: every device on the network can use
    the app; the operator chose LAN access, so keep that default) and the API on every interface.
-   Keep CSRF protection on; LAN origins go into `PUBLIC_ORIGINS`, never a wildcard.
+   Keep CSRF protection on and keep `changeOrigin: false` on the Vite `/api` proxy (the UI is
+   same-origin from any address); never set Vite's `allowedHosts: true` (DNS rebinding) and never
+   add a wildcard origin. Extra origins go into `PUBLIC_ORIGINS`.
 7. OS commands only through `runCommand()` (or `ToolExecService.run()` for the closed
    closed `EXEC_COMMANDS` list) with a hard-coded command and
    argument array.

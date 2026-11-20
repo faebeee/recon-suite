@@ -25,7 +25,11 @@ export default defineConfig(({ mode }) => {
       port: webPort,
       strictPort: !!env.WEB_PORT,
       proxy: {
-        '/api': apiTarget,
+        // Keep the browser's Host header (the string shorthand would rewrite it to the API's
+        // host). Over plain HTTP on a LAN address browsers send no Sec-Fetch-Site, so the
+        // API's CSRF check compares Origin with Host: with the original Host, a same-origin
+        // request works from any address the app is opened on (IP, hostname, localhost).
+        '/api': { target: apiTarget, changeOrigin: false },
       },
     },
   };
