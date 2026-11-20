@@ -20,6 +20,7 @@ npm run dev
 
 The Vite dev server proxies `/api` to the API, so the browser only talks to port 5173.
 Port 4000 is used for the API because 3000 is often taken by other local projects.
+Other ports: `API_PORT=4100 WEB_PORT=5200 npm run dev` (see [Configuration](configuration.md#ports-api_port-web_port)).
 
 There is no login. Engagements and history are stored in
 `apps/api/data/recon.db`, created on first start.

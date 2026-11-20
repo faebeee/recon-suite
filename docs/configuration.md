@@ -10,6 +10,22 @@ All configuration is done with environment variables. Example files:
 The API validates its environment at startup and refuses to start with invalid values. Empty
 values count as "not set".
 
+## Ports (`API_PORT`, `WEB_PORT`)
+
+Set these in the shell to move both apps at once, with `npm run dev` as well as `npm start`:
+
+```sh
+API_PORT=4100 WEB_PORT=5200 npm run dev
+API_PORT=4100 WEB_PORT=5200 npm start
+```
+
+| Variable   | Default                          | Effect                                                                                                         |
+| ---------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `API_PORT` | `4000`                           | API port; wins over `PORT`, and the web app proxies `/api` to it (wins over `API_PROXY_TARGET`)                |
+| `WEB_PORT` | `5173` (`dev`), `4173` (`start`) | Web app port (fixed: Vite fails instead of picking another port); its local origins are added to `CORS_ORIGIN` |
+
+They override the same values from `.env` files.
+
 ## API
 
 | Variable                 | Default                 | Purpose                                                                             |
@@ -37,7 +53,7 @@ removes all engagements and logs everyone out.
 
 | Variable           | Default                 | Purpose                                                                                        |
 | ------------------ | ----------------------- | ---------------------------------------------------------------------------------------------- |
-| `API_PROXY_TARGET` | `http://localhost:4000` | Where the Vite dev server proxies `/api` (development only)                                    |
+| `API_PROXY_TARGET` | `http://localhost:4000` | Where Vite proxies `/api` when `API_PORT` is not set                                           |
 | `VITE_API_URL`     | `/api`                  | API base URL used by the browser; set it to call the API directly instead of through the proxy |
 
 `VITE_API_URL` is baked in at build time. When you set it to another origin, add that origin

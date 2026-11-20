@@ -18,6 +18,18 @@ WEB_PORT="${WEB_PORT:-4173}"
 BIND_ADDRESS="${BIND_ADDRESS:-0.0.0.0}"
 WEB_ORIGINS="http://localhost:$WEB_PORT,http://127.0.0.1:$WEB_PORT"
 
+for var in API_PORT WEB_PORT; do
+  value="${!var}"
+  if ! [[ "$value" =~ ^[0-9]+$ ]] || ((value < 1 || value > 65535)); then
+    echo "$var must be a port number between 1 and 65535 (got \"$value\")." >&2
+    exit 1
+  fi
+done
+if [[ "$API_PORT" == "$WEB_PORT" ]]; then
+  echo "API_PORT and WEB_PORT must differ (both are $API_PORT)." >&2
+  exit 1
+fi
+
 mkdir -p "$RUN_DIR"
 
 is_running() {
@@ -25,8 +37,11 @@ is_running() {
   [[ -f "$pid_file" ]] && kill -0 "$(cat "$pid_file")" 2>/dev/null
 }
 
+# Something accepts connections on the port (bash /dev/tcp: no lsof/ss needed, e.g. on a Pi).
 port_in_use() {
-  lsof -nP -iTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1
+  local host=127.0.0.1
+  [[ "${2:-}" == web && "$BIND_ADDRESS" != 0.0.0.0 ]] && host="$BIND_ADDRESS"
+  (exec 3<>"/dev/tcp/$host/$1") 2>/dev/null
 }
 
 for name in api web; do
@@ -35,8 +50,9 @@ for name in api web; do
     exit 1
   fi
 done
-for port in "$API_PORT" "$WEB_PORT"; do
-  if port_in_use "$port"; then
+for check in "$API_PORT api" "$WEB_PORT web"; do
+  read -r port role <<<"$check"
+  if port_in_use "$port" "$role"; then
     echo "Port $port is already in use (is npm run dev still running?)." >&2
     exit 1
   fi
@@ -74,8 +90,9 @@ for _ in $(seq 1 30); do
       exit 1
     fi
   done
-  if port_in_use "$API_PORT" && port_in_use "$WEB_PORT"; then
-    echo "==> Running: http://localhost:$WEB_PORT (logs in .run/, stop with npm stop)"
+  if port_in_use "$API_PORT" && port_in_use "$WEB_PORT" web; then
+    echo "==> Running: web http://localhost:$WEB_PORT, api http://localhost:$API_PORT/api"
+    echo "    Logs in .run/, stop with npm stop"
     exit 0
   fi
   sleep 1

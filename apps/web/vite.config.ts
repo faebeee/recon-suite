@@ -6,6 +6,12 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
+  // WEB_PORT / API_PORT configure `npm run dev` and `npm start` for both apps at once.
+  // A fixed WEB_PORT must not drift to the next free port: the API only trusts that origin.
+  const webPort = env.WEB_PORT ? Number(env.WEB_PORT) : 5173;
+  const apiTarget = env.API_PORT
+    ? `http://localhost:${env.API_PORT}`
+    : (env.API_PROXY_TARGET ?? 'http://localhost:4000');
 
   return {
     resolve: { tsconfigPaths: true },
@@ -16,9 +22,10 @@ export default defineConfig(({ mode }) => {
       viteReact(),
     ],
     server: {
-      port: 5173,
+      port: webPort,
+      strictPort: !!env.WEB_PORT,
       proxy: {
-        '/api': env.API_PROXY_TARGET ?? 'http://localhost:4000',
+        '/api': apiTarget,
       },
     },
   };

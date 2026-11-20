@@ -182,15 +182,17 @@ pure analysis function with tests).
 
 ## Environment
 
-| Variable                 | App | Default                 | Purpose                               |
-| ------------------------ | --- | ----------------------- | ------------------------------------- |
-| `PORT`                   | api | `4000`                  | HTTP port                             |
-| `CORS_ORIGIN`            | api | `http://localhost:5173` | Comma-separated allowed origins       |
-| `DATABASE_PATH`          | api | `data/recon.db`         | SQLite file (`:memory:` in e2e tests) |
-| `NVD_API_KEY`            | api | unset                   | Enables CVE Lookup                    |
-| `SECURITYTRAILS_API_KEY` | api | unset                   | Enables Reverse IP                    |
-| `API_PROXY_TARGET`       | web | `http://localhost:4000` | Vite dev proxy target for `/api`      |
-| `VITE_API_URL`           | web | `/api`                  | API base URL used by the browser      |
+| Variable                 | App  | Default                 | Purpose                                                                                |
+| ------------------------ | ---- | ----------------------- | -------------------------------------------------------------------------------------- |
+| `API_PORT`               | both | `4000`                  | API port for `npm run dev` / `npm start` (wins over `PORT`, sets the web proxy target) |
+| `WEB_PORT`               | both | `5173` / `4173`         | Web port for `npm run dev` / `npm start` (added to `CORS_ORIGIN`)                      |
+| `PORT`                   | api  | `4000`                  | HTTP port                                                                              |
+| `CORS_ORIGIN`            | api  | `http://localhost:5173` | Comma-separated allowed origins                                                        |
+| `DATABASE_PATH`          | api  | `data/recon.db`         | SQLite file (`:memory:` in e2e tests)                                                  |
+| `NVD_API_KEY`            | api  | unset                   | Enables CVE Lookup                                                                     |
+| `SECURITYTRAILS_API_KEY` | api  | unset                   | Enables Reverse IP                                                                     |
+| `API_PROXY_TARGET`       | web  | `http://localhost:4000` | Vite dev proxy target for `/api`                                                       |
+| `VITE_API_URL`           | web  | `/api`                  | API base URL used by the browser                                                       |
 
 Port 3000 is often taken by other local projects on dev machines; that is why the API uses 4000.
 

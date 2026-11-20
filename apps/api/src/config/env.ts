@@ -21,5 +21,33 @@ export const envSchema = z.object({
 export type Env = z.infer<typeof envSchema>;
 
 export function validateEnv(config: Record<string, unknown>): Env {
-  return envSchema.parse(config);
+  return envSchema.parse(applyPortOverrides(config));
+}
+
+const isSet = (v: unknown): v is string | number =>
+  (typeof v === 'string' && v.trim() !== '') || typeof v === 'number';
+
+/**
+ * API_PORT and WEB_PORT configure `npm run dev` and `npm start` for both apps at once:
+ * API_PORT replaces PORT, and WEB_PORT adds the web app's local origins to CORS_ORIGIN
+ * (otherwise the CSRF check would reject the UI). Both win over values from `.env`.
+ */
+export function applyPortOverrides(
+  config: Record<string, unknown>,
+): Record<string, unknown> {
+  const out = { ...config };
+  if (isSet(config.API_PORT)) out.PORT = String(config.API_PORT).trim();
+  if (isSet(config.WEB_PORT)) {
+    const port = String(config.WEB_PORT).trim();
+    const local = [`http://localhost:${port}`, `http://127.0.0.1:${port}`];
+    const existing = isSet(config.CORS_ORIGIN)
+      ? String(config.CORS_ORIGIN)
+          .split(',')
+          .map((o) => o.trim())
+      : [];
+    out.CORS_ORIGIN = [...new Set([...existing, ...local])]
+      .filter(Boolean)
+      .join(',');
+  }
+  return out;
 }
