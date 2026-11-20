@@ -105,7 +105,8 @@ apps/web/src/
   messages for humans.
 - `GET /api/tools` returns the catalog, `GET /api/health` is the health check.
 - There is **no authentication**: every route is open to whoever can reach the API. Access
-  control is the network (compose publishes only the reverse proxy, on `127.0.0.1`). CSRF protection
+  control is the network: compose publishes only the reverse proxy, on `BIND_ADDRESS`
+  (default `0.0.0.0`, i.e. the LAN). CSRF protection
   (`app.enableCsrfProtection`, trusted origins = `CORS_ORIGIN`) stops other web pages in the
   operator's browser from calling the API; keep it.
 - Tools may expose helper sub-resources for their UI as `GET /api/tools/<id>/<name>` (plain
@@ -131,9 +132,11 @@ apps/web/src/
    credentials, DoS-style flooding, or evasion features.
 5. Tools that connect to the target are `mode: 'active'` in the catalog; the UI then shows the
    authorisation notice automatically.
-6. There is no rate limit and no login. Keep the proxy's published port bound to loopback in
-   `compose.yaml`, don't publish the `api`/`web` ports (the API runs as root with
-   NET_RAW/NET_ADMIN in its container) and keep CSRF protection on.
+6. There is no rate limit and no login. Compose publishes only the proxy, on `BIND_ADDRESS`
+   (default `0.0.0.0`: every device on the network can use the app; the operator chose LAN
+   access, so keep that default). Don't publish the `api`/`web` ports (the API runs as root with
+   NET_RAW/NET_ADMIN in its container) and keep CSRF protection on; LAN origins go into
+   `PUBLIC_ORIGINS`, never a wildcard.
 7. OS commands only through `runCommand()` (or `ToolExecService.run()` for the closed
    closed `EXEC_COMMANDS` list) with a hard-coded command and
    argument array.
@@ -144,7 +147,7 @@ apps/web/src/
 9. Database changes only through the Drizzle schema plus a generated migration
    (`pnpm --filter @recon/api db:generate --name=<change>`); never edit applied migrations.
 10. Local tools expose the server's surroundings (e.g. nearby WiFi networks reveal its location)
-    and can't be turned off: one more reason the API must stay on loopback (rule 6).
+    and can't be turned off: one more reason to only run it on trusted networks (rule 6).
 
 ## Adding a new tool
 

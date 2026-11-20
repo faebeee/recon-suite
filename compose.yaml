@@ -14,8 +14,10 @@ services:
       - NET_ADMIN
     environment:
       PORT: 4000
-      # The browser only sees the proxy origin (both spellings of loopback).
-      CORS_ORIGIN: http://localhost:${APP_PORT:-8090},http://127.0.0.1:${APP_PORT:-8090}
+      # Origins the browser may call the API from (CSRF check): the proxy on this machine,
+      # plus PUBLIC_ORIGINS for the URLs used from other devices, e.g.
+      # PUBLIC_ORIGINS=http://192.168.1.20:8090 (empty entries are ignored).
+      CORS_ORIGIN: http://localhost:${APP_PORT:-8090},http://127.0.0.1:${APP_PORT:-8090},${PUBLIC_ORIGINS:-}
       # Optional third-party API keys (CVE Lookup, Reverse IP).
       NVD_API_KEY: ${NVD_API_KEY:-}
       SECURITYTRAILS_API_KEY: ${SECURITYTRAILS_API_KEY:-}
@@ -34,13 +36,8 @@ services:
       - recon-data:/app/data
       - /run/dbus:/run/dbus:ro
     healthcheck:
-      test:
-        [
-          'CMD',
-          'node',
-          '-e',
-          "fetch('http://127.0.0.1:4000/api/health').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))",
-        ]
+      # CMD-SHELL with a plain command: podman-compose 1.3.0 breaks multi-part CMD checks.
+      test: ['CMD-SHELL', 'node /app/healthcheck.mjs']
       interval: 10s
       timeout: 3s
       retries: 5
@@ -63,9 +60,11 @@ services:
       context: .
       dockerfile: infra/proxy/Containerfile
     image: localhost/recon-suite/proxy:latest
-    # No login: anyone who can reach this port can use every tool. Loopback only.
+    # No login: anyone who can reach this port can use every tool. Listens on every interface
+    # by default (BIND_ADDRESS=0.0.0.0) so the app is reachable on the LAN; set
+    # BIND_ADDRESS=127.0.0.1 to keep it on this machine only.
     ports:
-      - '127.0.0.1:${APP_PORT:-8090}:8080'
+      - '${BIND_ADDRESS:-0.0.0.0}:${APP_PORT:-8090}:8080'
     depends_on:
       api:
         condition: service_healthy

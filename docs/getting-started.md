@@ -42,7 +42,8 @@ lists every tool that accepts it.
 
 ## Run with containers
 
-Compose publishes a single port, the reverse proxy, on `127.0.0.1` only, since there is no login:
+Compose publishes a single port, the reverse proxy, on all interfaces (`BIND_ADDRESS=0.0.0.0`).
+There is no login, so only do this on a trusted network:
 
 ```sh
 cp .env.example .env
@@ -53,7 +54,12 @@ pnpm compose:down
 
 The proxy container (nginx) is the single entry point on http://localhost:8090: it routes `/api`
 to the API container and everything else to the web container. Neither of those publishes a host
-port, so they can't collide with other local projects; change `APP_PORT` if 8090 is taken. The database is kept in the `recon-data` volume. Local tools are disabled in containers by default; see
+port, so they can't collide with other local projects; change `APP_PORT` if 8090 is taken.
+
+To use it from another device (e.g. the app runs on a Raspberry Pi), add the URL you open to
+`PUBLIC_ORIGINS` in `.env` (`PUBLIC_ORIGINS=http://192.168.1.20:8090`); without it the page
+loads but every scan is rejected by the CSRF check. `BIND_ADDRESS=127.0.0.1` keeps the app on the
+machine itself. The database is kept in the `recon-data` volume. Local tools are disabled in containers by default; see
 [Local tools setup](local-tools.md#containers).
 
 ## Everyday commands

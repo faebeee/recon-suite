@@ -53,7 +53,8 @@ Turborepo monorepo with a feature-driven architecture.
 a history of every run with tags and run-to-run comparison, change monitoring (what changed
 since the last run of each tool and target, with one-click re-runs), collected findings, notes, batch
 runs over many targets, and a Markdown/JSON/CSV report export. There is no login: the UI and API
-are meant for a single operator on their own machine (containers bind to `127.0.0.1`).
+are meant for a single operator on a trusted network (the proxy listens on `0.0.0.0` by default;
+set `BIND_ADDRESS=127.0.0.1` to keep it on one machine).
 
 Results link to each other ("pivots"): a hostname found in DNS, CT logs or a certificate
 can be opened in any other compatible tool with one click. Every tool also accepts

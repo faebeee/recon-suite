@@ -25,8 +25,9 @@ Booleans accept `true`, `false`, `1` and `0`.
 
 ### Access
 
-There is no login. The API accepts every request that reaches it, so keep it on your own
-machine: compose publishes only the reverse proxy port, on `127.0.0.1`.
+There is no login. The API accepts every request that reaches it. Compose publishes only the
+reverse proxy port, on `BIND_ADDRESS` (default `0.0.0.0`, reachable from the LAN); use
+`127.0.0.1` to keep it on one machine. Only run it on networks where everyone may use it.
 
 ### Database
 
@@ -46,10 +47,12 @@ of the web app to the API's `CORS_ORIGIN`.
 
 ## Containers (`podman compose`)
 
-| Variable                                | Default | Purpose                                                                           |
-| --------------------------------------- | ------- | --------------------------------------------------------------------------------- |
-| `APP_PORT`                              | `8090`  | Host port of the reverse proxy (UI and `/api`); also sets the API's `CORS_ORIGIN` |
-| `NVD_API_KEY`, `SECURITYTRAILS_API_KEY` | not set | Passed to the API                                                                 |
+| Variable                                | Default   | Purpose                                                                                                                                                 |
+| --------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `APP_PORT`                              | `8090`    | Host port of the reverse proxy (UI and `/api`); also sets the API's `CORS_ORIGIN`                                                                       |
+| `BIND_ADDRESS`                          | `0.0.0.0` | Interface the proxy listens on; `127.0.0.1` keeps it on this machine                                                                                    |
+| `PUBLIC_ORIGINS`                        | not set   | Comma-separated URLs used from other devices (e.g. `http://192.168.1.20:8090`); added to `CORS_ORIGIN`, otherwise the CSRF check rejects their requests |
+| `NVD_API_KEY`, `SECURITYTRAILS_API_KEY` | not set   | Passed to the API                                                                                                                                       |
 
 The API image is built on Kali and runs nmap itself; see [Containers](local-tools.md#containers).
 

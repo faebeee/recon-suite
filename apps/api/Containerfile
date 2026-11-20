@@ -36,6 +36,7 @@ COPY --from=docker.io/library/node:26-slim /usr/local/bin/node /usr/local/bin/no
 ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=builder /prod/api .
+COPY apps/api/healthcheck.mjs /app/healthcheck.mjs
 # SQLite database (engagements, history, notes, sessions); mounted as a volume by compose.
 RUN mkdir -p /app/data
 # Runs as root inside the container so nmap can use raw sockets (ARP discovery, MAC/vendor);

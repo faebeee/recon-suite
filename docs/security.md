@@ -27,10 +27,12 @@ at `169.254.169.254`) and reserved addresses are **not** blocked.
 
 - **There is no login.** Anyone who can reach the API (or the UI in front of it) can use every
   tool and read every engagement. Access control is the network: compose publishes only the bundled
-  reverse proxy, on `127.0.0.1`. Do not expose it, and do not publish it beyond loopback (or put
-  another proxy in front) without adding your own authentication there.
+  reverse proxy, on `BIND_ADDRESS` (default `0.0.0.0`, so every device on the LAN can use it).
+  Only run it on a network where that is acceptable, set `BIND_ADDRESS=127.0.0.1` otherwise, and
+  never expose it to the internet without adding your own authentication in front.
 - **CSRF:** state-changing requests from browser origins other than `CORS_ORIGIN` are rejected,
-  so other web pages open in your browser cannot start scans through the API.
+  so other web pages open in your browser cannot start scans through the API. LAN URLs are
+  allowed through `PUBLIC_ORIGINS`.
 
 ## Engagement scope
 
