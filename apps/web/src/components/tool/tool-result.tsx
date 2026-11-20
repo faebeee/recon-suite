@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { ApiError } from '@/lib/api-client';
 import type { SavedRunInfo } from '@/lib/use-tool-runner';
 import { formatDateTime, formatMs } from '@/lib/format';
+import { RunChangesPanel } from './run-changes';
 
 /** The subset of a TanStack mutation this view needs. */
 interface RunState<T> {
@@ -122,6 +123,7 @@ function ResultLifecycle<T>({
         </TabsList>
       </div>
       <TabsContent value="result" className="space-y-4">
+        {result.runId && <RunChangesPanel runId={result.runId} />}
         {children(result.data, result)}
       </TabsContent>
       <TabsContent value="raw">

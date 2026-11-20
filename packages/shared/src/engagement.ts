@@ -143,6 +143,42 @@ export interface RunDiff {
   }[];
 }
 
+// ---------------------------------------------------------------- change monitoring
+
+/** Cap of semantic change items per comparison. */
+export const MAX_CHANGE_ITEMS = 200;
+/** Tool + target pairs the engagement change feed compares (most recently run first). */
+export const MAX_CHANGE_PAIRS = 100;
+
+/** One meaningful change between two runs, e.g. a new subdomain or a port that closed. */
+export interface ChangeItem {
+  /** Group, e.g. "Subdomains", "Open ports", "Findings". */
+  facet: string;
+  /** What changed, e.g. "api.example.com", "443/tcp" or a finding title. */
+  key: string;
+  kind: RunDiffKind;
+  before?: string;
+  after?: string;
+}
+
+/** A run compared with the previous successful run of the same tool and target. */
+export interface RunChanges {
+  tool: ToolId;
+  target: string;
+  /** Previous successful run; null when this is the first one (nothing to compare). */
+  before: RunSummary | null;
+  after: RunSummary;
+  /** Request body of `after`, so the UI can run it again. */
+  input: unknown;
+  /** The two runs were made with different options (e.g. other DNS record types). */
+  inputChanged: boolean;
+  items: ChangeItem[];
+  /** More than MAX_CHANGE_ITEMS changes. */
+  truncated: boolean;
+  /** Structural differences of the raw output (what the run diff lists). */
+  rawDifferences: number;
+}
+
 // ---------------------------------------------------------------- posture history
 
 /** Tools whose headline result (grade or status) is tracked over time per target. */
@@ -250,6 +286,8 @@ export const FINDING_STATUS_ORDER: FindingStatus[] = [
  *   PATCH  run(runId)          -> RunSummary            body: RunPatch
  *   DELETE run(runId)          -> 204
  *   GET    runDiff(a, b)       -> RunDiff (a = before, b = after; same tool required, else 400)
+ *   GET    runChanges(runId)   -> RunChanges (vs the previous successful run of the same tool + target)
+ *   GET    changes(id)         -> RunChanges[] (latest successful run per tool + target, newest first, max MAX_CHANGE_PAIRS)
  *   GET    findings(id)        -> EngagementFinding[] (latest successful run per tool+target, most severe first)
  *   GET    posture(id)         -> PostureSeries[] (POSTURE_TOOLS, per tool+target, ordered by tool then target)
  *   GET    notes(id)           -> Note[] (newest first)
@@ -271,6 +309,8 @@ export const ENGAGEMENT_API = {
   runs: (id: string) => `/engagements/${id}/runs`,
   run: (runId: string) => `/runs/${runId}`,
   runDiff: (before: string, after: string) => `/runs/${before}/diff/${after}`,
+  runChanges: (runId: string) => `/runs/${runId}/changes`,
+  changes: (id: string) => `/engagements/${id}/changes`,
   findings: (id: string) => `/engagements/${id}/findings`,
   posture: (id: string) => `/engagements/${id}/posture`,
   notes: (id: string) => `/engagements/${id}/notes`,

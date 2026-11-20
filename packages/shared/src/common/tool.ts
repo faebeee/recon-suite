@@ -16,6 +16,8 @@ export const TOOL_IDS = [
   'passive-exposure',
   'dev-footprint',
   'http-headers',
+  'cookie-audit',
+  'http-methods',
   'tls',
   'web-files',
   'tech-fingerprint',

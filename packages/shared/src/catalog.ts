@@ -298,6 +298,30 @@ export const TOOL_CATALOG: Record<ToolId, ToolMeta> = {
     scope: 'remote',
     targetHint: 'https://example.com',
   },
+  'cookie-audit': {
+    id: 'cookie-audit',
+    code: 'W-10',
+    name: 'Cookie Audit',
+    tagline: 'Grade Set-Cookie flags',
+    description:
+      'Follows the redirect chain and grades every Set-Cookie: Secure, HttpOnly, SameSite, __Host-/__Secure- prefixes, Domain scope and lifetime, strictest for session cookies. Cookie values are never stored.',
+    category: 'web',
+    mode: 'active',
+    scope: 'remote',
+    targetHint: 'https://example.com',
+  },
+  'http-methods': {
+    id: 'http-methods',
+    code: 'W-11',
+    name: 'HTTP Methods & Misconfig',
+    tagline: 'Methods, HTTPS redirect, HSTS, error pages',
+    description:
+      'Asks for the allowed methods (OPTIONS) and tests TRACE reflection, checks that plain HTTP redirects to HTTPS, HSTS preload readiness and list status, and looks for version leaks, stack traces and default install pages. Never sends PUT or DELETE.',
+    category: 'web',
+    mode: 'active',
+    scope: 'remote',
+    targetHint: 'https://example.com',
+  },
   tls: {
     id: 'tls',
     code: 'W-02',

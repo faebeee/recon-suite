@@ -108,28 +108,30 @@ engagement:
   and the response carries its `runId`. Invalid input errors are not stored.
 - Archived engagements answer 409.
 
-| Method | Path                                    | Purpose                                                     |
-| ------ | --------------------------------------- | ----------------------------------------------------------- |
-| GET    | `/api/engagements`                      | List with counts                                            |
-| POST   | `/api/engagements`                      | Create `{ name, client?, description? }`                    |
-| GET    | `/api/engagements/:id`                  | One engagement                                              |
-| PATCH  | `/api/engagements/:id`                  | Edit, or `{ "status": "archived" }` / `"active"`            |
-| DELETE | `/api/engagements/:id`                  | Delete with its scope, runs and notes                       |
-| GET    | `/api/engagements/:id/scope`            | Scope entries                                               |
-| POST   | `/api/engagements/:id/scope`            | Add `{ entries: [{ value, excluded?, note? }] }`            |
-| DELETE | `/api/engagements/:id/scope/:entryId`   | Remove an entry                                             |
-| POST   | `/api/engagements/:id/scope/check`      | `{ target }` returns `{ inScope, reason }`                  |
-| GET    | `/api/engagements/:id/runs`             | History; filters `tool`, `target`, `tag`, `limit`, `offset` |
-| GET    | `/api/runs/:runId`                      | Stored request and full result                              |
-| PATCH  | `/api/runs/:runId`                      | Set `{ tags }`                                              |
-| DELETE | `/api/runs/:runId`                      | Delete a run                                                |
-| GET    | `/api/runs/:before/diff/:after`         | What changed between two runs of the same tool              |
-| GET    | `/api/engagements/:id/findings`         | Findings of the latest run per tool and target              |
-| GET    | `/api/engagements/:id/notes`            | Notes                                                       |
-| POST   | `/api/engagements/:id/notes`            | Add `{ title, body?, target?, tags? }`                      |
-| PATCH  | `/api/notes/:noteId`                    | Edit a note                                                 |
-| DELETE | `/api/notes/:noteId`                    | Delete a note                                               |
-| GET    | `/api/engagements/:id/export?format=md` | Report download: `md`, `json` or `csv`                      |
+| Method | Path                                    | Purpose                                                                                         |
+| ------ | --------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| GET    | `/api/engagements`                      | List with counts                                                                                |
+| POST   | `/api/engagements`                      | Create `{ name, client?, description? }`                                                        |
+| GET    | `/api/engagements/:id`                  | One engagement                                                                                  |
+| PATCH  | `/api/engagements/:id`                  | Edit, or `{ "status": "archived" }` / `"active"`                                                |
+| DELETE | `/api/engagements/:id`                  | Delete with its scope, runs and notes                                                           |
+| GET    | `/api/engagements/:id/scope`            | Scope entries                                                                                   |
+| POST   | `/api/engagements/:id/scope`            | Add `{ entries: [{ value, excluded?, note? }] }`                                                |
+| DELETE | `/api/engagements/:id/scope/:entryId`   | Remove an entry                                                                                 |
+| POST   | `/api/engagements/:id/scope/check`      | `{ target }` returns `{ inScope, reason }`                                                      |
+| GET    | `/api/engagements/:id/runs`             | History; filters `tool`, `target`, `tag`, `limit`, `offset`                                     |
+| GET    | `/api/runs/:runId`                      | Stored request and full result                                                                  |
+| PATCH  | `/api/runs/:runId`                      | Set `{ tags }`                                                                                  |
+| DELETE | `/api/runs/:runId`                      | Delete a run                                                                                    |
+| GET    | `/api/runs/:before/diff/:after`         | What changed between two runs of the same tool                                                  |
+| GET    | `/api/runs/:runId/changes`              | Readable changes against the previous successful run of the same tool and target (`RunChanges`) |
+| GET    | `/api/engagements/:id/changes`          | `RunChanges` for the latest run of each tool and target (newest first, max 100)                 |
+| GET    | `/api/engagements/:id/findings`         | Findings of the latest run per tool and target                                                  |
+| GET    | `/api/engagements/:id/notes`            | Notes                                                                                           |
+| POST   | `/api/engagements/:id/notes`            | Add `{ title, body?, target?, tags? }`                                                          |
+| PATCH  | `/api/notes/:noteId`                    | Edit a note                                                                                     |
+| DELETE | `/api/notes/:noteId`                    | Delete a note                                                                                   |
+| GET    | `/api/engagements/:id/export?format=md` | Report download: `md`, `json` or `csv`                                                          |
 
 Scope entries accept `example.com` (exact), `*.example.com` (subdomains, not the apex), an IP,
 a CIDR range or a URL (its hostname is used). Exclusions win over inclusions. Domains are only

@@ -3,6 +3,7 @@ import {
   Bluetooth,
   Bug,
   Building2,
+  Cookie,
   Cloud,
   FileCode2,
   FileSearch,
@@ -22,6 +23,7 @@ import {
   ScanSearch,
   Server,
   Share2,
+  ShieldAlert,
   ShieldCheck,
   Terminal,
   Unlink,
@@ -63,6 +65,12 @@ export const TOOL_UI: Record<ToolId, ToolUi> = {
   'http-headers': {
     icon: ShieldCheck,
     tone: 'yellow',
+    accepts: ['domain', 'url'],
+  },
+  'cookie-audit': { icon: Cookie, tone: 'yellow', accepts: ['domain', 'url'] },
+  'http-methods': {
+    icon: ShieldAlert,
+    tone: 'magenta',
     accepts: ['domain', 'url'],
   },
   tls: { icon: Radar, tone: 'yellow', accepts: ['domain', 'ip'] },

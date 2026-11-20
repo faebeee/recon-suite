@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import {
   EXPORT_FORMATS,
+  MAX_CHANGE_PAIRS,
   engagementInputSchema,
   engagementPatchSchema,
   noteInputSchema,
@@ -26,6 +27,7 @@ import {
   type ExportFormat,
   type Note,
   type PostureSeries,
+  type RunChanges,
   type RunDetail,
   type RunDiff,
   type RunPage,
@@ -34,6 +36,7 @@ import {
   type ScopeEntry,
 } from '@recon/shared';
 import { z } from 'zod';
+import { compareSnapshots, sameInput, snapshot } from './changes.js';
 import { diffValues } from './diff.js';
 import { EngagementsRepository } from './engagements.repository.js';
 import { buildPosture } from './posture.js';
@@ -195,6 +198,24 @@ export class EngagementsController {
     return { before: b, after: a, entries: diffValues(br?.data, ar?.data) };
   }
 
+  @Get('runs/:runId/changes')
+  async runChanges(@Param('runId', uuid) runId: string): Promise<RunChanges> {
+    const run = await this.repo.getRun(runId);
+    if (run.status !== 'ok') {
+      throw new BadRequestException('Failed runs have no output to compare');
+    }
+    return compareRuns(await this.repo.previousOkRun(run), run);
+  }
+
+  @Get('engagements/:id/changes')
+  async changes(@Param('id', uuid) id: string): Promise<RunChanges[]> {
+    await this.repo.engagementRow(id);
+    const pairs = await this.repo.latestOkPairs(id, MAX_CHANGE_PAIRS);
+    return pairs.flatMap(([after, before]) =>
+      after ? [compareRuns(before ?? null, after)] : [],
+    );
+  }
+
   // ------------------------------------------------------------ findings & export
 
   @Get('engagements/:id/findings')
@@ -263,6 +284,38 @@ export class EngagementsController {
   async removeNote(@Param('noteId', uuid) noteId: string): Promise<void> {
     await this.repo.deleteNote(noteId);
   }
+}
+
+/** Semantic change summary of `after` against the previous run (none for the first run). */
+function compareRuns(before: RunDetail | null, after: RunDetail): RunChanges {
+  const { input, result, ...summary } = after;
+  const base = {
+    tool: after.tool,
+    target: after.target,
+    after: summary,
+    input,
+  };
+  if (!before) {
+    return {
+      ...base,
+      before: null,
+      inputChanged: false,
+      items: [],
+      truncated: false,
+      rawDifferences: 0,
+    };
+  }
+  const { input: beforeInput, result: beforeResult, ...beforeSummary } = before;
+  return {
+    ...base,
+    before: beforeSummary,
+    inputChanged: !sameInput(beforeInput, input),
+    ...compareSnapshots(
+      snapshot(after.tool, beforeResult),
+      snapshot(after.tool, result),
+    ),
+    rawDifferences: diffValues(beforeResult?.data, result?.data).length,
+  };
 }
 
 const CONTENT_TYPE: Record<ExportFormat, string> = {

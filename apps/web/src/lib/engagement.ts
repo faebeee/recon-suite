@@ -4,6 +4,7 @@ import {
   ENGAGEMENT_API,
   type Engagement,
   type PostureSeries,
+  type RunChanges,
   type RunDetail,
 } from '@recon/shared';
 import { ApiError, apiFetch } from './api-client';
@@ -46,6 +47,17 @@ export function runQuery(runId: string) {
     queryKey: [...RUNS_KEY, runId],
     queryFn: () => apiFetch<RunDetail>(ENGAGEMENT_API.run(runId)),
     retry: false,
+    staleTime: Infinity,
+  });
+}
+
+/** A stored run compared with the previous run of the same tool and target. */
+export function runChangesQuery(runId: string) {
+  return queryOptions({
+    queryKey: [...RUNS_KEY, runId, 'changes'],
+    queryFn: () => apiFetch<RunChanges>(ENGAGEMENT_API.runChanges(runId)),
+    retry: false,
+    // A stored run and its predecessor never change (deleting one is rare enough).
     staleTime: Infinity,
   });
 }

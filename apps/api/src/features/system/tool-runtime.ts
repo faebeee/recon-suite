@@ -71,6 +71,8 @@ const ENGINES: Record<ToolId, (h: HostFacts) => Engine> = {
     services: ['web.archive.org'],
   }),
   cors: () => ({ engine: NODE_HTTP }),
+  'cookie-audit': () => ({ engine: NODE_HTTP }),
+  'http-methods': () => ({ engine: NODE_HTTP, services: ['hstspreload.org'] }),
   'tls-audit': () => ({ engine: NODE_SOCKETS }),
   'js-endpoints': () => ({ engine: NODE_HTTP }),
   'exposed-files': () => ({ engine: NODE_HTTP }),

@@ -3,6 +3,7 @@ import {
   ENGAGEMENT_API,
   type EngagementFinding,
   type Note,
+  type RunChanges,
   type RunDiff,
   type RunPage,
   type ScopeEntry,
@@ -57,5 +58,13 @@ export function runDiffQuery(before: string, after: string) {
     queryKey: [...RUNS_KEY, 'diff', before, after],
     queryFn: () => apiFetch<RunDiff>(ENGAGEMENT_API.runDiff(before, after)),
     retry: false,
+  });
+}
+
+/** Latest run per tool + target compared with the one before (change monitoring). */
+export function changesQuery(id: string) {
+  return queryOptions({
+    queryKey: [...ENGAGEMENTS_KEY, id, 'changes'],
+    queryFn: () => apiFetch<RunChanges[]>(ENGAGEMENT_API.changes(id)),
   });
 }

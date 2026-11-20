@@ -6,7 +6,7 @@ import {
   OnModuleDestroy,
   PayloadTooLargeException,
 } from '@nestjs/common';
-import { Agent, fetch, type Response } from 'undici';
+import { Agent, fetch, request, type Dispatcher, type Response } from 'undici';
 import { TargetGuardService } from '../net/target-guard.service.js';
 import { followRedirects, type FollowedResponse } from './follow-redirects.js';
 import { readTextLimited } from './read-limited.js';
@@ -16,6 +16,13 @@ export interface RequestOptions {
   headers?: Record<string, string>;
   timeoutMs?: number;
   redirect?: 'follow' | 'manual';
+}
+
+export interface RawResponse {
+  status: number;
+  headers: Record<string, string>;
+  /** Body text, cut at `maxBytes`. */
+  body: string;
 }
 
 const USER_AGENT = 'recon-suite/0.1 (+security-recon)';
@@ -66,6 +73,55 @@ export class HttpClientService implements OnModuleDestroy {
       url,
       maxRedirects,
     );
+  }
+
+  /**
+   * Guarded request for methods `fetch()` refuses (TRACE). Never follows redirects; the body
+   * is read up to `maxBytes` (default 64 KB) and the rest discarded.
+   */
+  async targetRaw(
+    url: string,
+    {
+      method,
+      headers,
+      timeoutMs = DEFAULT_TIMEOUT_MS,
+      maxBytes = 64 * 1024,
+    }: {
+      method: Dispatcher.HttpMethod;
+      headers?: Record<string, string>;
+      timeoutMs?: number;
+      maxBytes?: number;
+    },
+  ): Promise<RawResponse> {
+    const { hostname } = new URL(url);
+    await this.guard.resolve(hostname.replace(/^\[|\]$/g, ''));
+    try {
+      const res = await request(url, {
+        method,
+        dispatcher: this.guardedAgent,
+        headers: { 'user-agent': USER_AGENT, ...headers },
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+      const chunks: Buffer[] = [];
+      let size = 0;
+      for await (const chunk of res.body as AsyncIterable<Buffer>) {
+        chunks.push(chunk.subarray(0, Math.max(0, maxBytes - size)));
+        size += chunk.byteLength;
+        if (size >= maxBytes) break;
+      }
+      res.body.destroy();
+      const out: Record<string, string> = {};
+      for (const [k, v] of Object.entries(res.headers)) {
+        if (v !== undefined) out[k] = Array.isArray(v) ? v.join(', ') : v;
+      }
+      return {
+        status: res.statusCode,
+        headers: out,
+        body: Buffer.concat(chunks).toString('utf8'),
+      };
+    } catch (err) {
+      throw toHttpException(err, url);
+    }
   }
 
   /** Request to a fixed, trusted third-party API. */

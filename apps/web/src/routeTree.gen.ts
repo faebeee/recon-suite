@@ -18,6 +18,7 @@ import { Route as ToolsBannerGrabRouteImport } from './routes/tools/banner-grab'
 import { Route as ToolsBluetoothRouteImport } from './routes/tools/bluetooth'
 import { Route as ToolsCertSearchRouteImport } from './routes/tools/cert-search'
 import { Route as ToolsCloudStorageRouteImport } from './routes/tools/cloud-storage'
+import { Route as ToolsCookieAuditRouteImport } from './routes/tools/cookie-audit'
 import { Route as ToolsCorsRouteImport } from './routes/tools/cors'
 import { Route as ToolsCveLookupRouteImport } from './routes/tools/cve-lookup'
 import { Route as ToolsDevFootprintRouteImport } from './routes/tools/dev-footprint'
@@ -27,6 +28,7 @@ import { Route as ToolsEmailSecurityRouteImport } from './routes/tools/email-sec
 import { Route as ToolsExposedFilesRouteImport } from './routes/tools/exposed-files'
 import { Route as ToolsHostScanRouteImport } from './routes/tools/host-scan'
 import { Route as ToolsHttpHeadersRouteImport } from './routes/tools/http-headers'
+import { Route as ToolsHttpMethodsRouteImport } from './routes/tools/http-methods'
 import { Route as ToolsIpIntelRouteImport } from './routes/tools/ip-intel'
 import { Route as ToolsJsEndpointsRouteImport } from './routes/tools/js-endpoints'
 import { Route as ToolsNetworkScanRouteImport } from './routes/tools/network-scan'
@@ -90,6 +92,11 @@ const ToolsCloudStorageRoute = ToolsCloudStorageRouteImport.update({
   path: '/tools/cloud-storage',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToolsCookieAuditRoute = ToolsCookieAuditRouteImport.update({
+  id: '/tools/cookie-audit',
+  path: '/tools/cookie-audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ToolsCorsRoute = ToolsCorsRouteImport.update({
   id: '/tools/cors',
   path: '/tools/cors',
@@ -133,6 +140,11 @@ const ToolsHostScanRoute = ToolsHostScanRouteImport.update({
 const ToolsHttpHeadersRoute = ToolsHttpHeadersRouteImport.update({
   id: '/tools/http-headers',
   path: '/tools/http-headers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsHttpMethodsRoute = ToolsHttpMethodsRouteImport.update({
+  id: '/tools/http-methods',
+  path: '/tools/http-methods',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ToolsIpIntelRoute = ToolsIpIntelRouteImport.update({
@@ -230,6 +242,7 @@ export interface FileRoutesByFullPath {
   '/tools/bluetooth': typeof ToolsBluetoothRoute
   '/tools/cert-search': typeof ToolsCertSearchRoute
   '/tools/cloud-storage': typeof ToolsCloudStorageRoute
+  '/tools/cookie-audit': typeof ToolsCookieAuditRoute
   '/tools/cors': typeof ToolsCorsRoute
   '/tools/cve-lookup': typeof ToolsCveLookupRoute
   '/tools/dev-footprint': typeof ToolsDevFootprintRoute
@@ -239,6 +252,7 @@ export interface FileRoutesByFullPath {
   '/tools/exposed-files': typeof ToolsExposedFilesRoute
   '/tools/host-scan': typeof ToolsHostScanRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
+  '/tools/http-methods': typeof ToolsHttpMethodsRoute
   '/tools/ip-intel': typeof ToolsIpIntelRoute
   '/tools/js-endpoints': typeof ToolsJsEndpointsRoute
   '/tools/network-scan': typeof ToolsNetworkScanRoute
@@ -267,6 +281,7 @@ export interface FileRoutesByTo {
   '/tools/bluetooth': typeof ToolsBluetoothRoute
   '/tools/cert-search': typeof ToolsCertSearchRoute
   '/tools/cloud-storage': typeof ToolsCloudStorageRoute
+  '/tools/cookie-audit': typeof ToolsCookieAuditRoute
   '/tools/cors': typeof ToolsCorsRoute
   '/tools/cve-lookup': typeof ToolsCveLookupRoute
   '/tools/dev-footprint': typeof ToolsDevFootprintRoute
@@ -276,6 +291,7 @@ export interface FileRoutesByTo {
   '/tools/exposed-files': typeof ToolsExposedFilesRoute
   '/tools/host-scan': typeof ToolsHostScanRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
+  '/tools/http-methods': typeof ToolsHttpMethodsRoute
   '/tools/ip-intel': typeof ToolsIpIntelRoute
   '/tools/js-endpoints': typeof ToolsJsEndpointsRoute
   '/tools/network-scan': typeof ToolsNetworkScanRoute
@@ -305,6 +321,7 @@ export interface FileRoutesById {
   '/tools/bluetooth': typeof ToolsBluetoothRoute
   '/tools/cert-search': typeof ToolsCertSearchRoute
   '/tools/cloud-storage': typeof ToolsCloudStorageRoute
+  '/tools/cookie-audit': typeof ToolsCookieAuditRoute
   '/tools/cors': typeof ToolsCorsRoute
   '/tools/cve-lookup': typeof ToolsCveLookupRoute
   '/tools/dev-footprint': typeof ToolsDevFootprintRoute
@@ -314,6 +331,7 @@ export interface FileRoutesById {
   '/tools/exposed-files': typeof ToolsExposedFilesRoute
   '/tools/host-scan': typeof ToolsHostScanRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
+  '/tools/http-methods': typeof ToolsHttpMethodsRoute
   '/tools/ip-intel': typeof ToolsIpIntelRoute
   '/tools/js-endpoints': typeof ToolsJsEndpointsRoute
   '/tools/network-scan': typeof ToolsNetworkScanRoute
@@ -344,6 +362,7 @@ export interface FileRouteTypes {
     | '/tools/bluetooth'
     | '/tools/cert-search'
     | '/tools/cloud-storage'
+    | '/tools/cookie-audit'
     | '/tools/cors'
     | '/tools/cve-lookup'
     | '/tools/dev-footprint'
@@ -353,6 +372,7 @@ export interface FileRouteTypes {
     | '/tools/exposed-files'
     | '/tools/host-scan'
     | '/tools/http-headers'
+    | '/tools/http-methods'
     | '/tools/ip-intel'
     | '/tools/js-endpoints'
     | '/tools/network-scan'
@@ -381,6 +401,7 @@ export interface FileRouteTypes {
     | '/tools/bluetooth'
     | '/tools/cert-search'
     | '/tools/cloud-storage'
+    | '/tools/cookie-audit'
     | '/tools/cors'
     | '/tools/cve-lookup'
     | '/tools/dev-footprint'
@@ -390,6 +411,7 @@ export interface FileRouteTypes {
     | '/tools/exposed-files'
     | '/tools/host-scan'
     | '/tools/http-headers'
+    | '/tools/http-methods'
     | '/tools/ip-intel'
     | '/tools/js-endpoints'
     | '/tools/network-scan'
@@ -418,6 +440,7 @@ export interface FileRouteTypes {
     | '/tools/bluetooth'
     | '/tools/cert-search'
     | '/tools/cloud-storage'
+    | '/tools/cookie-audit'
     | '/tools/cors'
     | '/tools/cve-lookup'
     | '/tools/dev-footprint'
@@ -427,6 +450,7 @@ export interface FileRouteTypes {
     | '/tools/exposed-files'
     | '/tools/host-scan'
     | '/tools/http-headers'
+    | '/tools/http-methods'
     | '/tools/ip-intel'
     | '/tools/js-endpoints'
     | '/tools/network-scan'
@@ -456,6 +480,7 @@ export interface RootRouteChildren {
   ToolsBluetoothRoute: typeof ToolsBluetoothRoute
   ToolsCertSearchRoute: typeof ToolsCertSearchRoute
   ToolsCloudStorageRoute: typeof ToolsCloudStorageRoute
+  ToolsCookieAuditRoute: typeof ToolsCookieAuditRoute
   ToolsCorsRoute: typeof ToolsCorsRoute
   ToolsCveLookupRoute: typeof ToolsCveLookupRoute
   ToolsDevFootprintRoute: typeof ToolsDevFootprintRoute
@@ -465,6 +490,7 @@ export interface RootRouteChildren {
   ToolsExposedFilesRoute: typeof ToolsExposedFilesRoute
   ToolsHostScanRoute: typeof ToolsHostScanRoute
   ToolsHttpHeadersRoute: typeof ToolsHttpHeadersRoute
+  ToolsHttpMethodsRoute: typeof ToolsHttpMethodsRoute
   ToolsIpIntelRoute: typeof ToolsIpIntelRoute
   ToolsJsEndpointsRoute: typeof ToolsJsEndpointsRoute
   ToolsNetworkScanRoute: typeof ToolsNetworkScanRoute
@@ -550,6 +576,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToolsCloudStorageRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tools/cookie-audit': {
+      id: '/tools/cookie-audit'
+      path: '/tools/cookie-audit'
+      fullPath: '/tools/cookie-audit'
+      preLoaderRoute: typeof ToolsCookieAuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tools/cors': {
       id: '/tools/cors'
       path: '/tools/cors'
@@ -611,6 +644,13 @@ declare module '@tanstack/react-router' {
       path: '/tools/http-headers'
       fullPath: '/tools/http-headers'
       preLoaderRoute: typeof ToolsHttpHeadersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/http-methods': {
+      id: '/tools/http-methods'
+      path: '/tools/http-methods'
+      fullPath: '/tools/http-methods'
+      preLoaderRoute: typeof ToolsHttpMethodsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tools/ip-intel': {
@@ -744,6 +784,7 @@ const rootRouteChildren: RootRouteChildren = {
   ToolsBluetoothRoute: ToolsBluetoothRoute,
   ToolsCertSearchRoute: ToolsCertSearchRoute,
   ToolsCloudStorageRoute: ToolsCloudStorageRoute,
+  ToolsCookieAuditRoute: ToolsCookieAuditRoute,
   ToolsCorsRoute: ToolsCorsRoute,
   ToolsCveLookupRoute: ToolsCveLookupRoute,
   ToolsDevFootprintRoute: ToolsDevFootprintRoute,
@@ -753,6 +794,7 @@ const rootRouteChildren: RootRouteChildren = {
   ToolsExposedFilesRoute: ToolsExposedFilesRoute,
   ToolsHostScanRoute: ToolsHostScanRoute,
   ToolsHttpHeadersRoute: ToolsHttpHeadersRoute,
+  ToolsHttpMethodsRoute: ToolsHttpMethodsRoute,
   ToolsIpIntelRoute: ToolsIpIntelRoute,
   ToolsJsEndpointsRoute: ToolsJsEndpointsRoute,
   ToolsNetworkScanRoute: ToolsNetworkScanRoute,

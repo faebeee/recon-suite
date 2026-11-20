@@ -6,6 +6,7 @@ import {
   ENGAGEMENT_HEADER,
   type Engagement,
   type PostureSeries,
+  type RunChanges,
   type RunPage,
   type ToolId,
 } from '@recon/shared';
@@ -140,6 +141,31 @@ describe('Engagements (e2e)', () => {
     expect(diff.body.entries).toEqual([
       { path: 'records[0].values', kind: 'added', after: '93.184.216.35' },
     ]);
+
+    // Change monitoring: the second run against the first, in meaningful terms.
+    const changes = (
+      await http.get(`/api/runs/${second.body.runId}/changes`).expect(200)
+    ).body as RunChanges;
+    expect(changes.before?.id).toBe(first.body.runId);
+    expect(changes.inputChanged).toBe(false);
+    expect(changes.items).toEqual([
+      { facet: 'Records', key: 'A 93.184.216.35', kind: 'added' },
+    ]);
+    expect(changes.rawDifferences).toBe(1);
+    const firstChanges = (
+      await http.get(`/api/runs/${first.body.runId}/changes`).expect(200)
+    ).body as RunChanges;
+    expect(firstChanges.before).toBeNull();
+    const feed = (
+      await http.get(`/api/engagements/${e.id}/changes`).expect(200)
+    ).body as RunChanges[];
+    expect(feed).toHaveLength(1);
+    expect(feed[0]).toMatchObject({
+      tool: 'dns',
+      target: 'example.com',
+      after: { id: second.body.runId },
+      input: { target: 'example.com' },
+    });
 
     const tagged = await http
       .patch(`/api/runs/${second.body.runId}`)

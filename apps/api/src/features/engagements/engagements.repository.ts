@@ -287,13 +287,7 @@ export class EngagementsRepository {
   async getRun(runId: string): Promise<RunDetail> {
     const [row] = await this.db.select().from(runs).where(eq(runs.id, runId));
     if (!row) throw new NotFoundException('Run not found');
-    return {
-      ...toRunSummary(row),
-      input: parseJson(row.input, null),
-      ...(row.result && {
-        result: parseJson<ToolResult<unknown>>(row.result, undefined as never),
-      }),
-    };
+    return toRunDetail(row);
   }
 
   async setRunTags(runId: string, tags: string[]): Promise<RunSummary> {
@@ -312,6 +306,58 @@ export class EngagementsRepository {
       .where(eq(runs.id, runId))
       .returning({ id: runs.id });
     if (!deleted.length) throw new NotFoundException('Run not found');
+  }
+
+  /** Latest successful run of the same tool + target before `run` (change monitoring). */
+  async previousOkRun(run: RunSummary): Promise<RunDetail | null> {
+    const [row] = await this.db
+      .select()
+      .from(runs)
+      .where(
+        and(
+          eq(runs.engagementId, run.engagementId),
+          eq(runs.tool, run.tool),
+          eq(runs.target, run.target),
+          eq(runs.status, 'ok'),
+          sql`${runs.startedAt} < ${run.startedAt}`,
+        ),
+      )
+      .orderBy(desc(runs.startedAt))
+      .limit(1);
+    return row ? toRunDetail(row) : null;
+  }
+
+  /**
+   * The two latest successful runs (newest first) of each tool + target, for the `limit`
+   * most recently run pairs.
+   */
+  async latestOkPairs(
+    engagementId: string,
+    limit: number,
+  ): Promise<RunDetail[][]> {
+    const ok = and(eq(runs.engagementId, engagementId), eq(runs.status, 'ok'));
+    const pairs = await this.db
+      .select({
+        tool: runs.tool,
+        target: runs.target,
+        last: sql<string>`max(${runs.startedAt})`.as('last'),
+      })
+      .from(runs)
+      .where(ok)
+      .groupBy(runs.tool, runs.target)
+      .orderBy(desc(sql`last`))
+      .limit(limit);
+    return Promise.all(
+      pairs.map(async (p) => {
+        const rows = await this.db
+          .select()
+          .from(runs)
+          .where(and(ok, eq(runs.tool, p.tool), eq(runs.target, p.target)))
+          .orderBy(desc(runs.startedAt))
+          .limit(2);
+        return rows.map(toRunDetail);
+      }),
+    );
   }
 
   /** Findings of the latest successful run per tool + target. */
@@ -519,5 +565,15 @@ function toNote(r: NoteRow): Note {
     tags: parseJson<string[]>(r.tags, []),
     createdAt: r.createdAt,
     updatedAt: r.updatedAt,
+  };
+}
+
+function toRunDetail(row: RunRow): RunDetail {
+  return {
+    ...toRunSummary(row),
+    input: parseJson(row.input, null),
+    ...(row.result && {
+      result: parseJson<ToolResult<unknown>>(row.result, undefined as never),
+    }),
   };
 }

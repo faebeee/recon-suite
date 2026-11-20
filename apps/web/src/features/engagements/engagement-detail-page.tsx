@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ApiError } from '@/lib/api-client';
 import { engagementQuery, useActiveEngagement } from '@/lib/engagement';
 import { formatDate } from '@/lib/format';
+import { ChangesTab } from './changes-tab';
 import { ExportTab } from './export-tab';
 import { HistoryTab } from './history-tab';
 import { NotesTab } from './notes-tab';
@@ -14,10 +15,22 @@ import { OverviewTab } from './overview-tab';
 import { ScopeTab } from './scope-tab';
 import { ErrorText, StatusTag } from './ui';
 
+export const ENGAGEMENT_TABS = [
+  'overview',
+  'scope',
+  'history',
+  'changes',
+  'notes',
+  'export',
+] as const;
+export type EngagementTab = (typeof ENGAGEMENT_TABS)[number];
+
 export function EngagementDetailPage({
   engagementId,
+  initialTab = 'overview',
 }: {
   engagementId: string;
+  initialTab?: EngagementTab;
 }) {
   const query = useQuery(engagementQuery(engagementId));
   const active = useActiveEngagement();
@@ -82,12 +95,13 @@ export function EngagementDetailPage({
         )}
       </header>
 
-      <Tabs defaultValue="overview" className="gap-4">
+      <Tabs defaultValue={initialTab} className="gap-4">
         <div className="overflow-x-auto">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="scope">Scope</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
+            <TabsTrigger value="changes">Changes</TabsTrigger>
             <TabsTrigger value="notes">Notes</TabsTrigger>
             <TabsTrigger value="export">Export</TabsTrigger>
           </TabsList>
@@ -100,6 +114,9 @@ export function EngagementDetailPage({
         </TabsContent>
         <TabsContent value="history">
           <HistoryTab engagementId={e.id} />
+        </TabsContent>
+        <TabsContent value="changes">
+          <ChangesTab engagementId={e.id} archived={e.status === 'archived'} />
         </TabsContent>
         <TabsContent value="notes">
           <NotesTab engagementId={e.id} />

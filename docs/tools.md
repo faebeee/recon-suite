@@ -10,34 +10,36 @@
 Every remote tool takes a `target` and can be deep-linked with `?target=`. Option names below
 are the JSON fields of the [HTTP API](api.md); defaults apply when a field is left out.
 
-| Code | Tool                                           | Mode    | Target            |
-| ---- | ---------------------------------------------- | ------- | ----------------- |
-| D-01 | [DNS Recon](#d-01-dns-recon)                   | passive | domain            |
-| D-02 | [Subdomain Finder](#d-02-subdomain-finder)     | passive | domain            |
-| D-03 | [Email Security](#d-03-email-security)         | passive | domain            |
-| D-04 | [Zone Transfer](#d-04-zone-transfer)           | active  | domain            |
-| D-05 | [DNSSEC Check](#d-05-dnssec-check)             | passive | domain            |
-| D-06 | [Subdomain Takeover](#d-06-subdomain-takeover) | active  | domain            |
-| I-01 | [WHOIS / RDAP](#i-01-whois--rdap)              | passive | domain or IP      |
-| I-02 | [IP Intel](#i-02-ip-intel)                     | passive | IP or domain      |
-| I-03 | [CVE Lookup](#i-03-cve-lookup)                 | passive | product + version |
-| I-04 | [Org Cert Search](#i-04-org-cert-search)       | passive | organisation name |
-| I-05 | [Reverse IP](#i-05-reverse-ip)                 | passive | IP or domain      |
-| I-06 | [Cloud Storage](#i-06-cloud-storage)           | active  | domain            |
-| W-01 | [HTTP Inspector](#w-01-http-inspector)         | active  | URL or domain     |
-| W-02 | [TLS Inspector](#w-02-tls-inspector)           | active  | host              |
-| W-03 | [Web Files](#w-03-web-files)                   | active  | URL or domain     |
-| W-04 | [Tech Fingerprint](#w-04-tech-fingerprint)     | active  | URL or domain     |
-| W-05 | [Wayback URLs](#w-05-wayback-urls)             | passive | domain            |
-| W-06 | [CORS Check](#w-06-cors-check)                 | active  | URL or domain     |
-| W-07 | [TLS Audit](#w-07-tls-audit)                   | active  | host              |
-| W-08 | [JS Endpoints](#w-08-js-endpoints)             | active  | URL or domain     |
-| W-09 | [Exposed Files](#w-09-exposed-files)           | active  | URL or domain     |
-| N-01 | [Port Probe](#n-01-port-probe)                 | active  | host              |
-| N-02 | [Host Scan](#n-02-host-scan)                   | local   | none              |
-| N-03 | [Banner Grab](#n-03-banner-grab)               | active  | host              |
-| R-01 | [WiFi Scanner](#r-01-wifi-scanner)             | local   | none              |
-| R-02 | [Bluetooth Scanner](#r-02-bluetooth-scanner)   | local   | none              |
+| Code | Tool                                                      | Mode    | Target            |
+| ---- | --------------------------------------------------------- | ------- | ----------------- |
+| D-01 | [DNS Recon](#d-01-dns-recon)                              | passive | domain            |
+| D-02 | [Subdomain Finder](#d-02-subdomain-finder)                | passive | domain            |
+| D-03 | [Email Security](#d-03-email-security)                    | passive | domain            |
+| D-04 | [Zone Transfer](#d-04-zone-transfer)                      | active  | domain            |
+| D-05 | [DNSSEC Check](#d-05-dnssec-check)                        | passive | domain            |
+| D-06 | [Subdomain Takeover](#d-06-subdomain-takeover)            | active  | domain            |
+| I-01 | [WHOIS / RDAP](#i-01-whois--rdap)                         | passive | domain or IP      |
+| I-02 | [IP Intel](#i-02-ip-intel)                                | passive | IP or domain      |
+| I-03 | [CVE Lookup](#i-03-cve-lookup)                            | passive | product + version |
+| I-04 | [Org Cert Search](#i-04-org-cert-search)                  | passive | organisation name |
+| I-05 | [Reverse IP](#i-05-reverse-ip)                            | passive | IP or domain      |
+| I-06 | [Cloud Storage](#i-06-cloud-storage)                      | active  | domain            |
+| W-01 | [HTTP Inspector](#w-01-http-inspector)                    | active  | URL or domain     |
+| W-02 | [TLS Inspector](#w-02-tls-inspector)                      | active  | host              |
+| W-03 | [Web Files](#w-03-web-files)                              | active  | URL or domain     |
+| W-04 | [Tech Fingerprint](#w-04-tech-fingerprint)                | active  | URL or domain     |
+| W-05 | [Wayback URLs](#w-05-wayback-urls)                        | passive | domain            |
+| W-06 | [CORS Check](#w-06-cors-check)                            | active  | URL or domain     |
+| W-07 | [TLS Audit](#w-07-tls-audit)                              | active  | host              |
+| W-08 | [JS Endpoints](#w-08-js-endpoints)                        | active  | URL or domain     |
+| W-09 | [Exposed Files](#w-09-exposed-files)                      | active  | URL or domain     |
+| W-10 | [Cookie Audit](#w-10-cookie-audit)                        | active  | URL or domain     |
+| W-11 | [HTTP Methods & Misconfig](#w-11-http-methods--misconfig) | active  | URL or domain     |
+| N-01 | [Port Probe](#n-01-port-probe)                            | active  | host              |
+| N-02 | [Host Scan](#n-02-host-scan)                              | local   | none              |
+| N-03 | [Banner Grab](#n-03-banner-grab)                          | active  | host              |
+| R-01 | [WiFi Scanner](#r-01-wifi-scanner)                        | local   | none              |
+| R-02 | [Bluetooth Scanner](#r-02-bluetooth-scanner)              | local   | none              |
 
 Tools that grade or flag something return **findings** (pass, warn, fail, info). Inside an
 [engagement](using-the-ui.md#engagements) they are collected for the report.
@@ -320,6 +322,34 @@ Checks a fixed list of 18 classic leaks on the origin: `.git/HEAD`, `.git/config
 its content signature, not just the status code, so catch-all pages do not count. Evidence is
 a short excerpt with secret values masked. The list is deliberately fixed: this is a
 misconfiguration check, not a path brute-forcer.
+
+### W-10 Cookie Audit
+
+Follows the redirect chain hop by hop (login redirects often set the session) and grades every
+`Set-Cookie`: `Secure`, `HttpOnly`, `SameSite` (`None` without `Secure` fails), the `__Host-` /
+`__Secure-` prefix rules, `Domain` scope and lifetime. Cookies whose name looks like a session
+or credential (`sess`, `sid`, `auth`, `token`, `jwt`, ...; not CSRF tokens) are judged strictly:
+a missing `HttpOnly` or `Secure` is a `fail`, a lifetime over 30 days a warning. Graded A+ to F;
+a site without cookies has no grade. Cookie values are never stored, only their length; at
+most 50 cookies are audited.
+
+### W-11 HTTP Methods & Misconfig
+
+Read-only checks of the HTTP setup, on the URL after redirects:
+
+- **Methods:** `OPTIONS` and the advertised `Allow` list; TRACE, PUT, DELETE and WebDAV methods
+  are flagged. PUT and DELETE are never sent.
+- **TRACE:** one `TRACE` request with a random marker header; an echoed marker means Cross-Site
+  Tracing is possible (`fail`).
+- **HTTPS:** `http://<host>/` must redirect to an `https://` URL; no plain-HTTP listener at all is
+  fine.
+- **HSTS:** header, `max-age` (180 days minimum, one year for preload), preload readiness and the
+  host's (or a parent domain's) status on the preload list from `hstspreload.org` (only the
+  hostname is sent there).
+- **Error page:** a random non-existent path is requested; version banners, stack traces,
+  framework debug pages and SQL errors in the response are warnings, a `200` answer is reported
+  as a soft 404.
+- **Default page:** nginx, Apache, IIS, Tomcat and Caddy install pages.
 
 ## Network
 

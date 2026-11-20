@@ -39,3 +39,5 @@ export * from './features/ports.js';
 export * from './features/host-scan.js';
 export * from './features/wifi.js';
 export * from './features/bluetooth.js';
+export * from './features/cookie-audit.js';
+export * from './features/http-methods.js';

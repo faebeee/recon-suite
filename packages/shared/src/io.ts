@@ -56,6 +56,16 @@ import {
   type CorsOutput,
 } from './features/cors.js';
 import {
+  cookieAuditInputSchema,
+  type CookieAuditInput,
+  type CookieAuditOutput,
+} from './features/cookie-audit.js';
+import {
+  httpMethodsInputSchema,
+  type HttpMethodsInput,
+  type HttpMethodsOutput,
+} from './features/http-methods.js';
+import {
   tlsAuditInputSchema,
   type TlsAuditInput,
   type TlsAuditOutput,
@@ -171,6 +181,8 @@ export const TOOL_INPUT_SCHEMAS = {
   'cloud-storage': cloudStorageInputSchema,
   wayback: waybackInputSchema,
   cors: corsInputSchema,
+  'cookie-audit': cookieAuditInputSchema,
+  'http-methods': httpMethodsInputSchema,
   'tls-audit': tlsAuditInputSchema,
   'js-endpoints': jsEndpointsInputSchema,
   'exposed-files': exposedFilesInputSchema,
@@ -211,6 +223,8 @@ export interface ToolIO {
   'cloud-storage': { input: CloudStorageInput; output: CloudStorageOutput };
   wayback: { input: WaybackInput; output: WaybackOutput };
   cors: { input: CorsInput; output: CorsOutput };
+  'cookie-audit': { input: CookieAuditInput; output: CookieAuditOutput };
+  'http-methods': { input: HttpMethodsInput; output: HttpMethodsOutput };
   'tls-audit': { input: TlsAuditInput; output: TlsAuditOutput };
   'js-endpoints': { input: JsEndpointsInput; output: JsEndpointsOutput };
   'exposed-files': { input: ExposedFilesInput; output: ExposedFilesOutput };
