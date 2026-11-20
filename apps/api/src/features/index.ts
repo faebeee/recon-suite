@@ -11,6 +11,10 @@ import { WaybackModule } from './wayback/wayback.module.js';
 import { CorsModule } from './cors/cors.module.js';
 import { CookieAuditModule } from './cookie-audit/cookie-audit.module.js';
 import { HttpMethodsModule } from './http-methods/http-methods.module.js';
+import { WafDetectModule } from './waf-detect/waf-detect.module.js';
+import { FaviconHashModule } from './favicon-hash/favicon-hash.module.js';
+import { ApiDiscoveryModule } from './api-discovery/api-discovery.module.js';
+import { DnsblModule } from './dnsbl/dnsbl.module.js';
 import { TlsAuditModule } from './tls-audit/tls-audit.module.js';
 import { JsEndpointsModule } from './js-endpoints/js-endpoints.module.js';
 import { ExposedFilesModule } from './exposed-files/exposed-files.module.js';
@@ -62,6 +66,10 @@ export const FEATURE_MODULES = [
   CorsModule,
   CookieAuditModule,
   HttpMethodsModule,
+  WafDetectModule,
+  FaviconHashModule,
+  ApiDiscoveryModule,
+  DnsblModule,
   TlsAuditModule,
   JsEndpointsModule,
   ExposedFilesModule,

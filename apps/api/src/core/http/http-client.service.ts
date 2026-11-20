@@ -16,6 +16,8 @@ export interface RequestOptions {
   headers?: Record<string, string>;
   timeoutMs?: number;
   redirect?: 'follow' | 'manual';
+  /** Request body (e.g. a GraphQL query); keep it small and read-only in intent. */
+  body?: string;
 }
 
 export interface RawResponse {
@@ -171,6 +173,7 @@ export class HttpClientService implements OnModuleDestroy {
       headers,
       timeoutMs = DEFAULT_TIMEOUT_MS,
       redirect = 'follow',
+      body,
     }: RequestOptions,
   ): Promise<Response> {
     try {
@@ -178,6 +181,7 @@ export class HttpClientService implements OnModuleDestroy {
         method,
         redirect,
         dispatcher,
+        ...(body !== undefined && { body }),
         headers: { 'user-agent': USER_AGENT, ...headers },
         signal: AbortSignal.timeout(timeoutMs),
       });

@@ -41,3 +41,7 @@ export * from './features/wifi.js';
 export * from './features/bluetooth.js';
 export * from './features/cookie-audit.js';
 export * from './features/http-methods.js';
+export * from './features/waf-detect.js';
+export * from './features/favicon-hash.js';
+export * from './features/api-discovery.js';
+export * from './features/dnsbl.js';

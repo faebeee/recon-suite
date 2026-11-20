@@ -10,37 +10,44 @@ Turborepo monorepo with a feature-driven architecture.
 
 ## Tools
 
-| Code | Tool                     | Mode    | What it does                                                                             |
-| ---- | ------------------------ | ------- | ---------------------------------------------------------------------------------------- |
-| D-01 | DNS Recon                | passive | A, AAAA, CNAME, MX, NS, TXT, SOA, CAA via Cloudflare/Google/Quad9/system                 |
-| D-02 | Subdomain Finder         | passive | Subdomains from certificate transparency logs (crt.sh)                                   |
-| D-03 | Email Security           | passive | SPF (nested lookup count), DMARC, DKIM keys, MTA-STS, TLS-RPT, BIMI, with a grade        |
-| D-04 | Zone Transfer            | active  | AXFR against every nameserver; flags servers that leak the zone                          |
-| D-05 | DNSSEC Check             | passive | DS/DNSKEY/RRSIG, algorithms, signature expiry; secure, insecure or bogus                 |
-| D-06 | Subdomain Takeover       | active  | Dangling CNAMEs to deleted cloud resources (S3, Azure, Bitbucket, ...)                   |
-| I-01 | WHOIS / RDAP             | passive | Registrar, lifecycle, status, nameservers; IP network ownership                          |
-| I-02 | IP Intel                 | passive | Reverse DNS + forward confirmation, ASN (Team Cymru), RDAP network, CDN/cloud provider   |
-| I-03 | CVE Lookup               | passive | Known CVEs for a product and version from the NVD, CVSS and CISA KEV (needs NVD_API_KEY) |
-| I-04 | Org Cert Search          | passive | Domains of a company from certificate transparency, by organisation name                 |
-| I-05 | Reverse IP               | passive | Other hostnames on the same IP, from SecurityTrails (needs SECURITYTRAILS_API_KEY)       |
-| I-06 | Cloud Storage            | active  | Public or existing S3, GCS and Azure buckets with names derived from the domain          |
-| W-01 | HTTP Inspector           | active  | Redirect chain, headers, security-header grade, disclosures                              |
-| W-02 | TLS Inspector            | active  | Protocol, cipher, certificate, SANs, chain, expiry                                       |
-| W-03 | Web Files                | active  | robots.txt (notable paths), sitemap.xml, security.txt (RFC 9116 checks), humans.txt      |
-| W-04 | Tech Fingerprint         | active  | Server, language, framework, CMS, CDN, libraries from headers, cookies and HTML          |
-| W-05 | Wayback URLs             | passive | Archived URLs: old endpoints, backup/config files, sensitive parameters                  |
-| W-06 | CORS Check               | active  | Reflected, null and look-alike origins with credentials                                  |
-| W-07 | TLS Audit                | active  | Accepted TLS versions and cipher suites, OCSP stapling, CT; graded                       |
-| W-08 | JS Endpoints             | active  | API paths, hosts, exposed source maps and leaked keys in JavaScript                      |
-| W-09 | Exposed Files            | active  | .git, .env, .DS_Store, server-status, actuator, config backups (content-verified)        |
-| W-10 | Cookie Audit             | active  | Grades Set-Cookie flags: Secure, HttpOnly, SameSite, prefixes, Domain, lifetime          |
-| W-11 | HTTP Methods & Misconfig | active  | OPTIONS/TRACE, HTTP to HTTPS redirect, HSTS preload, error page leaks, default pages     |
-| N-01 | Port Probe               | active  | TCP connect check on preset or custom ports (max 64)                                     |
-| N-02 | Host Scan                | local   | Live hosts, MACs and vendors on the scanner's subnet (`nmap -sn`)                        |
-| N-03 | Banner Grab              | active  | Service greetings (SSH, SMTP, FTP, IMAP, POP3, MySQL) with product and version           |
-| N-04 | Nmap Scan                | active  | nmap TCP scan (top 100/1000 or custom ports) with service/version detection              |
-| R-01 | WiFi Scanner             | local   | Nearby WiFi networks seen by the API host: SSID, band, channel, security, signal         |
-| R-02 | Bluetooth Scanner        | local   | BLE advertisements + Classic inquiry: name, vendor, class, RSSI, services (macOS, Linux) |
+| Code | Tool                     | Mode    | What it does                                                                                |
+| ---- | ------------------------ | ------- | ------------------------------------------------------------------------------------------- |
+| D-01 | DNS Recon                | passive | A, AAAA, CNAME, MX, NS, TXT, SOA, CAA via Cloudflare/Google/Quad9/system                    |
+| D-02 | Subdomain Finder         | passive | Subdomains from certificate transparency logs (crt.sh)                                      |
+| D-03 | Email Security           | passive | SPF (nested lookup count), DMARC, DKIM keys, MTA-STS, TLS-RPT, BIMI, with a grade           |
+| D-04 | Zone Transfer            | active  | AXFR against every nameserver; flags servers that leak the zone                             |
+| D-05 | DNSSEC Check             | passive | DS/DNSKEY/RRSIG, algorithms, signature expiry; secure, insecure or bogus                    |
+| D-06 | Subdomain Takeover       | active  | Dangling CNAMEs to deleted cloud resources (S3, Azure, Bitbucket, ...)                      |
+| I-01 | WHOIS / RDAP             | passive | Registrar, lifecycle, status, nameservers; IP network ownership                             |
+| I-02 | IP Intel                 | passive | Reverse DNS + forward confirmation, ASN (Team Cymru), RDAP network, CDN/cloud provider      |
+| I-03 | CVE Lookup               | passive | Known CVEs for a product and version from the NVD, CVSS and CISA KEV (needs NVD_API_KEY)    |
+| I-04 | Org Cert Search          | passive | Domains of a company from certificate transparency, by organisation name                    |
+| I-05 | Reverse IP               | passive | Other hostnames on the same IP, from SecurityTrails (needs SECURITYTRAILS_API_KEY)          |
+| I-06 | Cloud Storage            | active  | Public or existing S3, GCS and Azure buckets with names derived from the domain             |
+| I-07 | Passive Exposure         | passive | Open ports, CVEs and tags from Shodan InternetDB, without contacting the target             |
+| I-08 | Dev Footprint            | passive | GitHub/GitLab organisation, npm scope, PyPI and Docker Hub presence, dependency confusion   |
+| I-09 | DNSBL Reputation         | passive | Spamhaus, SpamCop, Barracuda, PSBL, UCEPROTECT, SURBL listings for an IP or domain          |
+| W-01 | HTTP Inspector           | active  | Redirect chain, headers, security-header grade, disclosures                                 |
+| W-02 | TLS Inspector            | active  | Protocol, cipher, certificate, SANs, chain, expiry                                          |
+| W-03 | Web Files                | active  | robots.txt (notable paths), sitemap.xml, security.txt (RFC 9116 checks), humans.txt         |
+| W-04 | Tech Fingerprint         | active  | Server, language, framework, CMS, CDN, libraries from headers, cookies and HTML             |
+| W-05 | Wayback URLs             | passive | Archived URLs: old endpoints, backup/config files, sensitive parameters                     |
+| W-06 | CORS Check               | active  | Reflected, null and look-alike origins with credentials                                     |
+| W-07 | TLS Audit                | active  | Accepted TLS versions and cipher suites, OCSP stapling, CT; graded                          |
+| W-08 | JS Endpoints             | active  | API paths, hosts, exposed source maps and leaked keys in JavaScript                         |
+| W-09 | Exposed Files            | active  | .git, .env, .DS_Store, server-status, actuator, config backups (content-verified)           |
+| W-10 | Cookie Audit             | active  | Grades Set-Cookie flags: Secure, HttpOnly, SameSite, prefixes, Domain, lifetime             |
+| W-11 | HTTP Methods & Misconfig | active  | OPTIONS/TRACE, HTTP to HTTPS redirect, HSTS preload, error page leaks, default pages        |
+| W-12 | WAF / CDN Detect         | active  | Cloudflare, Akamai, CloudFront, Fastly, Imperva, F5, ... from headers, cookies, block pages |
+| W-13 | Favicon Hash             | active  | Shodan mmh3, MD5, SHA-256 of the site icons, with Shodan/FOFA/Censys queries                |
+| W-14 | API Discovery            | active  | OpenAPI/Swagger specs with endpoint list, Swagger UI/ReDoc, GraphQL introspection           |
+| N-01 | Port Probe               | active  | TCP connect check on preset or custom ports (max 64)                                        |
+| N-02 | Host Scan                | local   | Live hosts, MACs and vendors on the scanner's subnet (`nmap -sn`)                           |
+| N-03 | Banner Grab              | active  | Service greetings (SSH, SMTP, FTP, IMAP, POP3, MySQL) with product and version              |
+| N-04 | Nmap Scan                | active  | nmap TCP scan (top 100/1000 or custom ports) with service/version detection                 |
+| N-05 | Network Scan             | active  | nmap ping sweep of a range (up to /22): live hosts, MACs, vendors, device guess             |
+| R-01 | WiFi Scanner             | local   | Nearby WiFi networks seen by the API host: SSID, band, channel, security, signal            |
+| R-02 | Bluetooth Scanner        | local   | BLE advertisements + Classic inquiry: name, vendor, class, RSSI, services (macOS, Linux)    |
 
 **Engagements** tie it together for real assessments: a scope list that active tools enforce,
 a history of every run with tags and run-to-run comparison, change monitoring (what changed

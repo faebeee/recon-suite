@@ -202,6 +202,18 @@ export const TOOL_CATALOG: Record<ToolId, ToolMeta> = {
     scope: 'remote',
     targetHint: 'acme or acme.com',
   },
+  dnsbl: {
+    id: 'dnsbl',
+    code: 'I-09',
+    name: 'DNSBL Reputation',
+    tagline: 'Spam and abuse blocklists',
+    description:
+      'Looks up an IPv4 address (or the addresses of a domain) on Spamhaus ZEN, SpamCop, Barracuda, PSBL and UCEPROTECT, and the domain on Spamhaus DBL and SURBL. DNS queries only; the target is never contacted.',
+    category: 'intel',
+    mode: 'passive',
+    scope: 'remote',
+    targetHint: 'example.com or 192.0.2.1',
+  },
   wayback: {
     id: 'wayback',
     code: 'W-05',
@@ -321,6 +333,42 @@ export const TOOL_CATALOG: Record<ToolId, ToolMeta> = {
     mode: 'active',
     scope: 'remote',
     targetHint: 'https://example.com',
+  },
+  'waf-detect': {
+    id: 'waf-detect',
+    code: 'W-12',
+    name: 'WAF / CDN Detect',
+    tagline: 'Which edge sits in front',
+    description:
+      'Identifies CDNs, WAFs and hosting edges (Cloudflare, Akamai, CloudFront, AWS WAF, Fastly, Imperva, Sucuri, F5, Azure, Vercel, ...) from headers, cookies and block pages. Optionally sends one harmless attack-looking request to see whether a WAF blocks it.',
+    category: 'web',
+    mode: 'active',
+    scope: 'remote',
+    targetHint: 'https://example.com',
+  },
+  'favicon-hash': {
+    id: 'favicon-hash',
+    code: 'W-13',
+    name: 'Favicon Hash',
+    tagline: 'Fingerprint the icon, find its twins',
+    description:
+      'Downloads the site icons (page <link> tags and /favicon.ico) and computes the Shodan-style MurmurHash3 plus MD5/SHA-256, with ready-made Shodan, FOFA and Censys queries to find other hosts serving the same app.',
+    category: 'web',
+    mode: 'active',
+    scope: 'remote',
+    targetHint: 'https://example.com',
+  },
+  'api-discovery': {
+    id: 'api-discovery',
+    code: 'W-14',
+    name: 'API Discovery',
+    tagline: 'OpenAPI specs and GraphQL',
+    description:
+      'Checks a fixed list of OpenAPI/Swagger spec, Swagger UI, ReDoc and GraphQL locations, lists the endpoints of every spec found and tests whether GraphQL introspection is enabled (a read-only query).',
+    category: 'web',
+    mode: 'active',
+    scope: 'remote',
+    targetHint: 'https://api.example.com',
   },
   tls: {
     id: 'tls',

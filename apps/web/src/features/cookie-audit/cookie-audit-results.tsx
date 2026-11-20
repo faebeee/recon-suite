@@ -7,6 +7,7 @@ import { Panel, Tag } from '@/components/cyber';
 import { FindingsList, GradePanel, PivotLinks } from '@/components/tool';
 import { formatDuration } from '@/lib/format';
 import { FINDING_TONE, toneText } from '@/lib/tones';
+import { cn } from '@/lib/utils';
 
 const COLUMNS: { id: CookieCheckId; label: string }[] = [
   { id: 'secure', label: 'Secure' },
@@ -129,7 +130,7 @@ export function CookieAuditResults({ data }: { data: CookieAuditOutput }) {
             issues.length ? (
               <FindingsList findings={issues} />
             ) : (
-              <p className="px-4 py-3 text-sm text-neon-green">
+              <p className={cn('px-4 py-3 text-sm', toneText.green)}>
                 Every cookie is set with sensible attributes.
               </p>
             )

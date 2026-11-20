@@ -10,36 +10,44 @@
 Every remote tool takes a `target` and can be deep-linked with `?target=`. Option names below
 are the JSON fields of the [HTTP API](api.md); defaults apply when a field is left out.
 
-| Code | Tool                                                      | Mode    | Target            |
-| ---- | --------------------------------------------------------- | ------- | ----------------- |
-| D-01 | [DNS Recon](#d-01-dns-recon)                              | passive | domain            |
-| D-02 | [Subdomain Finder](#d-02-subdomain-finder)                | passive | domain            |
-| D-03 | [Email Security](#d-03-email-security)                    | passive | domain            |
-| D-04 | [Zone Transfer](#d-04-zone-transfer)                      | active  | domain            |
-| D-05 | [DNSSEC Check](#d-05-dnssec-check)                        | passive | domain            |
-| D-06 | [Subdomain Takeover](#d-06-subdomain-takeover)            | active  | domain            |
-| I-01 | [WHOIS / RDAP](#i-01-whois--rdap)                         | passive | domain or IP      |
-| I-02 | [IP Intel](#i-02-ip-intel)                                | passive | IP or domain      |
-| I-03 | [CVE Lookup](#i-03-cve-lookup)                            | passive | product + version |
-| I-04 | [Org Cert Search](#i-04-org-cert-search)                  | passive | organisation name |
-| I-05 | [Reverse IP](#i-05-reverse-ip)                            | passive | IP or domain      |
-| I-06 | [Cloud Storage](#i-06-cloud-storage)                      | active  | domain            |
-| W-01 | [HTTP Inspector](#w-01-http-inspector)                    | active  | URL or domain     |
-| W-02 | [TLS Inspector](#w-02-tls-inspector)                      | active  | host              |
-| W-03 | [Web Files](#w-03-web-files)                              | active  | URL or domain     |
-| W-04 | [Tech Fingerprint](#w-04-tech-fingerprint)                | active  | URL or domain     |
-| W-05 | [Wayback URLs](#w-05-wayback-urls)                        | passive | domain            |
-| W-06 | [CORS Check](#w-06-cors-check)                            | active  | URL or domain     |
-| W-07 | [TLS Audit](#w-07-tls-audit)                              | active  | host              |
-| W-08 | [JS Endpoints](#w-08-js-endpoints)                        | active  | URL or domain     |
-| W-09 | [Exposed Files](#w-09-exposed-files)                      | active  | URL or domain     |
-| W-10 | [Cookie Audit](#w-10-cookie-audit)                        | active  | URL or domain     |
-| W-11 | [HTTP Methods & Misconfig](#w-11-http-methods--misconfig) | active  | URL or domain     |
-| N-01 | [Port Probe](#n-01-port-probe)                            | active  | host              |
-| N-02 | [Host Scan](#n-02-host-scan)                              | local   | none              |
-| N-03 | [Banner Grab](#n-03-banner-grab)                          | active  | host              |
-| R-01 | [WiFi Scanner](#r-01-wifi-scanner)                        | local   | none              |
-| R-02 | [Bluetooth Scanner](#r-02-bluetooth-scanner)              | local   | none              |
+| Code | Tool                                                      | Mode    | Target                        |
+| ---- | --------------------------------------------------------- | ------- | ----------------------------- |
+| D-01 | [DNS Recon](#d-01-dns-recon)                              | passive | domain                        |
+| D-02 | [Subdomain Finder](#d-02-subdomain-finder)                | passive | domain                        |
+| D-03 | [Email Security](#d-03-email-security)                    | passive | domain                        |
+| D-04 | [Zone Transfer](#d-04-zone-transfer)                      | active  | domain                        |
+| D-05 | [DNSSEC Check](#d-05-dnssec-check)                        | passive | domain                        |
+| D-06 | [Subdomain Takeover](#d-06-subdomain-takeover)            | active  | domain                        |
+| I-01 | [WHOIS / RDAP](#i-01-whois--rdap)                         | passive | domain or IP                  |
+| I-02 | [IP Intel](#i-02-ip-intel)                                | passive | IP or domain                  |
+| I-03 | [CVE Lookup](#i-03-cve-lookup)                            | passive | product + version             |
+| I-04 | [Org Cert Search](#i-04-org-cert-search)                  | passive | organisation name             |
+| I-05 | [Reverse IP](#i-05-reverse-ip)                            | passive | IP or domain                  |
+| I-06 | [Cloud Storage](#i-06-cloud-storage)                      | active  | domain                        |
+| I-07 | [Passive Exposure](#i-07-passive-exposure)                | passive | IP or domain                  |
+| I-08 | [Dev Footprint](#i-08-dev-footprint)                      | passive | organisation handle or domain |
+| I-09 | [DNSBL Reputation](#i-09-dnsbl-reputation)                | passive | IPv4 or domain                |
+| W-01 | [HTTP Inspector](#w-01-http-inspector)                    | active  | URL or domain                 |
+| W-02 | [TLS Inspector](#w-02-tls-inspector)                      | active  | host                          |
+| W-03 | [Web Files](#w-03-web-files)                              | active  | URL or domain                 |
+| W-04 | [Tech Fingerprint](#w-04-tech-fingerprint)                | active  | URL or domain                 |
+| W-05 | [Wayback URLs](#w-05-wayback-urls)                        | passive | domain                        |
+| W-06 | [CORS Check](#w-06-cors-check)                            | active  | URL or domain                 |
+| W-07 | [TLS Audit](#w-07-tls-audit)                              | active  | host                          |
+| W-08 | [JS Endpoints](#w-08-js-endpoints)                        | active  | URL or domain                 |
+| W-09 | [Exposed Files](#w-09-exposed-files)                      | active  | URL or domain                 |
+| W-10 | [Cookie Audit](#w-10-cookie-audit)                        | active  | URL or domain                 |
+| W-11 | [HTTP Methods & Misconfig](#w-11-http-methods--misconfig) | active  | URL or domain                 |
+| W-12 | [WAF / CDN Detect](#w-12-waf--cdn-detect)                 | active  | URL or domain                 |
+| W-13 | [Favicon Hash](#w-13-favicon-hash)                        | active  | URL or domain                 |
+| W-14 | [API Discovery](#w-14-api-discovery)                      | active  | URL or domain                 |
+| N-01 | [Port Probe](#n-01-port-probe)                            | active  | host                          |
+| N-02 | [Host Scan](#n-02-host-scan)                              | local   | none                          |
+| N-03 | [Banner Grab](#n-03-banner-grab)                          | active  | host                          |
+| N-04 | [Nmap Scan](#n-04-nmap-scan)                              | active  | host                          |
+| N-05 | [Network Scan](#n-05-network-scan)                        | active  | network (CIDR) or IP          |
+| R-01 | [WiFi Scanner](#r-01-wifi-scanner)                        | local   | none                          |
+| R-02 | [Bluetooth Scanner](#r-02-bluetooth-scanner)              | local   | none                          |
 
 Tools that grade or flag something return **findings** (pass, warn, fail, info). Inside an
 [engagement](using-the-ui.md#engagements) they are collected for the report.
@@ -210,6 +218,62 @@ info. Names are guesses: an existing bucket is not necessarily the target's.
 | ------------ | ------- | --------------------- |
 | `extraNames` | `[]`    | up to 10 bucket names |
 
+### I-07 Passive Exposure
+
+For an IP, or each address a domain resolves to (max 8), asks Shodan's free
+[InternetDB](https://internetdb.shodan.io) what it has seen: open ports, product CPEs,
+hostnames, tags and CVE ids. No API key needed, and the target itself is never contacted; the
+data comes from Shodan's own scans and can be days or weeks old. Findings:
+
+- Ports that should rarely face the internet: Telnet, SMB, NetBIOS, MS RPC, RDP, VNC, databases
+  (MySQL, PostgreSQL, MS SQL, Oracle, MongoDB, Redis, Elasticsearch, CouchDB, Memcached), the
+  Docker API, etcd and the Kubelet API are a `fail`; FTP is a warning.
+- CVE ids matched from banners are a warning: they are unverified (backported fixes are common),
+  so confirm them with [CVE Lookup](#i-03-cve-lookup).
+- Shodan tags `compromised`, `malware` and `c2` are a `fail`; `eol-os`, `eol-product` and
+  `self-signed` are warnings.
+
+An address missing from InternetDB is reported as `info`: absence is not proof that nothing is
+exposed. Run [Nmap Scan](#n-04-nmap-scan) to check for real (that one is active).
+
+### I-08 Dev Footprint
+
+For an organisation handle (`acme`) or a domain (`acme.com` becomes `acme`; two-part suffixes
+like `co.uk` are handled), checks the public developer platforms:
+
+- **GitHub:** the organisation (or notes when the handle is a personal account), its verified
+  domain flag and up to 30 public repositories, most recently pushed first.
+- **GitLab:** the group and up to 30 public projects.
+- **npm:** the `@handle` scope and its packages, and whether an unscoped package named `handle`
+  exists.
+- **PyPI:** whether a package named `handle` exists.
+- **Docker Hub:** the namespace and up to 30 public images.
+
+Repositories and images untouched for two years are a warning (stale code and images keep
+accumulating vulnerabilities). An npm or PyPI package with the organisation's name that is not
+linked to it (owner, repository or homepage) is a warning: if the organisation uses that name
+internally, builds could pull the public package (dependency confusion). An unclaimed npm scope
+or package name is reported as `info`.
+
+Organisation level only: no member lists, commit authors or personal profiles. GitHub allows
+60 requests per hour without a token; when the limit is hit, that platform shows an error and
+the others still report.
+
+### I-09 DNSBL Reputation
+
+Looks the target up on DNS blocklists: an IPv4 address (or each IPv4 address of a domain, up
+to 4) on Spamhaus ZEN, SpamCop, Barracuda, PSBL and UCEPROTECT level 1, and a domain also on
+Spamhaus DBL and SURBL. Return codes are decoded (SBL, XBL, DROP, DBL phishing/malware, SURBL
+categories). A Spamhaus PBL entry only means "end-user range, should not send mail directly"
+and is reported as information, not as a listing. Only DNS queries are made; the target is
+never contacted. IPv6 addresses are listed but not checked.
+
+Spamhaus refuses queries that reach it through large public resolvers (Cloudflare, Google,
+Quad9) and answers with an error code, which the tool reports as `refused`. The API uses the
+host's resolver, so results depend on where the API runs: an ISP or local resolver works,
+a container whose DNS goes to a public resolver will show refusals. Barracuda may also ignore
+unregistered resolvers.
+
 ## Web
 
 ### W-01 HTTP Inspector
@@ -351,6 +415,44 @@ Read-only checks of the HTTP setup, on the URL after redirects:
   as a soft 404.
 - **Default page:** nginx, Apache, IIS, Tomcat and Caddy install pages.
 
+### W-12 WAF / CDN Detect
+
+Recognises CDNs, WAFs and hosting edges from response headers, cookies and block pages:
+Cloudflare, Akamai, Amazon CloudFront, AWS WAF and ELB, Fastly, Imperva, Sucuri, F5 BIG-IP
+(and ASM), Azure Front Door and Application Gateway, Google Cloud, Vercel, Netlify, Fly.io,
+Heroku, GitHub, Barracuda, FortiWeb, Citrix NetScaler, ModSecurity, Wordfence, DDoS-Guard,
+Bunny CDN, KeyCDN and Varnish. Only stable markers are used; a plain `403` names no product.
+
+| Option  | Default | Values                                                                |
+| ------- | ------- | --------------------------------------------------------------------- |
+| `probe` | `true`  | Also send one request with an attack-looking query string (see below) |
+
+The trigger request (like wafw00f) adds inert SQL injection, XSS and path traversal strings to
+the query string. A `4xx` or a dropped connection where the normal request worked counts as
+blocked; many WAFs only reveal themselves on their block page. Turn it off to send a single
+plain GET.
+
+### W-13 Favicon Hash
+
+Downloads `/favicon.ico` and the icons linked from the page (`<link rel="icon">`, Apple touch
+icons, inline `data:` icons; max 5, 1 MB each) and computes the Shodan-style MurmurHash3 (mmh3
+of the base64 text with 76-character lines), MD5 and SHA-256. Each icon comes with ready-made
+queries (`http.favicon.hash:` for Shodan, `icon_hash=` for FOFA, the MD5 for Censys) that find
+other hosts serving the same app, which often reveals origin servers behind a CDN. Catch-all
+HTML pages served instead of a missing icon are recognised and skipped. The tool computes
+hashes only; it does not query the search engines.
+
+### W-14 API Discovery
+
+Checks a fixed list of 21 well-known locations on the origin (and below the URL's path, if
+it has one): OpenAPI/Swagger specs (`/openapi.json`, `/swagger.json`, `/v2/api-docs`,
+`/v3/api-docs`, ... in JSON or YAML), Swagger UI and ReDoc pages, and GraphQL endpoints
+(`/graphql`, `/api/graphql`, `/v1/graphql`). Every hit is verified by content, so catch-all
+pages don't count. Specs are parsed: version, title, servers, the endpoint list (max 500) and
+whether authentication is declared at all (a public spec without any security scheme is a
+warning). GraphQL endpoints get one read-only introspection query; an answer with the schema
+(query and mutation names) is a warning. This is a fixed list, not a path brute force.
+
 ## Network
 
 ### N-01 Port Probe
@@ -409,6 +511,22 @@ versions to CVE Lookup and records one `info` finding per open port.
 Runs nmap on the API host (the compose API image is built on Kali and includes it). Scans
 have no time limit and any number can run at the same time; a large scan with version
 detection can take several minutes.
+
+### N-05 Network Scan
+
+Runs an `nmap -sn` ping sweep (no port scan) over the network you enter, in CIDR notation; a
+bare IP is treated as a /32. Ranges larger than a /22 (1024 addresses) are refused. Lists only
+hosts whose answer proves they are online (ICMP echo or timestamp replies, SYN/ACKs, UDP
+responses, port or protocol unreachables): TCP resets and ARP replies are ignored, because NAT
+layers, firewalls and proxy ARP produce them for every address in a range. Each host comes
+with its MAC address and NIC vendor when nmap sees them (same Ethernet segment only), and a
+best-effort device guess from the vendor (router, printer, IoT, virtual machine, ...).
+
+Unlike [Host Scan](#n-02-host-scan), the range is yours to choose, and the tool is active: in an
+engagement, the range must be in scope. Runs nmap on the API host with no time limit. ARP and
+raw ICMP need root or the `cap_net_raw` capability (the API container has them). From inside the
+container only the compose network is reachable, not your LAN; see
+[Local tools setup](local-tools.md#containers).
 
 ## Wireless
 

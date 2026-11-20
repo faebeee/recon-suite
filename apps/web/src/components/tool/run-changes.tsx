@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { runChangesQuery } from '@/lib/engagement';
 import { formatDateTime } from '@/lib/format';
 import { toneText, type Tone } from '@/lib/tones';
+import { cn } from '@/lib/utils';
 
 export const CHANGE_TONE: Record<RunDiffKind, Tone> = {
   added: 'green',
@@ -49,7 +50,7 @@ export function ChangeList({ changes }: { changes: RunChanges }) {
   return (
     <div className="space-y-3 text-xs">
       {changes.inputChanged && (
-        <p className="text-neon-yellow">
+        <p className={toneText.yellow}>
           The runs used different options, so some changes may come from that.
         </p>
       )}
@@ -150,7 +151,7 @@ export function RunChangesPanel({ runId }: { runId: string }) {
           {!unchanged && <ChangeCounts items={c.items} />}
         </p>
         {unchanged ? (
-          <p className="text-sm text-neon-green">No changes.</p>
+          <p className={cn('text-sm', toneText.green)}>No changes.</p>
         ) : (
           <ChangeList changes={c} />
         )}

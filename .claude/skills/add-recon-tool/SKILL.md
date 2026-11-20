@@ -141,6 +141,12 @@ export class SecurityTxtModule {}
 ```
 
 - Register `SecurityTxtModule` in `src/features/index.ts` (`FEATURE_MODULES`).
+- Add the tool to `src/features/system/tool-runtime.ts` (engine and third-party services) and
+  `src/features/system/platform-diagnostics.ts` (`() => OK` unless it needs OS tooling); both
+  are `Record<ToolId, ...>`, so the typecheck fails until they are added.
+- If the output contains an inventory worth monitoring (hosts, ports, endpoints, ...), add an
+  extractor to `EXTRACTORS` in `src/features/engagements/changes.ts` so the Changes tab reports
+  it in readable form (findings and grades are covered automatically).
 - Add `security-txt.parser.spec.ts` testing the pure function. No network in tests; for
   services use a fake `HttpClientService` (pattern: `http-headers.service.spec.ts`).
 - Throw Nest exceptions with human-readable messages (`NotFoundException`,

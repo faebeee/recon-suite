@@ -14,6 +14,7 @@ import { Route as BatchRouteImport } from './routes/batch'
 import { Route as SystemRouteImport } from './routes/system'
 import { Route as EngagementsIndexRouteImport } from './routes/engagements/index'
 import { Route as EngagementsEngagementIdRouteImport } from './routes/engagements/$engagementId'
+import { Route as ToolsApiDiscoveryRouteImport } from './routes/tools/api-discovery'
 import { Route as ToolsBannerGrabRouteImport } from './routes/tools/banner-grab'
 import { Route as ToolsBluetoothRouteImport } from './routes/tools/bluetooth'
 import { Route as ToolsCertSearchRouteImport } from './routes/tools/cert-search'
@@ -23,9 +24,11 @@ import { Route as ToolsCorsRouteImport } from './routes/tools/cors'
 import { Route as ToolsCveLookupRouteImport } from './routes/tools/cve-lookup'
 import { Route as ToolsDevFootprintRouteImport } from './routes/tools/dev-footprint'
 import { Route as ToolsDnsRouteImport } from './routes/tools/dns'
+import { Route as ToolsDnsblRouteImport } from './routes/tools/dnsbl'
 import { Route as ToolsDnssecRouteImport } from './routes/tools/dnssec'
 import { Route as ToolsEmailSecurityRouteImport } from './routes/tools/email-security'
 import { Route as ToolsExposedFilesRouteImport } from './routes/tools/exposed-files'
+import { Route as ToolsFaviconHashRouteImport } from './routes/tools/favicon-hash'
 import { Route as ToolsHostScanRouteImport } from './routes/tools/host-scan'
 import { Route as ToolsHttpHeadersRouteImport } from './routes/tools/http-headers'
 import { Route as ToolsHttpMethodsRouteImport } from './routes/tools/http-methods'
@@ -41,6 +44,7 @@ import { Route as ToolsTakeoverRouteImport } from './routes/tools/takeover'
 import { Route as ToolsTechFingerprintRouteImport } from './routes/tools/tech-fingerprint'
 import { Route as ToolsTlsRouteImport } from './routes/tools/tls'
 import { Route as ToolsTlsAuditRouteImport } from './routes/tools/tls-audit'
+import { Route as ToolsWafDetectRouteImport } from './routes/tools/waf-detect'
 import { Route as ToolsWaybackRouteImport } from './routes/tools/wayback'
 import { Route as ToolsWebFilesRouteImport } from './routes/tools/web-files'
 import { Route as ToolsWhoisRouteImport } from './routes/tools/whois'
@@ -70,6 +74,11 @@ const EngagementsIndexRoute = EngagementsIndexRouteImport.update({
 const EngagementsEngagementIdRoute = EngagementsEngagementIdRouteImport.update({
   id: '/engagements/$engagementId',
   path: '/engagements/$engagementId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsApiDiscoveryRoute = ToolsApiDiscoveryRouteImport.update({
+  id: '/tools/api-discovery',
+  path: '/tools/api-discovery',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ToolsBannerGrabRoute = ToolsBannerGrabRouteImport.update({
@@ -117,6 +126,11 @@ const ToolsDnsRoute = ToolsDnsRouteImport.update({
   path: '/tools/dns',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToolsDnsblRoute = ToolsDnsblRouteImport.update({
+  id: '/tools/dnsbl',
+  path: '/tools/dnsbl',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ToolsDnssecRoute = ToolsDnssecRouteImport.update({
   id: '/tools/dnssec',
   path: '/tools/dnssec',
@@ -130,6 +144,11 @@ const ToolsEmailSecurityRoute = ToolsEmailSecurityRouteImport.update({
 const ToolsExposedFilesRoute = ToolsExposedFilesRouteImport.update({
   id: '/tools/exposed-files',
   path: '/tools/exposed-files',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsFaviconHashRoute = ToolsFaviconHashRouteImport.update({
+  id: '/tools/favicon-hash',
+  path: '/tools/favicon-hash',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ToolsHostScanRoute = ToolsHostScanRouteImport.update({
@@ -207,6 +226,11 @@ const ToolsTlsAuditRoute = ToolsTlsAuditRouteImport.update({
   path: '/tools/tls-audit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToolsWafDetectRoute = ToolsWafDetectRouteImport.update({
+  id: '/tools/waf-detect',
+  path: '/tools/waf-detect',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ToolsWaybackRoute = ToolsWaybackRouteImport.update({
   id: '/tools/wayback',
   path: '/tools/wayback',
@@ -238,6 +262,7 @@ export interface FileRoutesByFullPath {
   '/batch': typeof BatchRoute
   '/system': typeof SystemRoute
   '/engagements/$engagementId': typeof EngagementsEngagementIdRoute
+  '/tools/api-discovery': typeof ToolsApiDiscoveryRoute
   '/tools/banner-grab': typeof ToolsBannerGrabRoute
   '/tools/bluetooth': typeof ToolsBluetoothRoute
   '/tools/cert-search': typeof ToolsCertSearchRoute
@@ -247,9 +272,11 @@ export interface FileRoutesByFullPath {
   '/tools/cve-lookup': typeof ToolsCveLookupRoute
   '/tools/dev-footprint': typeof ToolsDevFootprintRoute
   '/tools/dns': typeof ToolsDnsRoute
+  '/tools/dnsbl': typeof ToolsDnsblRoute
   '/tools/dnssec': typeof ToolsDnssecRoute
   '/tools/email-security': typeof ToolsEmailSecurityRoute
   '/tools/exposed-files': typeof ToolsExposedFilesRoute
+  '/tools/favicon-hash': typeof ToolsFaviconHashRoute
   '/tools/host-scan': typeof ToolsHostScanRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/http-methods': typeof ToolsHttpMethodsRoute
@@ -265,6 +292,7 @@ export interface FileRoutesByFullPath {
   '/tools/tech-fingerprint': typeof ToolsTechFingerprintRoute
   '/tools/tls': typeof ToolsTlsRoute
   '/tools/tls-audit': typeof ToolsTlsAuditRoute
+  '/tools/waf-detect': typeof ToolsWafDetectRoute
   '/tools/wayback': typeof ToolsWaybackRoute
   '/tools/web-files': typeof ToolsWebFilesRoute
   '/tools/whois': typeof ToolsWhoisRoute
@@ -277,6 +305,7 @@ export interface FileRoutesByTo {
   '/batch': typeof BatchRoute
   '/system': typeof SystemRoute
   '/engagements/$engagementId': typeof EngagementsEngagementIdRoute
+  '/tools/api-discovery': typeof ToolsApiDiscoveryRoute
   '/tools/banner-grab': typeof ToolsBannerGrabRoute
   '/tools/bluetooth': typeof ToolsBluetoothRoute
   '/tools/cert-search': typeof ToolsCertSearchRoute
@@ -286,9 +315,11 @@ export interface FileRoutesByTo {
   '/tools/cve-lookup': typeof ToolsCveLookupRoute
   '/tools/dev-footprint': typeof ToolsDevFootprintRoute
   '/tools/dns': typeof ToolsDnsRoute
+  '/tools/dnsbl': typeof ToolsDnsblRoute
   '/tools/dnssec': typeof ToolsDnssecRoute
   '/tools/email-security': typeof ToolsEmailSecurityRoute
   '/tools/exposed-files': typeof ToolsExposedFilesRoute
+  '/tools/favicon-hash': typeof ToolsFaviconHashRoute
   '/tools/host-scan': typeof ToolsHostScanRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/http-methods': typeof ToolsHttpMethodsRoute
@@ -304,6 +335,7 @@ export interface FileRoutesByTo {
   '/tools/tech-fingerprint': typeof ToolsTechFingerprintRoute
   '/tools/tls': typeof ToolsTlsRoute
   '/tools/tls-audit': typeof ToolsTlsAuditRoute
+  '/tools/waf-detect': typeof ToolsWafDetectRoute
   '/tools/wayback': typeof ToolsWaybackRoute
   '/tools/web-files': typeof ToolsWebFilesRoute
   '/tools/whois': typeof ToolsWhoisRoute
@@ -317,6 +349,7 @@ export interface FileRoutesById {
   '/batch': typeof BatchRoute
   '/system': typeof SystemRoute
   '/engagements/$engagementId': typeof EngagementsEngagementIdRoute
+  '/tools/api-discovery': typeof ToolsApiDiscoveryRoute
   '/tools/banner-grab': typeof ToolsBannerGrabRoute
   '/tools/bluetooth': typeof ToolsBluetoothRoute
   '/tools/cert-search': typeof ToolsCertSearchRoute
@@ -326,9 +359,11 @@ export interface FileRoutesById {
   '/tools/cve-lookup': typeof ToolsCveLookupRoute
   '/tools/dev-footprint': typeof ToolsDevFootprintRoute
   '/tools/dns': typeof ToolsDnsRoute
+  '/tools/dnsbl': typeof ToolsDnsblRoute
   '/tools/dnssec': typeof ToolsDnssecRoute
   '/tools/email-security': typeof ToolsEmailSecurityRoute
   '/tools/exposed-files': typeof ToolsExposedFilesRoute
+  '/tools/favicon-hash': typeof ToolsFaviconHashRoute
   '/tools/host-scan': typeof ToolsHostScanRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/http-methods': typeof ToolsHttpMethodsRoute
@@ -344,6 +379,7 @@ export interface FileRoutesById {
   '/tools/tech-fingerprint': typeof ToolsTechFingerprintRoute
   '/tools/tls': typeof ToolsTlsRoute
   '/tools/tls-audit': typeof ToolsTlsAuditRoute
+  '/tools/waf-detect': typeof ToolsWafDetectRoute
   '/tools/wayback': typeof ToolsWaybackRoute
   '/tools/web-files': typeof ToolsWebFilesRoute
   '/tools/whois': typeof ToolsWhoisRoute
@@ -358,6 +394,7 @@ export interface FileRouteTypes {
     | '/batch'
     | '/system'
     | '/engagements/$engagementId'
+    | '/tools/api-discovery'
     | '/tools/banner-grab'
     | '/tools/bluetooth'
     | '/tools/cert-search'
@@ -367,9 +404,11 @@ export interface FileRouteTypes {
     | '/tools/cve-lookup'
     | '/tools/dev-footprint'
     | '/tools/dns'
+    | '/tools/dnsbl'
     | '/tools/dnssec'
     | '/tools/email-security'
     | '/tools/exposed-files'
+    | '/tools/favicon-hash'
     | '/tools/host-scan'
     | '/tools/http-headers'
     | '/tools/http-methods'
@@ -385,6 +424,7 @@ export interface FileRouteTypes {
     | '/tools/tech-fingerprint'
     | '/tools/tls'
     | '/tools/tls-audit'
+    | '/tools/waf-detect'
     | '/tools/wayback'
     | '/tools/web-files'
     | '/tools/whois'
@@ -397,6 +437,7 @@ export interface FileRouteTypes {
     | '/batch'
     | '/system'
     | '/engagements/$engagementId'
+    | '/tools/api-discovery'
     | '/tools/banner-grab'
     | '/tools/bluetooth'
     | '/tools/cert-search'
@@ -406,9 +447,11 @@ export interface FileRouteTypes {
     | '/tools/cve-lookup'
     | '/tools/dev-footprint'
     | '/tools/dns'
+    | '/tools/dnsbl'
     | '/tools/dnssec'
     | '/tools/email-security'
     | '/tools/exposed-files'
+    | '/tools/favicon-hash'
     | '/tools/host-scan'
     | '/tools/http-headers'
     | '/tools/http-methods'
@@ -424,6 +467,7 @@ export interface FileRouteTypes {
     | '/tools/tech-fingerprint'
     | '/tools/tls'
     | '/tools/tls-audit'
+    | '/tools/waf-detect'
     | '/tools/wayback'
     | '/tools/web-files'
     | '/tools/whois'
@@ -436,6 +480,7 @@ export interface FileRouteTypes {
     | '/batch'
     | '/system'
     | '/engagements/$engagementId'
+    | '/tools/api-discovery'
     | '/tools/banner-grab'
     | '/tools/bluetooth'
     | '/tools/cert-search'
@@ -445,9 +490,11 @@ export interface FileRouteTypes {
     | '/tools/cve-lookup'
     | '/tools/dev-footprint'
     | '/tools/dns'
+    | '/tools/dnsbl'
     | '/tools/dnssec'
     | '/tools/email-security'
     | '/tools/exposed-files'
+    | '/tools/favicon-hash'
     | '/tools/host-scan'
     | '/tools/http-headers'
     | '/tools/http-methods'
@@ -463,6 +510,7 @@ export interface FileRouteTypes {
     | '/tools/tech-fingerprint'
     | '/tools/tls'
     | '/tools/tls-audit'
+    | '/tools/waf-detect'
     | '/tools/wayback'
     | '/tools/web-files'
     | '/tools/whois'
@@ -476,6 +524,7 @@ export interface RootRouteChildren {
   BatchRoute: typeof BatchRoute
   SystemRoute: typeof SystemRoute
   EngagementsEngagementIdRoute: typeof EngagementsEngagementIdRoute
+  ToolsApiDiscoveryRoute: typeof ToolsApiDiscoveryRoute
   ToolsBannerGrabRoute: typeof ToolsBannerGrabRoute
   ToolsBluetoothRoute: typeof ToolsBluetoothRoute
   ToolsCertSearchRoute: typeof ToolsCertSearchRoute
@@ -485,9 +534,11 @@ export interface RootRouteChildren {
   ToolsCveLookupRoute: typeof ToolsCveLookupRoute
   ToolsDevFootprintRoute: typeof ToolsDevFootprintRoute
   ToolsDnsRoute: typeof ToolsDnsRoute
+  ToolsDnsblRoute: typeof ToolsDnsblRoute
   ToolsDnssecRoute: typeof ToolsDnssecRoute
   ToolsEmailSecurityRoute: typeof ToolsEmailSecurityRoute
   ToolsExposedFilesRoute: typeof ToolsExposedFilesRoute
+  ToolsFaviconHashRoute: typeof ToolsFaviconHashRoute
   ToolsHostScanRoute: typeof ToolsHostScanRoute
   ToolsHttpHeadersRoute: typeof ToolsHttpHeadersRoute
   ToolsHttpMethodsRoute: typeof ToolsHttpMethodsRoute
@@ -503,6 +554,7 @@ export interface RootRouteChildren {
   ToolsTechFingerprintRoute: typeof ToolsTechFingerprintRoute
   ToolsTlsRoute: typeof ToolsTlsRoute
   ToolsTlsAuditRoute: typeof ToolsTlsAuditRoute
+  ToolsWafDetectRoute: typeof ToolsWafDetectRoute
   ToolsWaybackRoute: typeof ToolsWaybackRoute
   ToolsWebFilesRoute: typeof ToolsWebFilesRoute
   ToolsWhoisRoute: typeof ToolsWhoisRoute
@@ -546,6 +598,13 @@ declare module '@tanstack/react-router' {
       path: '/engagements/$engagementId'
       fullPath: '/engagements/$engagementId'
       preLoaderRoute: typeof EngagementsEngagementIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/api-discovery': {
+      id: '/tools/api-discovery'
+      path: '/tools/api-discovery'
+      fullPath: '/tools/api-discovery'
+      preLoaderRoute: typeof ToolsApiDiscoveryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tools/banner-grab': {
@@ -611,6 +670,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToolsDnsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tools/dnsbl': {
+      id: '/tools/dnsbl'
+      path: '/tools/dnsbl'
+      fullPath: '/tools/dnsbl'
+      preLoaderRoute: typeof ToolsDnsblRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tools/dnssec': {
       id: '/tools/dnssec'
       path: '/tools/dnssec'
@@ -630,6 +696,13 @@ declare module '@tanstack/react-router' {
       path: '/tools/exposed-files'
       fullPath: '/tools/exposed-files'
       preLoaderRoute: typeof ToolsExposedFilesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/favicon-hash': {
+      id: '/tools/favicon-hash'
+      path: '/tools/favicon-hash'
+      fullPath: '/tools/favicon-hash'
+      preLoaderRoute: typeof ToolsFaviconHashRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tools/host-scan': {
@@ -737,6 +810,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToolsTlsAuditRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tools/waf-detect': {
+      id: '/tools/waf-detect'
+      path: '/tools/waf-detect'
+      fullPath: '/tools/waf-detect'
+      preLoaderRoute: typeof ToolsWafDetectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tools/wayback': {
       id: '/tools/wayback'
       path: '/tools/wayback'
@@ -780,6 +860,7 @@ const rootRouteChildren: RootRouteChildren = {
   BatchRoute: BatchRoute,
   SystemRoute: SystemRoute,
   EngagementsEngagementIdRoute: EngagementsEngagementIdRoute,
+  ToolsApiDiscoveryRoute: ToolsApiDiscoveryRoute,
   ToolsBannerGrabRoute: ToolsBannerGrabRoute,
   ToolsBluetoothRoute: ToolsBluetoothRoute,
   ToolsCertSearchRoute: ToolsCertSearchRoute,
@@ -789,9 +870,11 @@ const rootRouteChildren: RootRouteChildren = {
   ToolsCveLookupRoute: ToolsCveLookupRoute,
   ToolsDevFootprintRoute: ToolsDevFootprintRoute,
   ToolsDnsRoute: ToolsDnsRoute,
+  ToolsDnsblRoute: ToolsDnsblRoute,
   ToolsDnssecRoute: ToolsDnssecRoute,
   ToolsEmailSecurityRoute: ToolsEmailSecurityRoute,
   ToolsExposedFilesRoute: ToolsExposedFilesRoute,
+  ToolsFaviconHashRoute: ToolsFaviconHashRoute,
   ToolsHostScanRoute: ToolsHostScanRoute,
   ToolsHttpHeadersRoute: ToolsHttpHeadersRoute,
   ToolsHttpMethodsRoute: ToolsHttpMethodsRoute,
@@ -807,6 +890,7 @@ const rootRouteChildren: RootRouteChildren = {
   ToolsTechFingerprintRoute: ToolsTechFingerprintRoute,
   ToolsTlsRoute: ToolsTlsRoute,
   ToolsTlsAuditRoute: ToolsTlsAuditRoute,
+  ToolsWafDetectRoute: ToolsWafDetectRoute,
   ToolsWaybackRoute: ToolsWaybackRoute,
   ToolsWebFilesRoute: ToolsWebFilesRoute,
   ToolsWhoisRoute: ToolsWhoisRoute,

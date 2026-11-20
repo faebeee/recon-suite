@@ -56,6 +56,26 @@ import {
   type CorsOutput,
 } from './features/cors.js';
 import {
+  wafDetectInputSchema,
+  type WafDetectInput,
+  type WafDetectOutput,
+} from './features/waf-detect.js';
+import {
+  faviconHashInputSchema,
+  type FaviconHashInput,
+  type FaviconHashOutput,
+} from './features/favicon-hash.js';
+import {
+  apiDiscoveryInputSchema,
+  type ApiDiscoveryInput,
+  type ApiDiscoveryOutput,
+} from './features/api-discovery.js';
+import {
+  dnsblInputSchema,
+  type DnsblInput,
+  type DnsblOutput,
+} from './features/dnsbl.js';
+import {
   cookieAuditInputSchema,
   type CookieAuditInput,
   type CookieAuditOutput,
@@ -183,6 +203,10 @@ export const TOOL_INPUT_SCHEMAS = {
   cors: corsInputSchema,
   'cookie-audit': cookieAuditInputSchema,
   'http-methods': httpMethodsInputSchema,
+  'waf-detect': wafDetectInputSchema,
+  'favicon-hash': faviconHashInputSchema,
+  'api-discovery': apiDiscoveryInputSchema,
+  dnsbl: dnsblInputSchema,
   'tls-audit': tlsAuditInputSchema,
   'js-endpoints': jsEndpointsInputSchema,
   'exposed-files': exposedFilesInputSchema,
@@ -225,6 +249,10 @@ export interface ToolIO {
   cors: { input: CorsInput; output: CorsOutput };
   'cookie-audit': { input: CookieAuditInput; output: CookieAuditOutput };
   'http-methods': { input: HttpMethodsInput; output: HttpMethodsOutput };
+  'waf-detect': { input: WafDetectInput; output: WafDetectOutput };
+  'favicon-hash': { input: FaviconHashInput; output: FaviconHashOutput };
+  'api-discovery': { input: ApiDiscoveryInput; output: ApiDiscoveryOutput };
+  dnsbl: { input: DnsblInput; output: DnsblOutput };
   'tls-audit': { input: TlsAuditInput; output: TlsAuditOutput };
   'js-endpoints': { input: JsEndpointsInput; output: JsEndpointsOutput };
   'exposed-files': { input: ExposedFilesInput; output: ExposedFilesOutput };

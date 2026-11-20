@@ -163,6 +163,33 @@ const EXTRACTORS: Partial<Record<string, (d: Rec, add: Add) => void>> = {
       );
     }
   },
+  'waf-detect': (d, add) => {
+    for (const e of recs(d.detections))
+      add('Edge', str(e.name), strs(e.kinds).join(', '));
+    const probe = isRec(d.probe) ? d.probe : undefined;
+    if (probe) add('Trigger request', 'Blocked', probe.blocked);
+  },
+  'favicon-hash': (d, add) => {
+    for (const i of recs(d.icons)) {
+      if (typeof i.mmh3 === 'number') add('Icons', str(i.url), i.mmh3);
+    }
+  },
+  'api-discovery': (d, add) => {
+    for (const s of recs(d.specs)) {
+      for (const e of recs(s.endpoints))
+        add('API endpoints', words(e.method, e.path));
+    }
+    for (const g of recs(d.graphql)) {
+      for (const q of strs(g.queries)) add('GraphQL queries', q);
+      for (const m of strs(g.mutations)) add('GraphQL mutations', m);
+    }
+    for (const page of strs(d.docPages)) add('Documentation pages', page);
+  },
+  dnsbl: (d, add) => {
+    for (const c of recs(d.checks)) {
+      add('Blocklists', words(c.list, c.subject), c.status);
+    }
+  },
   'http-methods': (d, add) => {
     const options = isRec(d.options) ? d.options : {};
     for (const m of strs(options.allowed)) add('Allowed methods', m);
