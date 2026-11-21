@@ -2,7 +2,9 @@
 
 ## Requirements
 
-- Node.js 24 or newer
+- Node.js 24 or newer (`.nvmrc`: `nvm install && nvm use`). Distribution packages such as
+  `apt install nodejs` on Debian, Kali or Parrot are usually too old; the API needs the built-in
+  `node:sqlite` module.
 - npm 11 (ships with Node.js)
 - Optional, for local tools: see [Local tools setup](local-tools.md)
 
@@ -79,10 +81,11 @@ Tests never touch the internet: network code is tested with fakes and local serv
 
 ## Troubleshooting
 
-| Symptom                               | Cause and fix                                                                                              |
-| ------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `503` on WiFi, Bluetooth or Host Scan | Local tools are disabled or the host lacks the hardware/software. See the API startup log.                 |
-| Top bar shows `uplink down`           | API not running, or `API_PROXY_TARGET` points to the wrong port.                                           |
-| `EADDRINUSE` on 4000 or 5173          | Another process uses the port. Change `PORT` / `API_PROXY_TARGET` or stop the other process.               |
-| `503` on CVE Lookup or Reverse IP     | `NVD_API_KEY` / `SECURITYTRAILS_API_KEY` not set.                                                          |
-| `403 Out of scope for engagement ...` | The active engagement's scope does not cover the target. Add it in the Scope tab, or pick "No engagement". |
+| Symptom                                | Cause and fix                                                                                              |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `503` on WiFi, Bluetooth or Host Scan  | Local tools are disabled or the host lacks the hardware/software. See the API startup log.                 |
+| Top bar shows `uplink down`            | API not running, or `API_PROXY_TARGET` points to the wrong port.                                           |
+| `EADDRINUSE` on 4000 or 5173           | Another process uses the port. Change `PORT` / `API_PROXY_TARGET` or stop the other process.               |
+| `No such built-in module: node:sqlite` | Node.js is older than 24. Install a current version (`nvm install`), then `rm -rf node_modules && npm ci`. |
+| `503` on CVE Lookup or Reverse IP      | `NVD_API_KEY` / `SECURITYTRAILS_API_KEY` not set.                                                          |
+| `403 Out of scope for engagement ...`  | The active engagement's scope does not cover the target. Add it in the Scope tab, or pick "No engagement". |

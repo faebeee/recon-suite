@@ -19,6 +19,8 @@ WEB_PORT="${WEB_PORT:-4173}"
 BIND_ADDRESS="${BIND_ADDRESS:-0.0.0.0}"
 WEB_ORIGINS="http://localhost:$WEB_PORT,http://127.0.0.1:$WEB_PORT"
 
+node "$ROOT/scripts/check-node.mjs"
+
 for var in API_PORT WEB_PORT; do
   value="${!var}"
   if ! [[ "$value" =~ ^[0-9]+$ ]] || ((value < 1 || value > 65535)); then
