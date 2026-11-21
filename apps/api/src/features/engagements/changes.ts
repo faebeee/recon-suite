@@ -75,6 +75,12 @@ const EXTRACTORS: Partial<Record<string, (d: Rec, add: Add) => void>> = {
       add('Services', str(p.port), words(p.service, p.product, p.version));
     }
   },
+  'dir-buster': (d, add) => {
+    for (const h of recs(d.hits)) add('Paths', str(h.path), h.status);
+  },
+  gobuster: (d, add) => {
+    for (const h of recs(d.hits)) add('Paths', str(h.path), h.status);
+  },
   'network-scan': (d, add) => hosts(d, add),
   'host-scan': (d, add) => hosts(d, add),
   tls: (d, add) => {

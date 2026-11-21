@@ -370,6 +370,30 @@ export const TOOL_CATALOG: Record<ToolId, ToolMeta> = {
     scope: 'remote',
     targetHint: 'https://api.example.com',
   },
+  'dir-buster': {
+    id: 'dir-buster',
+    code: 'W-15',
+    name: 'Dir Buster',
+    tagline: 'Directory and file discovery',
+    description:
+      'Requests wordlist paths below a base URL (DirBuster / gobuster style) and lists the directories and files that exist, with optional extensions and recursion into found directories. Filters catch-all routes and soft 404s, flags directory listings and backup files. Bounded: built-in wordlists, at most 3000 requests and 3 minutes per scan.',
+    category: 'web',
+    mode: 'active',
+    scope: 'remote',
+    targetHint: 'https://example.com',
+  },
+  gobuster: {
+    id: 'gobuster',
+    code: 'W-16',
+    name: 'Gobuster',
+    tagline: 'gobuster dir with system wordlists',
+    description:
+      "Runs gobuster dir on the API host against the target's resolved IP, with a wordlist installed there (dirb, DirBuster, SecLists) or a built-in one, optional extensions and a hard time limit. Lists every path gobuster finds with status, size and redirect target.",
+    category: 'web',
+    mode: 'active',
+    scope: 'remote',
+    targetHint: 'https://example.com',
+  },
   tls: {
     id: 'tls',
     code: 'W-02',

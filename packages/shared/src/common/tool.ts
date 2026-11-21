@@ -30,6 +30,8 @@ export const TOOL_IDS = [
   'tls-audit',
   'js-endpoints',
   'exposed-files',
+  'dir-buster',
+  'gobuster',
   'ports',
   'banner-grab',
   'nmap',

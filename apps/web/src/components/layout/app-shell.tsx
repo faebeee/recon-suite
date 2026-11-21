@@ -1,17 +1,23 @@
-import type { ReactNode } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
+import { CommandPalette, useCommandPaletteShortcut } from './command-palette';
 import { MobileNav, Sidebar } from './sidebar';
 import { TopBar } from './top-bar';
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const togglePalette = useCallback(() => setPaletteOpen((o) => !o), []);
+  useCommandPaletteShortcut(togglePalette);
+
   return (
     <div className="min-h-screen">
+      <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-primary focus:p-2 focus:text-primary-foreground"
       >
         Skip to content
       </a>
-      <TopBar />
+      <TopBar onOpenPalette={() => setPaletteOpen(true)} />
       <MobileNav />
       <div className="flex">
         <aside

@@ -90,6 +90,8 @@ const ENGINES: Record<ToolId, (h: HostFacts) => Engine> = {
   'tls-audit': () => ({ engine: NODE_SOCKETS }),
   'js-endpoints': () => ({ engine: NODE_HTTP }),
   'exposed-files': () => ({ engine: NODE_HTTP }),
+  'dir-buster': () => ({ engine: `${NODE_HTTP}, built-in wordlists` }),
+  gobuster: () => ({ engine: 'gobuster dir' }),
   ports: () => ({ engine: `TCP connect (${NODE_SOCKETS})` }),
   'banner-grab': () => ({ engine: NODE_SOCKETS }),
   nmap: () => ({ engine: 'nmap (-sT, -sV)' }),

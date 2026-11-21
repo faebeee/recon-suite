@@ -41,6 +41,8 @@ are the JSON fields of the [HTTP API](api.md); defaults apply when a field is le
 | W-12 | [WAF / CDN Detect](#w-12-waf--cdn-detect)                 | active  | URL or domain                 |
 | W-13 | [Favicon Hash](#w-13-favicon-hash)                        | active  | URL or domain                 |
 | W-14 | [API Discovery](#w-14-api-discovery)                      | active  | URL or domain                 |
+| W-15 | [Dir Buster](#w-15-dir-buster)                            | active  | URL or domain                 |
+| W-16 | [Gobuster](#w-16-gobuster)                                | active  | URL or domain                 |
 | N-01 | [Port Probe](#n-01-port-probe)                            | active  | host                          |
 | N-02 | [Host Scan](#n-02-host-scan)                              | local   | none                          |
 | N-03 | [Banner Grab](#n-03-banner-grab)                          | active  | host                          |
@@ -452,6 +454,56 @@ pages don't count. Specs are parsed: version, title, servers, the endpoint list 
 whether authentication is declared at all (a public spec without any security scheme is a
 warning). GraphQL endpoints get one read-only introspection query; an answer with the schema
 (query and mutation names) is a warning. This is a fixed list, not a path brute force.
+
+### W-15 Dir Buster
+
+Directory and file discovery in the style of DirBuster or gobuster: requests every word of a
+built-in wordlist below the base URL (`https://example.com/app` scans `/app/<word>`), bare
+and with the chosen extensions, and lists what exists with status, size, content type, page
+title and redirect target. Directories (a redirect to `<word>/`, or a generated index) are
+followed once to show what they answer, and with a depth of 2 or 3 scanned themselves.
+
+| Option       | Default | Values                                                                    |
+| ------------ | ------- | ------------------------------------------------------------------------- |
+| `wordlist`   | `quick` | `quick` (about 100 words) or `common` (about 350)                         |
+| `extensions` | none    | up to 5 of `php html txt json xml js asp aspx jsp bak old zip sql`        |
+| `extraWords` | none    | up to 200 extra words, one path segment each (letters, digits, `. _ ~ -`) |
+| `depth`      | `1`     | 1-3; levels below the base URL to scan (max 20 directories per level)     |
+| `threads`    | `5`     | 1-10 parallel requests                                                    |
+
+Every directory is first calibrated with random paths: when unknown paths don't answer 404
+(single-page apps, catch-all redirects to a login, soft 404s), only responses that differ from
+that answer are kept, and the directory is listed under `wildcardDirs`. Statuses 400, 404 and
+410 mean "not there"; everything else (2xx, redirects, 401/403, 5xx) is a hit.
+
+Findings: a directory listing and a reachable backup, dump or archive (`.bak`, `.old`, `.zip`,
+`.sql`, `.tar`, `.gz`, ...) are warnings; other hits are information. Plain `GET` requests
+only, no redirects followed (other than into found directories). A scan stops early, keeping
+what it found, after 3000 requests, after 3 minutes, or after ten `429 Too Many Requests`
+answers (`stopped` says which).
+
+### W-16 Gobuster
+
+Runs [gobuster](https://github.com/OJ/gobuster) `dir` on the API host (install it with
+`sudo apt install gobuster` or `brew install gobuster`). Like Nmap Scan, gobuster connects to
+the target's resolved IP; the hostname is sent as the `Host` header, and HTTPS certificate
+checks are off because the certificate names the host, not the IP. Sites that need the
+hostname in the TLS handshake (SNI, common behind CDNs) may fail; use Dir Buster for those.
+
+| Option             | Default          | Values                                                                 |
+| ------------------ | ---------------- | ---------------------------------------------------------------------- |
+| `wordlist`         | `builtin-common` | an id from `GET /api/tools/gobuster/wordlists`                         |
+| `extensions`       | none             | up to 5 of `php html txt json xml js asp aspx jsp bak old zip sql`     |
+| `threads`          | `10`             | 1-50                                                                   |
+| `timeLimitMinutes` | `10`             | 1-30; gobuster is stopped then and the paths found so far are returned |
+| `excludeLengths`   | none             | up to 10 response sizes to ignore (`--exclude-length`)                 |
+
+Wordlists are the built-in Dir Buster lists plus lists found at fixed install paths: dirb
+(`common`, `big`), DirBuster (`directory-list-2.3-small`, `-medium`) and SecLists
+(`Web-Content/common`, `quickhits`, `raft-small/medium-directories`, `raft-small-files`;
+`sudo apt install seclists`). The client only sends an id, never a path. When random paths
+don't answer 404, gobuster refuses to run; the error names the response size to put into
+"Exclude lengths". Backups and archives found are warnings, other paths information.
 
 ## Network
 

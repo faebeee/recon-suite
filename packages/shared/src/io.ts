@@ -101,6 +101,16 @@ import {
   type ExposedFilesOutput,
 } from './features/exposed-files.js';
 import {
+  dirBusterInputSchema,
+  type DirBusterInput,
+  type DirBusterOutput,
+} from './features/dir-buster.js';
+import {
+  gobusterInputSchema,
+  type GobusterInput,
+  type GobusterOutput,
+} from './features/gobuster.js';
+import {
   bannerGrabInputSchema,
   type BannerGrabInput,
   type BannerGrabOutput,
@@ -210,6 +220,8 @@ export const TOOL_INPUT_SCHEMAS = {
   'tls-audit': tlsAuditInputSchema,
   'js-endpoints': jsEndpointsInputSchema,
   'exposed-files': exposedFilesInputSchema,
+  'dir-buster': dirBusterInputSchema,
+  gobuster: gobusterInputSchema,
   'banner-grab': bannerGrabInputSchema,
   nmap: nmapInputSchema,
   'network-scan': networkScanInputSchema,
@@ -256,6 +268,8 @@ export interface ToolIO {
   'tls-audit': { input: TlsAuditInput; output: TlsAuditOutput };
   'js-endpoints': { input: JsEndpointsInput; output: JsEndpointsOutput };
   'exposed-files': { input: ExposedFilesInput; output: ExposedFilesOutput };
+  'dir-buster': { input: DirBusterInput; output: DirBusterOutput };
+  gobuster: { input: GobusterInput; output: GobusterOutput };
   'banner-grab': { input: BannerGrabInput; output: BannerGrabOutput };
   nmap: { input: NmapInput; output: NmapOutput };
   'network-scan': { input: NetworkScanInput; output: NetworkScanOutput };

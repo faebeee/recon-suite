@@ -59,6 +59,18 @@ const CHECKS: Record<ToolId, Check> = {
   'tls-audit': () => OK,
   'js-endpoints': () => OK,
   'exposed-files': () => OK,
+  'dir-buster': () => OK,
+  gobuster: (h) =>
+    h.has('gobuster')
+      ? OK
+      : {
+          status: 'unavailable',
+          reason: '"gobuster" is not installed on the API host.',
+          fix:
+            h.platform === 'darwin'
+              ? 'brew install gobuster'
+              : 'Install it, e.g. "sudo apt install gobuster" (SecLists: "sudo apt install seclists").',
+        },
   'banner-grab': () => OK,
   'cve-lookup': (h) =>
     h.apiKeys.nvd

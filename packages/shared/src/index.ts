@@ -30,6 +30,8 @@ export * from './features/cors.js';
 export * from './features/tls-audit.js';
 export * from './features/js-endpoints.js';
 export * from './features/exposed-files.js';
+export * from './features/dir-buster.js';
+export * from './features/gobuster.js';
 export * from './features/banner-grab.js';
 export * from './features/nmap.js';
 export * from './features/network-scan.js';

@@ -23,12 +23,14 @@ import { Route as ToolsCookieAuditRouteImport } from './routes/tools/cookie-audi
 import { Route as ToolsCorsRouteImport } from './routes/tools/cors'
 import { Route as ToolsCveLookupRouteImport } from './routes/tools/cve-lookup'
 import { Route as ToolsDevFootprintRouteImport } from './routes/tools/dev-footprint'
+import { Route as ToolsDirBusterRouteImport } from './routes/tools/dir-buster'
 import { Route as ToolsDnsRouteImport } from './routes/tools/dns'
 import { Route as ToolsDnsblRouteImport } from './routes/tools/dnsbl'
 import { Route as ToolsDnssecRouteImport } from './routes/tools/dnssec'
 import { Route as ToolsEmailSecurityRouteImport } from './routes/tools/email-security'
 import { Route as ToolsExposedFilesRouteImport } from './routes/tools/exposed-files'
 import { Route as ToolsFaviconHashRouteImport } from './routes/tools/favicon-hash'
+import { Route as ToolsGobusterRouteImport } from './routes/tools/gobuster'
 import { Route as ToolsHostScanRouteImport } from './routes/tools/host-scan'
 import { Route as ToolsHttpHeadersRouteImport } from './routes/tools/http-headers'
 import { Route as ToolsHttpMethodsRouteImport } from './routes/tools/http-methods'
@@ -121,6 +123,11 @@ const ToolsDevFootprintRoute = ToolsDevFootprintRouteImport.update({
   path: '/tools/dev-footprint',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToolsDirBusterRoute = ToolsDirBusterRouteImport.update({
+  id: '/tools/dir-buster',
+  path: '/tools/dir-buster',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ToolsDnsRoute = ToolsDnsRouteImport.update({
   id: '/tools/dns',
   path: '/tools/dns',
@@ -149,6 +156,11 @@ const ToolsExposedFilesRoute = ToolsExposedFilesRouteImport.update({
 const ToolsFaviconHashRoute = ToolsFaviconHashRouteImport.update({
   id: '/tools/favicon-hash',
   path: '/tools/favicon-hash',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsGobusterRoute = ToolsGobusterRouteImport.update({
+  id: '/tools/gobuster',
+  path: '/tools/gobuster',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ToolsHostScanRoute = ToolsHostScanRouteImport.update({
@@ -271,12 +283,14 @@ export interface FileRoutesByFullPath {
   '/tools/cors': typeof ToolsCorsRoute
   '/tools/cve-lookup': typeof ToolsCveLookupRoute
   '/tools/dev-footprint': typeof ToolsDevFootprintRoute
+  '/tools/dir-buster': typeof ToolsDirBusterRoute
   '/tools/dns': typeof ToolsDnsRoute
   '/tools/dnsbl': typeof ToolsDnsblRoute
   '/tools/dnssec': typeof ToolsDnssecRoute
   '/tools/email-security': typeof ToolsEmailSecurityRoute
   '/tools/exposed-files': typeof ToolsExposedFilesRoute
   '/tools/favicon-hash': typeof ToolsFaviconHashRoute
+  '/tools/gobuster': typeof ToolsGobusterRoute
   '/tools/host-scan': typeof ToolsHostScanRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/http-methods': typeof ToolsHttpMethodsRoute
@@ -314,12 +328,14 @@ export interface FileRoutesByTo {
   '/tools/cors': typeof ToolsCorsRoute
   '/tools/cve-lookup': typeof ToolsCveLookupRoute
   '/tools/dev-footprint': typeof ToolsDevFootprintRoute
+  '/tools/dir-buster': typeof ToolsDirBusterRoute
   '/tools/dns': typeof ToolsDnsRoute
   '/tools/dnsbl': typeof ToolsDnsblRoute
   '/tools/dnssec': typeof ToolsDnssecRoute
   '/tools/email-security': typeof ToolsEmailSecurityRoute
   '/tools/exposed-files': typeof ToolsExposedFilesRoute
   '/tools/favicon-hash': typeof ToolsFaviconHashRoute
+  '/tools/gobuster': typeof ToolsGobusterRoute
   '/tools/host-scan': typeof ToolsHostScanRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/http-methods': typeof ToolsHttpMethodsRoute
@@ -358,12 +374,14 @@ export interface FileRoutesById {
   '/tools/cors': typeof ToolsCorsRoute
   '/tools/cve-lookup': typeof ToolsCveLookupRoute
   '/tools/dev-footprint': typeof ToolsDevFootprintRoute
+  '/tools/dir-buster': typeof ToolsDirBusterRoute
   '/tools/dns': typeof ToolsDnsRoute
   '/tools/dnsbl': typeof ToolsDnsblRoute
   '/tools/dnssec': typeof ToolsDnssecRoute
   '/tools/email-security': typeof ToolsEmailSecurityRoute
   '/tools/exposed-files': typeof ToolsExposedFilesRoute
   '/tools/favicon-hash': typeof ToolsFaviconHashRoute
+  '/tools/gobuster': typeof ToolsGobusterRoute
   '/tools/host-scan': typeof ToolsHostScanRoute
   '/tools/http-headers': typeof ToolsHttpHeadersRoute
   '/tools/http-methods': typeof ToolsHttpMethodsRoute
@@ -403,12 +421,14 @@ export interface FileRouteTypes {
     | '/tools/cors'
     | '/tools/cve-lookup'
     | '/tools/dev-footprint'
+    | '/tools/dir-buster'
     | '/tools/dns'
     | '/tools/dnsbl'
     | '/tools/dnssec'
     | '/tools/email-security'
     | '/tools/exposed-files'
     | '/tools/favicon-hash'
+    | '/tools/gobuster'
     | '/tools/host-scan'
     | '/tools/http-headers'
     | '/tools/http-methods'
@@ -446,12 +466,14 @@ export interface FileRouteTypes {
     | '/tools/cors'
     | '/tools/cve-lookup'
     | '/tools/dev-footprint'
+    | '/tools/dir-buster'
     | '/tools/dns'
     | '/tools/dnsbl'
     | '/tools/dnssec'
     | '/tools/email-security'
     | '/tools/exposed-files'
     | '/tools/favicon-hash'
+    | '/tools/gobuster'
     | '/tools/host-scan'
     | '/tools/http-headers'
     | '/tools/http-methods'
@@ -489,12 +511,14 @@ export interface FileRouteTypes {
     | '/tools/cors'
     | '/tools/cve-lookup'
     | '/tools/dev-footprint'
+    | '/tools/dir-buster'
     | '/tools/dns'
     | '/tools/dnsbl'
     | '/tools/dnssec'
     | '/tools/email-security'
     | '/tools/exposed-files'
     | '/tools/favicon-hash'
+    | '/tools/gobuster'
     | '/tools/host-scan'
     | '/tools/http-headers'
     | '/tools/http-methods'
@@ -533,12 +557,14 @@ export interface RootRouteChildren {
   ToolsCorsRoute: typeof ToolsCorsRoute
   ToolsCveLookupRoute: typeof ToolsCveLookupRoute
   ToolsDevFootprintRoute: typeof ToolsDevFootprintRoute
+  ToolsDirBusterRoute: typeof ToolsDirBusterRoute
   ToolsDnsRoute: typeof ToolsDnsRoute
   ToolsDnsblRoute: typeof ToolsDnsblRoute
   ToolsDnssecRoute: typeof ToolsDnssecRoute
   ToolsEmailSecurityRoute: typeof ToolsEmailSecurityRoute
   ToolsExposedFilesRoute: typeof ToolsExposedFilesRoute
   ToolsFaviconHashRoute: typeof ToolsFaviconHashRoute
+  ToolsGobusterRoute: typeof ToolsGobusterRoute
   ToolsHostScanRoute: typeof ToolsHostScanRoute
   ToolsHttpHeadersRoute: typeof ToolsHttpHeadersRoute
   ToolsHttpMethodsRoute: typeof ToolsHttpMethodsRoute
@@ -663,6 +689,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToolsDevFootprintRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tools/dir-buster': {
+      id: '/tools/dir-buster'
+      path: '/tools/dir-buster'
+      fullPath: '/tools/dir-buster'
+      preLoaderRoute: typeof ToolsDirBusterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tools/dns': {
       id: '/tools/dns'
       path: '/tools/dns'
@@ -703,6 +736,13 @@ declare module '@tanstack/react-router' {
       path: '/tools/favicon-hash'
       fullPath: '/tools/favicon-hash'
       preLoaderRoute: typeof ToolsFaviconHashRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/gobuster': {
+      id: '/tools/gobuster'
+      path: '/tools/gobuster'
+      fullPath: '/tools/gobuster'
+      preLoaderRoute: typeof ToolsGobusterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tools/host-scan': {
@@ -869,12 +909,14 @@ const rootRouteChildren: RootRouteChildren = {
   ToolsCorsRoute: ToolsCorsRoute,
   ToolsCveLookupRoute: ToolsCveLookupRoute,
   ToolsDevFootprintRoute: ToolsDevFootprintRoute,
+  ToolsDirBusterRoute: ToolsDirBusterRoute,
   ToolsDnsRoute: ToolsDnsRoute,
   ToolsDnsblRoute: ToolsDnsblRoute,
   ToolsDnssecRoute: ToolsDnssecRoute,
   ToolsEmailSecurityRoute: ToolsEmailSecurityRoute,
   ToolsExposedFilesRoute: ToolsExposedFilesRoute,
   ToolsFaviconHashRoute: ToolsFaviconHashRoute,
+  ToolsGobusterRoute: ToolsGobusterRoute,
   ToolsHostScanRoute: ToolsHostScanRoute,
   ToolsHttpHeadersRoute: ToolsHttpHeadersRoute,
   ToolsHttpMethodsRoute: ToolsHttpMethodsRoute,

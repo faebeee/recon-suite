@@ -13,6 +13,8 @@ export class CommandFailedError extends Error {
     readonly timedOut: boolean,
     /** Process exit code, when it exited on its own. */
     readonly exitCode?: number,
+    /** What the command printed before it failed or was killed (e.g. partial results). */
+    readonly stdout = '',
   ) {
     super(
       timedOut
@@ -51,6 +53,7 @@ export function runCommand(
             String(stderr),
             !!e.killed,
             typeof e.code === 'number' ? e.code : undefined,
+            String(stdout),
           ),
         );
       },

@@ -6,6 +6,9 @@
 
 - **Top bar:** logo (back to the dashboard), UTC clock, API status ("uplink"), the active
   engagement, and the theme switcher.
+- **Quick open** (`Cmd+K` on macOS, `Ctrl+K` elsewhere, or **Search** in the top bar): type a
+  tool or page name, code (`W-15`) or a few of its letters, pick a result with the arrow keys
+  and press Enter to open it. Esc closes it.
 - **Sidebar:** every tool grouped by category (DNS, Intel, Web, Network, Wireless) with its
   code, e.g. `D-01`. On small screens it becomes a horizontal strip under the top bar.
 - **Dashboard:** tool cards with passive/active badges, a quick-target field, a **Host** panel

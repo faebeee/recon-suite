@@ -10,6 +10,8 @@ import {
   FileSearch,
   Fingerprint,
   FolderOpen,
+  FolderSearch,
+  Ghost,
   Globe,
   Globe2,
   Image,
@@ -107,6 +109,16 @@ export const TOOL_UI: Record<ToolId, ToolUi> = {
   'js-endpoints': { icon: FileCode2, tone: 'cyan', accepts: ['domain', 'url'] },
   'exposed-files': {
     icon: FolderOpen,
+    tone: 'magenta',
+    accepts: ['domain', 'url'],
+  },
+  'dir-buster': {
+    icon: FolderSearch,
+    tone: 'magenta',
+    accepts: ['domain', 'url'],
+  },
+  gobuster: {
+    icon: Ghost,
     tone: 'magenta',
     accepts: ['domain', 'url'],
   },

@@ -3,7 +3,7 @@ import { runCommand } from './run-command.js';
 import { EXEC_COMMANDS, type ExecCommand } from './tool-exec.js';
 
 /**
- * Runs security tooling (nmap) on the API host. Same rules as runCommand(): fixed command names,
+ * Runs security tooling (nmap, gobuster) on the API host. Same rules as runCommand(): fixed command names,
  * arguments as an array, no shell.
  */
 @Injectable()

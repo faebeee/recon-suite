@@ -59,7 +59,7 @@ apps/api/src/
     net/             TargetGuardService: resolves targets (no private-range block)
     http/            HttpClientService (guarded + trusted undici agents), readTextLimited
     process/         runCommand(): fixed OS commands via execFile (local tools)
-                     ToolExecService: nmap on the API host
+                     ToolExecService: nmap and gobuster on the API host (closed EXEC_COMMANDS list)
     util/            mapConcurrent
     db/              Drizzle schema (schema.ts) on node:sqlite; migrations in apps/api/drizzle/
     tool-runner.ts   runTool(id, target, fn, { findings }): ToolResult envelope (+ findings)
@@ -128,7 +128,12 @@ apps/web/src/
    Exception: nmap scans (Nmap Scan, Network Scan, Host Scan sweep) run without a time limit
    (`ToolExecService.run(..., { timeoutMs: null })`) and without a cap on parallel scans.
 4. Keep tools at the level of a standard recon toolkit. Do not add exploitation, brute-forcing of
-   credentials, DoS-style flooding, or evasion features.
+   credentials, DoS-style flooding, or evasion features. Wordlist path discovery (Dir Buster) is
+   allowed in that form only: built-in wordlists plus capped extra words, plain GETs, and hard
+   request, time and concurrency budgets (`MAX_DIR_BUSTER_REQUESTS`, stop on repeated 429).
+   Gobuster may only use wordlists from the server-side allowlist (`gobuster.wordlists.ts`,
+   checked to exist; clients send an id, never a path), with a hard time limit
+   (`MAX_GOBUSTER_MINUTES`) and a thread cap (`MAX_GOBUSTER_THREADS`).
 5. Tools that connect to the target are `mode: 'active'` in the catalog; the UI then shows the
    authorisation notice automatically.
 6. There is no rate limit and no login. The app runs on the host (no containers): the UI from

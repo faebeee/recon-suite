@@ -18,6 +18,8 @@ import { DnsblModule } from './dnsbl/dnsbl.module.js';
 import { TlsAuditModule } from './tls-audit/tls-audit.module.js';
 import { JsEndpointsModule } from './js-endpoints/js-endpoints.module.js';
 import { ExposedFilesModule } from './exposed-files/exposed-files.module.js';
+import { DirBusterModule } from './dir-buster/dir-buster.module.js';
+import { GobusterModule } from './gobuster/gobuster.module.js';
 import { BannerGrabModule } from './banner-grab/banner-grab.module.js';
 import { NmapModule } from './nmap/nmap.module.js';
 import { NetworkScanModule } from './network-scan/network-scan.module.js';
@@ -73,6 +75,8 @@ export const FEATURE_MODULES = [
   TlsAuditModule,
   JsEndpointsModule,
   ExposedFilesModule,
+  DirBusterModule,
+  GobusterModule,
   BannerGrabModule,
   NmapModule,
   NetworkScanModule,
