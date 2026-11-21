@@ -36,15 +36,6 @@ at `169.254.169.254`) and reserved addresses are **not** blocked.
   same-origin. Vite's host check (`allowedHosts`: IPs and `localhost` only) blocks DNS
   rebinding, which would otherwise make a foreign page look same-origin.
 
-## Engagement scope
-
-Inside an engagement, active tools only run against targets in its scope (exact domains,
-`*.` wildcards, IPs, CIDR ranges; exclusions win). This guards against typos and scope creep in
-a real assessment. It is checked on the tool's target (and Subdomain Takeover's extra hosts),
-not on every connection a tool makes afterwards: redirects to other hosts, nameservers found by
-Zone Transfer, and the cloud endpoints of Cloud Storage are not scope-checked. They are still
-subject to the target guard above.
-
 ## Limits
 
 | Limit          | Value                                                                                                       |

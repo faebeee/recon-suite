@@ -4,8 +4,8 @@ import type { DnssecStatus } from './features/dnssec.js';
 import type { ToolId, ToolResult } from './common/tool.js';
 
 /**
- * Request header that assigns a tool run to an engagement. When present, the API checks
- * the scope (active tools) and stores the run in the engagement's history.
+ * Request header that assigns a tool run to an engagement. When present, the API stores the
+ * run in the engagement's history.
  */
 export const ENGAGEMENT_HEADER = 'x-engagement-id';
 
@@ -42,47 +42,10 @@ export interface Engagement {
   createdAt: string;
   updatedAt: string;
   counts: {
-    scope: number;
     runs: number;
     notes: number;
     findings: FindingCounts;
   };
-}
-
-// ---------------------------------------------------------------- scope
-
-export type ScopeKind = 'domain' | 'wildcard' | 'ip' | 'cidr';
-
-export const scopeEntryInputSchema = z.object({
-  /** example.com, *.example.com, 192.0.2.1, 192.0.2.0/24 or a URL (hostname is used). */
-  value: z.string().trim().min(1).max(260),
-  /** Explicitly out of scope; exclusions win over inclusions. */
-  excluded: z.boolean().default(false),
-  note: z.string().trim().max(500).optional(),
-});
-
-export const scopeBulkInputSchema = z.object({
-  entries: z.array(scopeEntryInputSchema).min(1).max(500),
-});
-export type ScopeBulkInput = z.input<typeof scopeBulkInputSchema>;
-
-export interface ScopeEntry {
-  id: string;
-  kind: ScopeKind;
-  value: string;
-  excluded: boolean;
-  note?: string;
-  createdAt: string;
-}
-
-export const scopeCheckInputSchema = z.object({
-  target: z.string().trim().min(1).max(2000),
-});
-
-export interface ScopeCheckResult {
-  inScope: boolean;
-  reason: string;
-  entry?: Pick<ScopeEntry, 'kind' | 'value' | 'excluded'>;
 }
 
 // ---------------------------------------------------------------- runs (history)
@@ -276,11 +239,7 @@ export const FINDING_STATUS_ORDER: FindingStatus[] = [
  *   POST   list                -> Engagement            body: EngagementInput
  *   GET    one(id)             -> Engagement
  *   PATCH  one(id)             -> Engagement            body: EngagementPatch
- *   DELETE one(id)             -> 204 (cascades scope, runs, notes)
- *   GET    scope(id)           -> ScopeEntry[]
- *   POST   scope(id)           -> ScopeEntry[] (full list after adding) body: ScopeBulkInput; 400 lists invalid values
- *   DELETE scopeEntry(id, eid) -> 204
- *   POST   scopeCheck(id)      -> ScopeCheckResult      body: { target }
+ *   DELETE one(id)             -> 204 (cascades runs, notes)
  *   GET    runs(id)?tool&target&tag&limit&offset -> RunPage (newest first)
  *   GET    run(runId)          -> RunDetail
  *   PATCH  run(runId)          -> RunSummary            body: RunPatch
@@ -295,17 +254,12 @@ export const FINDING_STATUS_ORDER: FindingStatus[] = [
  *   PATCH  note(noteId)        -> Note                  body: Partial<NoteInput>
  *   DELETE note(noteId)        -> 204
  *   GET    exportFile(id, fmt) -> file download (Content-Disposition attachment)
- * Tool runs: send ENGAGEMENT_HEADER with POST /tools/<id>. Active tools then require the
- * target to be in scope (403 "Out of scope ..." otherwise); the run is stored and the
+ * Tool runs: send ENGAGEMENT_HEADER with POST /tools/<id>; the run is stored and the
  * returned ToolResult carries `runId`.
  */
 export const ENGAGEMENT_API = {
   list: '/engagements',
   one: (id: string) => `/engagements/${id}`,
-  scope: (id: string) => `/engagements/${id}/scope`,
-  scopeEntry: (id: string, entryId: string) =>
-    `/engagements/${id}/scope/${entryId}`,
-  scopeCheck: (id: string) => `/engagements/${id}/scope/check`,
   runs: (id: string) => `/engagements/${id}/runs`,
   run: (runId: string) => `/runs/${runId}`,
   runDiff: (before: string, after: string) => `/runs/${before}/diff/${after}`,

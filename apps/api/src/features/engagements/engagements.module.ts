@@ -4,7 +4,7 @@ import { EngagementsController } from './engagements.controller.js';
 import { EngagementsRepository } from './engagements.repository.js';
 import { RunCaptureInterceptor } from './run-capture.interceptor.js';
 
-/** Engagement workspace: scope, run history, findings, notes and export. */
+/** Engagement workspace: run history, findings, notes and export. */
 @Module({
   controllers: [EngagementsController],
   providers: [

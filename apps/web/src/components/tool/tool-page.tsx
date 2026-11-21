@@ -60,7 +60,7 @@ export function ToolPage({
           </p>
         )}
       </header>
-      <EngagementBanner active={tool.mode === 'active'} />
+      <EngagementBanner />
       {children}
       <ToolScoreHistory toolId={toolId} />
     </div>
@@ -68,7 +68,7 @@ export function ToolPage({
 }
 
 /** Slim notice that runs are recorded to the active engagement. */
-function EngagementBanner({ active }: { active: boolean }) {
+function EngagementBanner() {
   const { id, engagement } = useActiveEngagement();
   if (!id) return null;
   return (
@@ -84,11 +84,6 @@ function EngagementBanner({ active }: { active: boolean }) {
           {engagement?.name ?? 'engagement'}
         </Link>
       </span>
-      {active && (
-        <span className="text-neon-yellow/90">
-          Targets must be in the engagement's scope.
-        </span>
-      )}
     </div>
   );
 }

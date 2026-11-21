@@ -1,8 +1,7 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import {
   AlertTriangle,
-  Download,
   ExternalLink,
   Info,
   Loader2,
@@ -10,13 +9,7 @@ import {
   Square,
 } from 'lucide-react';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import {
-  ENGAGEMENT_API,
-  toolEndpoint,
-  type ScopeEntry,
-  type ToolId,
-  type ToolResult,
-} from '@recon/shared';
+import { toolEndpoint, type ToolId, type ToolResult } from '@recon/shared';
 import { ChipToggle, Meter, Panel, Tag } from '@/components/cyber';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,7 +21,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { getTool } from '@/features/registry';
-import { ApiError, apiFetch, apiPost } from '@/lib/api-client';
+import { apiPost } from '@/lib/api-client';
 import { ENGAGEMENTS_KEY, useActiveEngagement } from '@/lib/engagement';
 import {
   BATCH_CONCURRENCY,
@@ -52,7 +45,6 @@ export function BatchPage() {
   const [tools, setTools] = useState<ToolId[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [running, setRunning] = useState(false);
-  const [scopeNote, setScopeNote] = useState<string | null>(null);
   const controller = useRef<AbortController | null>(null);
 
   // Stop the queue when leaving the page.
@@ -62,30 +54,6 @@ export function BatchPage() {
   const planned = useMemo(() => planJobs(targets, tools), [targets, tools]);
   const tooMany = planned.length > MAX_BATCH_JOBS;
   const activeSelected = tools.some((t) => getTool(t).mode === 'active');
-
-  const loadScope = useMutation<ScopeEntry[], ApiError, string>({
-    mutationFn: (engagementId) =>
-      queryClient.fetchQuery({
-        queryKey: [...ENGAGEMENTS_KEY, engagementId, 'scope'],
-        queryFn: () =>
-          apiFetch<ScopeEntry[]>(ENGAGEMENT_API.scope(engagementId)),
-      }),
-    onSuccess: (entries) => {
-      const usable = entries.filter(
-        (e) => !e.excluded && (e.kind === 'domain' || e.kind === 'ip'),
-      );
-      const skipped = entries.filter(
-        (e) => !e.excluded && (e.kind === 'wildcard' || e.kind === 'cidr'),
-      ).length;
-      setText(usable.map((e) => e.value).join('\n'));
-      setScopeNote(
-        `Loaded ${usable.length} in-scope ${usable.length === 1 ? 'entry' : 'entries'}.` +
-          (skipped
-            ? ` Skipped ${skipped} wildcard/CIDR ${skipped === 1 ? 'entry' : 'entries'}: add concrete hosts to batch them.`
-            : ''),
-      );
-    },
-  });
 
   const update = (key: string, patch: Partial<Job>) =>
     setJobs((js) => js.map((j) => (j.key === key ? { ...j, ...patch } : j)));
@@ -190,7 +158,7 @@ export function BatchPage() {
               >
                 {active.engagement?.name ?? 'the active engagement'}
               </Link>
-              ; active tools only run against in-scope targets.
+              .
             </span>
           </p>
         ) : (
@@ -215,30 +183,9 @@ export function BatchPage() {
 
       <Panel title="Setup" bodyClassName="space-y-5">
         <div className="space-y-1.5">
-          <div className="flex flex-wrap items-end justify-between gap-2">
-            <label htmlFor={`${id}-targets`} className={labelClass}>
-              Targets (one per line)
-            </label>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              disabled={!active.id || loadScope.isPending || running}
-              title={
-                active.id
-                  ? undefined
-                  : 'Activate an engagement to use its scope'
-              }
-              onClick={() => active.id && loadScope.mutate(active.id)}
-            >
-              {loadScope.isPending ? (
-                <Loader2 className="animate-spin" />
-              ) : (
-                <Download />
-              )}
-              Load in-scope entries
-            </Button>
-          </div>
+          <label htmlFor={`${id}-targets`} className={labelClass}>
+            Targets (one per line)
+          </label>
           <textarea
             id={`${id}-targets`}
             value={text}
@@ -253,12 +200,6 @@ export function BatchPage() {
           <p className="text-xs text-muted-foreground">
             {targets.length} {targets.length === 1 ? 'target' : 'targets'}
           </p>
-          {scopeNote && <p className="text-xs text-primary">{scopeNote}</p>}
-          {loadScope.error && (
-            <p role="alert" className="text-xs text-neon-magenta">
-              ! {loadScope.error.message}
-            </p>
-          )}
         </div>
 
         <div className="space-y-1.5">

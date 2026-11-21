@@ -56,39 +56,33 @@ drawn; the tables below the radar always hold the full results.
 
 ## Engagements
 
-An engagement groups everything for one assessment: its scope, every tool run, findings and
-notes.
+An engagement groups everything for one assessment: every tool run, findings and notes.
 
 1. Open **Engagements**, create one (name, client, description). It becomes the active
    engagement; switch between engagements in the top bar, or pick "No engagement".
-2. **Scope** tab: paste one entry per line: `example.com`, `*.example.com` (all subdomains,
-   not the apex), an IP, a CIDR range like `192.0.2.0/24`, or a URL. Start a line with `!` to
-   exclude it (exclusions win). "Check target" tells you whether a target is in scope and why.
-3. Run tools as usual. While an engagement is active, tool pages show "Recording to ..." and
-   every run is saved. **Active tools refuse targets outside the scope**, so an empty scope
-   blocks them. Passive tools are not restricted.
+2. Run tools as usual. While an engagement is active, tool pages show "Recording to ..." and
+   every run is saved. Tools are not restricted to particular targets.
 
 The engagement page has these tabs:
 
 | Tab      | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Overview | Counts and all findings, from the latest run of each tool and target, most severe first                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| Scope    | Add, remove and test scope entries                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | History  | Every run with filters (tool, target, tag), tags, delete. "Open" shows a saved run on its tool page; select two runs of the same tool and "Compare" shows what changed                                                                                                                                                                                                                                                                                                                                  |
 | Changes  | Change monitoring: the latest run of each tool and target compared with the run before, as readable changes (new subdomains, opened or closed ports, changed certificates, findings that changed status, grade changes, ...). Shows only pairs with changes by default. "Re-run" repeats a run with the same options in this engagement; "Re-run all" does it for every pair, one after another (stoppable). Raw output differences alone (timestamps, counting-down lifetimes) don't count as a change |
 | Notes    | Free-text notes with optional target and tags                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| Export   | Download a Markdown report (summary, scope, findings, notes, run list), JSON (everything) or CSV (one row per finding)                                                                                                                                                                                                                                                                                                                                                                                  |
+| Export   | Download a Markdown report (summary, findings, notes, run list), JSON (everything) or CSV (one row per finding)                                                                                                                                                                                                                                                                                                                                                                                         |
 
 Tool pages also show a **Changes since last run** panel above the result when the run was
 recorded in an engagement and an earlier successful run of the same tool and target exists.
 
 Archive an engagement when it is finished: it stays readable but refuses new runs. Deleting
-removes its scope, history and notes.
+removes its history and notes.
 
 ## Batch runs
 
-**Batch** runs several tools against several targets in one go. Enter targets (one per line) or
-load the active engagement's in-scope domains and IPs, pick the tools, and start. Each target
+**Batch** runs several tools against several targets in one go. Enter targets (one per line), pick the
+tools, and start. Each target
 only runs with the tools that accept its kind (domain, IP or URL), with default options, two at
 a time. Up to 300 jobs per batch.
 With an active engagement every result is saved and linked; without one, results are only shown.

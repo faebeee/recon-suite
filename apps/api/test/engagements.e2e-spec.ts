@@ -53,7 +53,7 @@ describe('Engagements (e2e)', () => {
   afterAll(() => app.close());
 
   it('runs the whole engagement flow', async () => {
-    // Create and scope.
+    // Create.
     const created = await http
       .post('/api/engagements')
       .send({ name: 'ACME Q4', client: 'ACME' })
@@ -61,39 +61,10 @@ describe('Engagements (e2e)', () => {
     const e = created.body as Engagement;
     expect(e.counts.runs).toBe(0);
 
-    await http
-      .post(`/api/engagements/${e.id}/scope`)
-      .send({ entries: [{ value: 'not a host' }] })
-      .expect(400);
-    const scope = await http
-      .post(`/api/engagements/${e.id}/scope`)
-      .send({
-        entries: [
-          { value: 'example.com' },
-          { value: '*.example.com' },
-          { value: 'old.example.com', excluded: true },
-        ],
-      })
-      .expect(201);
-    expect(scope.body).toHaveLength(3);
+    // There is no scope: the scope endpoints are gone.
+    await http.get(`/api/engagements/${e.id}/scope`).expect(404);
 
-    const check = await http
-      .post(`/api/engagements/${e.id}/scope/check`)
-      .send({ target: 'https://old.example.com/x' })
-      .expect(200);
-    expect(check.body.inScope).toBe(false);
-
-    // Active tool, out of scope: refused before anything connects, and not recorded.
-    const refused = await http
-      .post('/api/tools/ports')
-      .set(ENGAGEMENT_HEADER, e.id)
-      .send({ target: 'example.org', ports: [443] })
-      .expect(403);
-    expect(refused.body.message).toMatch(
-      /Out of scope for engagement "ACME Q4"/,
-    );
-
-    // Passive tool runs are recorded and get a runId.
+    // Tool runs are recorded and get a runId.
     const first = await http
       .post('/api/tools/dns')
       .set(ENGAGEMENT_HEADER, e.id)

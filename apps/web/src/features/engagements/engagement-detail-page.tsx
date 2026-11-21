@@ -12,12 +12,10 @@ import { ExportTab } from './export-tab';
 import { HistoryTab } from './history-tab';
 import { NotesTab } from './notes-tab';
 import { OverviewTab } from './overview-tab';
-import { ScopeTab } from './scope-tab';
 import { ErrorText, StatusTag } from './ui';
 
 export const ENGAGEMENT_TABS = [
   'overview',
-  'scope',
   'history',
   'changes',
   'notes',
@@ -99,7 +97,6 @@ export function EngagementDetailPage({
         <div className="overflow-x-auto">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="scope">Scope</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
             <TabsTrigger value="changes">Changes</TabsTrigger>
             <TabsTrigger value="notes">Notes</TabsTrigger>
@@ -108,9 +105,6 @@ export function EngagementDetailPage({
         </div>
         <TabsContent value="overview">
           <OverviewTab engagement={e} />
-        </TabsContent>
-        <TabsContent value="scope">
-          <ScopeTab engagementId={e.id} />
         </TabsContent>
         <TabsContent value="history">
           <HistoryTab engagementId={e.id} />

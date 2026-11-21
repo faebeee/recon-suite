@@ -145,7 +145,7 @@ the public [can-i-take-over-xyz](https://github.com/EdOverflow/can-i-take-over-x
 Statuses: `vulnerable` (provider fingerprint or claimable dangling record), `likely` (dangling
 CNAME, or a provider listed as "edge case"), `safe`, `unknown`. Only hosts with a CNAME or
 provider match are listed. The tool fetches the page of matched hosts to look for the provider's
-error message, so it is active. Inside an engagement, extra `hosts` must be in scope too.
+error message, so it is active.
 
 ## Intel
 
@@ -521,8 +521,7 @@ layers, firewalls and proxy ARP produce them for every address in a range. Each 
 with its MAC address and NIC vendor when nmap sees them (same Ethernet segment only), and a
 best-effort device guess from the vendor (router, printer, IoT, virtual machine, ...).
 
-Unlike [Host Scan](#n-02-host-scan), the range is yours to choose, and the tool is active: in an
-engagement, the range must be in scope. Runs nmap on the API host with no time limit. ARP and
+Unlike [Host Scan](#n-02-host-scan), the range is yours to choose, and the tool is active. Runs nmap on the API host with no time limit. ARP and
 raw ICMP need root or the `cap_net_raw` capability.
 
 ## Wireless

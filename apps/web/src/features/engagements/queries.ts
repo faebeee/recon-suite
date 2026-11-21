@@ -6,17 +6,9 @@ import {
   type RunChanges,
   type RunDiff,
   type RunPage,
-  type ScopeEntry,
 } from '@recon/shared';
 import { apiFetch } from '@/lib/api-client';
 import { ENGAGEMENTS_KEY, RUNS_KEY } from '@/lib/engagement';
-
-export function scopeQuery(id: string) {
-  return queryOptions({
-    queryKey: [...ENGAGEMENTS_KEY, id, 'scope'],
-    queryFn: () => apiFetch<ScopeEntry[]>(ENGAGEMENT_API.scope(id)),
-  });
-}
 
 export interface RunFilters {
   tool?: string;

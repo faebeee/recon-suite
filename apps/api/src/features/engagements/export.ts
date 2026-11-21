@@ -4,12 +4,10 @@ import type {
   FindingStatus,
   Note,
   RunSummary,
-  ScopeEntry,
 } from '@recon/shared';
 
 export interface ExportData {
   engagement: Engagement;
-  scope: ScopeEntry[];
   findings: EngagementFinding[];
   notes: Note[];
   runs: RunSummary[];
@@ -51,21 +49,6 @@ export function renderMarkdown(d: ExportData): string {
     `| ${count('fail')} | ${count('warn')} | ${count('info')} | ${count('pass')} | ${d.runs.length} |`,
     '',
   );
-
-  lines.push('## Scope', '');
-  if (!d.scope.length) lines.push('_No scope entries._', '');
-  else {
-    lines.push(
-      '| Entry | Type | In scope | Note |',
-      '| --- | --- | --- | --- |',
-    );
-    for (const s of d.scope) {
-      lines.push(
-        `| \`${cell(s.value)}\` | ${s.kind} | ${s.excluded ? 'no (excluded)' : 'yes'} | ${cell(s.note)} |`,
-      );
-    }
-    lines.push('');
-  }
 
   lines.push('## Findings', '');
   lines.push(

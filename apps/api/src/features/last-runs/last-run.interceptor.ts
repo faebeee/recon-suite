@@ -27,7 +27,7 @@ import { LastRunsRepository } from './last-runs.repository.js';
 /**
  * Stores every `POST /api/tools/<id>` as that tool's last run: `running` before the handler
  * starts, then the result or error. Registered before the engagement interceptor, so it also
- * records engagement rejections (out of scope, archived) and sees the stored `runId`.
+ * records engagement rejections (archived, unknown) and sees the stored `runId`.
  * Storage failures are logged and never break the tool response.
  */
 @Injectable()

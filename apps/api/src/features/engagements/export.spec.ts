@@ -27,21 +27,11 @@ const data: ExportData = {
     createdAt: '',
     updatedAt: '',
     counts: {
-      scope: 1,
       runs: 1,
       notes: 1,
       findings: { fail: 1, warn: 1, pass: 0, info: 0 },
     },
   },
-  scope: [
-    {
-      id: 's1',
-      kind: 'wildcard',
-      value: '*.acme.test',
-      excluded: false,
-      createdAt: '',
-    },
-  ],
   findings: [
     finding({
       status: 'fail',
@@ -67,11 +57,11 @@ const data: ExportData = {
 };
 
 describe('engagement export', () => {
-  it('renders a markdown report with summary, scope, findings and notes', () => {
+  it('renders a markdown report with summary, findings and notes', () => {
     const md = renderMarkdown(data);
     expect(md).toContain('# ACME Q4');
     expect(md).toContain('| 1 | 1 | 0 | 0 | 0 |');
-    expect(md).toContain('| `*.acme.test` | wildcard | yes |  |');
+    expect(md).not.toContain('## Scope');
     expect(md).toContain('### Failed checks (1)');
     expect(md).toContain('#### Zone transfer allowed: `example.com`');
     expect(md).toContain('### Kickoff');

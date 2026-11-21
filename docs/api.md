@@ -82,7 +82,7 @@ Errors use HTTP status codes and a JSON body with a human-readable `message`:
 | Status | Meaning                                                                               |
 | ------ | ------------------------------------------------------------------------------------- |
 | 400    | Invalid input; `message` is a list of field errors                                    |
-| 403    | Out of engagement scope, cross-origin write                                           |
+| 403    | Cross-origin write                                                                    |
 | 404    | Domain/host does not exist (NXDOMAIN), nothing found, unknown engagement/run/note     |
 | 409    | The engagement is archived                                                            |
 | 413    | An upstream response exceeded the size limit                                          |
@@ -101,9 +101,6 @@ runs on another origin than the API, list it in `CORS_ORIGIN`. See
 Send the header `x-engagement-id: <engagement id>` with a tool request to work inside an
 engagement:
 
-- **Active tools** only run when the target (and Subdomain Takeover's extra `hosts`) is in the
-  engagement's scope; otherwise 403 `Out of scope for engagement "...": ...`. Passive tools are
-  not restricted.
 - The run is stored in the engagement's history, including upstream failures (502, 504, ...),
   and the response carries its `runId`. Invalid input errors are not stored.
 - Archived engagements answer 409.
@@ -114,11 +111,7 @@ engagement:
 | POST   | `/api/engagements`                      | Create `{ name, client?, description? }`                                                        |
 | GET    | `/api/engagements/:id`                  | One engagement                                                                                  |
 | PATCH  | `/api/engagements/:id`                  | Edit, or `{ "status": "archived" }` / `"active"`                                                |
-| DELETE | `/api/engagements/:id`                  | Delete with its scope, runs and notes                                                           |
-| GET    | `/api/engagements/:id/scope`            | Scope entries                                                                                   |
-| POST   | `/api/engagements/:id/scope`            | Add `{ entries: [{ value, excluded?, note? }] }`                                                |
-| DELETE | `/api/engagements/:id/scope/:entryId`   | Remove an entry                                                                                 |
-| POST   | `/api/engagements/:id/scope/check`      | `{ target }` returns `{ inScope, reason }`                                                      |
+| DELETE | `/api/engagements/:id`                  | Delete with its runs and notes                                                                  |
 | GET    | `/api/engagements/:id/runs`             | History; filters `tool`, `target`, `tag`, `limit`, `offset`                                     |
 | GET    | `/api/runs/:runId`                      | Stored request and full result                                                                  |
 | PATCH  | `/api/runs/:runId`                      | Set `{ tags }`                                                                                  |
@@ -133,17 +126,10 @@ engagement:
 | DELETE | `/api/notes/:noteId`                    | Delete a note                                                                                   |
 | GET    | `/api/engagements/:id/export?format=md` | Report download: `md`, `json` or `csv`                                                          |
 
-Scope entries accept `example.com` (exact), `*.example.com` (subdomains, not the apex), an IP,
-a CIDR range or a URL (its hostname is used). Exclusions win over inclusions. Domains are only
-matched by domain rules and IPs by IP/CIDR rules: a domain is not in scope just because it
-resolves into an in-scope range.
-
 ```sh
 API=http://localhost:4000/api
 E=$(curl -s -X POST "$API/engagements" -H 'content-type: application/json' \
   -d '{"name":"ACME Q4"}' | jq -r .id)
-curl -s -X POST "$API/engagements/$E/scope" -H 'content-type: application/json' \
-  -d '{"entries":[{"value":"example.com"},{"value":"*.example.com"}]}'
 curl -s -X POST "$API/tools/http-headers" -H "x-engagement-id: $E" \
   -H 'content-type: application/json' -d '{"target":"https://www.example.com"}' | jq .runId
 curl -s "$API/engagements/$E/export?format=md" -o report.md

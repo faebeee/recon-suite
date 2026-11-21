@@ -20,8 +20,6 @@ import {
   noteInputSchema,
   runListQuerySchema,
   runPatchSchema,
-  scopeBulkInputSchema,
-  scopeCheckInputSchema,
   type Engagement,
   type EngagementFinding,
   type ExportFormat,
@@ -32,8 +30,6 @@ import {
   type RunDiff,
   type RunPage,
   type RunSummary,
-  type ScopeCheckResult,
-  type ScopeEntry,
 } from '@recon/shared';
 import { z } from 'zod';
 import { compareSnapshots, sameInput, snapshot } from './changes.js';
@@ -41,7 +37,6 @@ import { diffValues } from './diff.js';
 import { EngagementsRepository } from './engagements.repository.js';
 import { buildPosture } from './posture.js';
 import { renderCsv, renderMarkdown, sortFindings } from './export.js';
-import { checkScope, parseScopeValue } from './scope.js';
 
 const uuid = new ParseUUIDPipe({ version: '4' });
 const notePatchSchema = noteInputSchema.partial();
@@ -90,62 +85,6 @@ export class EngagementsController {
   @HttpCode(204)
   async remove(@Param('id', uuid) id: string): Promise<void> {
     await this.repo.deleteEngagement(id);
-  }
-
-  // ------------------------------------------------------------ scope
-
-  @Get('engagements/:id/scope')
-  async scope(@Param('id', uuid) id: string): Promise<ScopeEntry[]> {
-    await this.repo.engagementRow(id);
-    return this.repo.listScope(id);
-  }
-
-  @Post('engagements/:id/scope')
-  async addScope(
-    @Param('id', uuid) id: string,
-    @Body({ schema: scopeBulkInputSchema })
-    body: z.output<typeof scopeBulkInputSchema>,
-  ): Promise<ScopeEntry[]> {
-    await this.repo.engagementRow(id);
-    const errors: string[] = [];
-    const parsed = body.entries.flatMap((e) => {
-      try {
-        return [
-          { ...parseScopeValue(e.value), excluded: e.excluded, note: e.note },
-        ];
-      } catch (err) {
-        errors.push((err as Error).message);
-        return [];
-      }
-    });
-    if (errors.length) throw new BadRequestException(errors);
-    await this.repo.addScope(id, parsed);
-    return this.repo.listScope(id);
-  }
-
-  @Delete('engagements/:id/scope/:entryId')
-  @HttpCode(204)
-  async removeScope(
-    @Param('id', uuid) id: string,
-    @Param('entryId', uuid) entryId: string,
-  ): Promise<void> {
-    await this.repo.deleteScope(id, entryId);
-  }
-
-  @Post('engagements/:id/scope/check')
-  @HttpCode(200)
-  async check(
-    @Param('id', uuid) id: string,
-    @Body({ schema: scopeCheckInputSchema })
-    body: z.output<typeof scopeCheckInputSchema>,
-  ): Promise<ScopeCheckResult> {
-    await this.repo.engagementRow(id);
-    const d = checkScope(await this.repo.scopeRules(id), body.target);
-    return {
-      inScope: d.inScope,
-      reason: d.reason,
-      ...(d.rule && { entry: d.rule }),
-    };
   }
 
   // ------------------------------------------------------------ runs
@@ -236,15 +175,14 @@ export class EngagementsController {
     @Query({ schema: exportQuerySchema }) q: z.output<typeof exportQuerySchema>,
     @Res({ passthrough: true }) res: HeaderResponse,
   ): Promise<string> {
-    const [engagement, scope, findings, notes, runs] = await Promise.all([
+    const [engagement, findings, notes, runs] = await Promise.all([
       this.repo.getEngagement(id),
-      this.repo.listScope(id),
       this.repo.findings(id).then(sortFindings),
       this.repo.listNotes(id),
       this.repo.listRuns(id, { limit: 10_000, offset: 0 }).then((p) => p.items),
     ]);
     const generatedAt = new Date().toISOString();
-    const data = { engagement, scope, findings, notes, runs, generatedAt };
+    const data = { engagement, findings, notes, runs, generatedAt };
     const body = render(q.format, data);
     res.setHeader('Content-Type', CONTENT_TYPE[q.format]);
     res.setHeader(

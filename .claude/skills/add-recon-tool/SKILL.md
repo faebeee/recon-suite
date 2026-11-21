@@ -57,8 +57,7 @@ Then register it:
 - `npm run build -w @recon/shared`
 
 If the tool grades or flags anything, add `findings: Finding[]` (from `common/finding.ts`) to the
-output and pass it to `runTool` (see step 2); engagements pick it up automatically. Active tools
-are scope-checked inside engagements on `target` (and a `hosts` array) with no extra code.
+output and pass it to `runTool` (see step 2); engagements pick it up automatically.
 
 Rules: always name the target field `target`; bound every array/number (`.max()`); give
 options sensible `.default()`s so `{ target }` alone is a valid request.

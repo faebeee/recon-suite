@@ -130,8 +130,7 @@ export function ChangesTab({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="max-w-2xl text-xs text-muted-foreground">
             The latest run of each tool and target, compared with the run before
-            it. Re-run them to see what changed since; active tools are checked
-            against the scope again.
+            it. Re-run them to see what changed since.
           </p>
           <Segmented<Filter>
             label="Show"

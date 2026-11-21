@@ -10,25 +10,17 @@ import type {
   Note,
   RunDetail,
   RunSummary,
-  ScopeEntry,
   ToolId,
   ToolResult,
 } from '@recon/shared';
 import { POSTURE_TOOLS } from '@recon/shared';
 import type { Db } from '../../core/db/database.js';
-import {
-  engagements,
-  notes,
-  runs,
-  scopeEntries,
-} from '../../core/db/schema.js';
+import { engagements, notes, runs } from '../../core/db/schema.js';
 import { POSTURE_PATHS, type PostureRow } from './posture.js';
-import type { ScopeRule } from './scope.js';
 
 type EngagementRow = typeof engagements.$inferSelect;
 type RunRow = typeof runs.$inferSelect;
 type NoteRow = typeof notes.$inferSelect;
-type ScopeRow = typeof scopeEntries.$inferSelect;
 
 export interface NewRun {
   engagementId: string;
@@ -51,7 +43,7 @@ const parseJson = <T>(s: string | null | undefined, fallback: T): T => {
   }
 };
 
-/** All SQL for engagements, scope, runs and notes. */
+/** All SQL for engagements, runs and notes. */
 @Injectable()
 export class EngagementsRepository {
   constructor(@InjectDrizzle() private readonly db: Db) {}
@@ -113,13 +105,7 @@ export class EngagementsRepository {
 
   private async withCounts(r: EngagementRow): Promise<Engagement> {
     const one = async (q: Promise<{ n: number }[]>) => (await q)[0]?.n ?? 0;
-    const [scope, runCount, noteCount, findings] = await Promise.all([
-      one(
-        this.db
-          .select({ n: count() })
-          .from(scopeEntries)
-          .where(eq(scopeEntries.engagementId, r.id)),
-      ),
+    const [runCount, noteCount, findings] = await Promise.all([
       one(
         this.db
           .select({ n: count() })
@@ -143,71 +129,11 @@ export class EngagementsRepository {
       createdAt: r.createdAt,
       updatedAt: r.updatedAt,
       counts: {
-        scope,
         runs: runCount,
         notes: noteCount,
         findings: countFindings(findings),
       },
     };
-  }
-
-  // ------------------------------------------------------------ scope
-
-  async listScope(engagementId: string): Promise<ScopeEntry[]> {
-    const rows = await this.db
-      .select()
-      .from(scopeEntries)
-      .where(eq(scopeEntries.engagementId, engagementId))
-      .orderBy(scopeEntries.excluded, scopeEntries.value);
-    return rows.map(toScopeEntry);
-  }
-
-  async scopeRules(engagementId: string): Promise<ScopeRule[]> {
-    return (await this.listScope(engagementId)).map(
-      ({ kind, value, excluded }) => ({ kind, value, excluded }),
-    );
-  }
-
-  /** Inserts entries, skipping exact duplicates (same value and inclusion/exclusion). */
-  async addScope(
-    engagementId: string,
-    entries: {
-      kind: ScopeRow['kind'];
-      value: string;
-      excluded: boolean;
-      note?: string;
-    }[],
-  ) {
-    const existing = new Set(
-      (await this.listScope(engagementId)).map(
-        (e) => `${e.excluded}:${e.value}`,
-      ),
-    );
-    const fresh = entries.filter((e) => {
-      const key = `${e.excluded}:${e.value}`;
-      if (existing.has(key)) return false;
-      existing.add(key);
-      return true;
-    });
-    if (fresh.length) {
-      await this.db
-        .insert(scopeEntries)
-        .values(fresh.map((e) => ({ id: randomUUID(), engagementId, ...e })));
-    }
-    await this.touch(engagementId);
-  }
-
-  async deleteScope(engagementId: string, entryId: string) {
-    const deleted = await this.db
-      .delete(scopeEntries)
-      .where(
-        and(
-          eq(scopeEntries.id, entryId),
-          eq(scopeEntries.engagementId, engagementId),
-        ),
-      )
-      .returning({ id: scopeEntries.id });
-    if (!deleted.length) throw new NotFoundException('Scope entry not found');
   }
 
   // ------------------------------------------------------------ runs
@@ -504,17 +430,6 @@ export function countFindings(
   const c: FindingCounts = { fail: 0, warn: 0, pass: 0, info: 0 };
   for (const f of findings) c[f.status]++;
   return c;
-}
-
-function toScopeEntry(r: ScopeRow): ScopeEntry {
-  return {
-    id: r.id,
-    kind: r.kind,
-    value: r.value,
-    excluded: r.excluded,
-    ...(r.note && { note: r.note }),
-    createdAt: r.createdAt,
-  };
 }
 
 function toRunSummary(

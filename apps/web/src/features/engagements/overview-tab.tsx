@@ -45,9 +45,8 @@ export function OverviewTab({ engagement: e }: { engagement: Engagement }) {
     <div className="space-y-4">
       <Panel title="Summary">
         <KeyValueGrid
-          className="grid-cols-2 sm:grid-cols-4"
+          className="grid-cols-2 sm:grid-cols-3"
           items={[
-            { label: 'Scope entries', value: e.counts.scope },
             { label: 'Runs', value: e.counts.runs },
             { label: 'Notes', value: e.counts.notes },
             {

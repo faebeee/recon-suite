@@ -32,8 +32,7 @@ how to fix it (missing `nmap`, missing permission, ...).
 
 ## Your first scan
 
-1. Optional: open **Engagements**, create one and add your scope (e.g. `example.com` and
-   `*.example.com`). Runs are then saved and active tools stay inside the scope.
+1. Optional: open **Engagements** and create one. Runs are then saved to its history.
 2. Open http://localhost:5173 and pick **DNS Recon** in the sidebar.
 3. Enter a domain, e.g. `example.com`, and press **Execute**.
 4. Hostnames in the results have small icons next to them: these are pivots that open the
@@ -88,4 +87,3 @@ Tests never touch the internet: network code is tested with fakes and local serv
 | `EADDRINUSE` on 4000 or 5173           | Another process uses the port. Change `PORT` / `API_PROXY_TARGET` or stop the other process.               |
 | `No such built-in module: node:sqlite` | Node.js is older than 24. Install a current version (`nvm install`), then `rm -rf node_modules && npm ci`. |
 | `503` on CVE Lookup or Reverse IP      | `NVD_API_KEY` / `SECURITYTRAILS_API_KEY` not set.                                                          |
-| `403 Out of scope for engagement ...`  | The active engagement's scope does not cover the target. Add it in the Scope tab, or pick "No engagement". |

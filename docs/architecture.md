@@ -49,7 +49,7 @@ Tool form
   | useToolRunner: validate
   |   with the shared schema
   v
-POST /api/tools/<id>  ------>   RunCaptureInterceptor (engagement: scope check, then record)
+POST /api/tools/<id>  ------>   RunCaptureInterceptor (engagement: record the run)
                                 StandardSchemaValidationPipe (same schema)
                                 <Id>Controller
                                   runTool(id, target, fn, { findings })  -- ToolResult
@@ -69,15 +69,15 @@ check that counts).
 
 These are not tools, so they live outside the tool slices:
 
-| Piece                | Where                                                                                   | What it does                                                                                                |
-| -------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Database             | `apps/api/src/core/db/`, `apps/api/drizzle/`                                            | Drizzle schema on Node's built-in `node:sqlite`; migrations run at startup                                  |
-| Engagement workspace | `apps/api/src/features/engagements/`                                                    | REST endpoints, pure `scope.ts`, `diff.ts`, `export.ts`                                                     |
-| Run capture          | `run-capture.interceptor.ts`                                                            | Global interceptor on `POST /api/tools/<id>`: scope check for active tools, stores the run and its findings |
-| Contract             | `packages/shared/src/engagement.ts`                                                     | Types, schemas, endpoint map (`ENGAGEMENT_API`), header name                                                |
-| UI                   | `apps/web/src/features/{engagements,batch}/`, `lib/engagement*.ts`, `lib/api-client.ts` | Pages, active engagement store, header injection                                                            |
+| Piece                | Where                                                                                   | What it does                                                                  |
+| -------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Database             | `apps/api/src/core/db/`, `apps/api/drizzle/`                                            | Drizzle schema on Node's built-in `node:sqlite`; migrations run at startup    |
+| Engagement workspace | `apps/api/src/features/engagements/`                                                    | REST endpoints, pure `diff.ts`, `export.ts`                                   |
+| Run capture          | `run-capture.interceptor.ts`                                                            | Global interceptor on `POST /api/tools/<id>`: stores the run and its findings |
+| Contract             | `packages/shared/src/engagement.ts`                                                     | Types, schemas, endpoint map (`ENGAGEMENT_API`), header name                  |
+| UI                   | `apps/web/src/features/{engagements,batch}/`, `lib/engagement*.ts`, `lib/api-client.ts` | Pages, active engagement store, header injection                              |
 
-Because the interceptor wraps every tool endpoint, a new tool is recorded and scope-checked
+Because the interceptor wraps every tool endpoint, a new tool is recorded
 without extra code. To feed the findings export it only has to pass a `findings` extractor to
 `runTool()`.
 

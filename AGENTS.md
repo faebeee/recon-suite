@@ -49,7 +49,7 @@ three places. Features never import from other features; shared code goes into t
 ```
 packages/shared/src/
   common/            target schemas (domain/host/url/port), ToolMeta, ToolResult, Finding/grading, health
-  engagement.ts      engagement/scope/run/note contract + ENGAGEMENT_API endpoint map
+  engagement.ts      engagement/run/note contract + ENGAGEMENT_API endpoint map
   catalog.ts         TOOL_CATALOG: metadata of every tool (name, code, category, mode)
   io.ts              TOOL_INPUT_SCHEMAS + ToolIO type map (id -> input/output types)
   features/<id>.ts   Zod input schema, <X>Input / <X>Params / <X>Output types
@@ -65,7 +65,7 @@ apps/api/src/
     tool-runner.ts   runTool(id, target, fn, { findings }): ToolResult envelope (+ findings)
   config/env.ts      Zod-validated environment
   features/<id>/     <id>.module.ts, <id>.controller.ts, <id>.service.ts, pure helpers + *.spec.ts
-  features/engagements/  engagement workspace + RunCaptureInterceptor (scope check, run history)
+  features/engagements/  engagement workspace + RunCaptureInterceptor (run history)
   features/last-runs/    LastRunInterceptor: stores each tool's most recent run (tool_last_runs)
   features/index.ts  FEATURE_MODULES registry
 
@@ -89,8 +89,7 @@ apps/web/src/
   Tools that grade or flag something pass a `findings` extractor (`Finding[]`, pass/warn/fail/info):
   that is what engagements collect and export. Prefer a `findings` field in the output type.
 - Engagements are generic: `RunCaptureInterceptor` wraps every `POST /api/tools/<id>`. With the
-  `x-engagement-id` header it enforces the scope for `mode: 'active'` tools (the `target` and a
-  `hosts` array) and stores the run. New tools need no engagement code.
+  `x-engagement-id` header it stores the run (there is no target scope check). New tools need no engagement code.
 - `LastRunInterceptor` (registered before the engagement one) stores every tool request as that
   tool's last run (`running`, then `ok`/`error`); `useToolRunner` shows it when a tool page opens
   and polls while it is running. Shared helpers for tool requests live in `core/tool-request.ts`.
@@ -100,7 +99,7 @@ apps/web/src/
   is `[]`, and the web page uses a scan panel instead of `TargetForm`. They only work when the
   API runs natively on a machine with the needed hardware (answer 503 with a helpful message
   when unavailable). They are always enabled.
-- Errors are Nest HTTP exceptions: 400 invalid input, 403 out of scope, 404 not found/NXDOMAIN,
+- Errors are Nest HTTP exceptions: 400 invalid input, 403 cross-origin write, 404 not found/NXDOMAIN,
   502 upstream failure, 504 timeout. The web `ApiError` shows `message` to the user, so write
   messages for humans.
 - `GET /api/tools` returns the catalog, `GET /api/health` is the health check.

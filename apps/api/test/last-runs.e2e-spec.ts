@@ -106,15 +106,10 @@ describe('Last runs (e2e)', () => {
     });
   });
 
-  it('records engagement runs with their runId and scope rejections', async () => {
+  it('records engagement runs with their runId and engagement rejections', async () => {
     const e = (
       await http.post('/api/engagements').send({ name: 'Last run' }).expect(201)
     ).body as Engagement;
-    await http
-      .post(`/api/engagements/${e.id}/scope`)
-      .send({ entries: [{ value: 'example.com' }] })
-      .expect(201);
-
     const ok = await http
       .post('/api/tools/dns')
       .set(ENGAGEMENT_HEADER, e.id)
@@ -124,17 +119,19 @@ describe('Last runs (e2e)', () => {
     expect(stored?.engagementId).toBe(e.id);
     expect(stored?.result?.runId).toBe(ok.body.runId);
 
-    // dns is passive, so use an active tool for the scope check.
+    // An archived engagement rejects the run; the rejection is still the last run.
     await http
-      .post('/api/tools/ports')
+      .patch(`/api/engagements/${e.id}`)
+      .send({ status: 'archived' })
+      .expect(200);
+    await http
+      .post('/api/tools/dns')
       .set(ENGAGEMENT_HEADER, e.id)
-      .send({ target: 'out-of-scope.test' })
-      .expect(403);
-    const ports = (await http.get('/api/last-runs/ports').expect(200))
-      .body as LastToolRunResponse;
-    expect(ports.run).toMatchObject({
+      .send({ target: 'example.com' })
+      .expect(409);
+    expect((await last()).run).toMatchObject({
       status: 'error',
-      error: { status: 403 },
+      error: { status: 409 },
     });
   });
 });

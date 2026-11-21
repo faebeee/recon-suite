@@ -10,13 +10,13 @@ const FORMATS: { format: ExportFormat; label: string; description: string }[] =
       format: 'md',
       label: 'Markdown report',
       description:
-        'Readable report with scope, findings grouped by severity and your notes. Good starting point for a deliverable.',
+        'Readable report with findings grouped by severity and your notes. Good starting point for a deliverable.',
     },
     {
       format: 'json',
       label: 'JSON',
       description:
-        'Complete machine-readable dump: engagement, scope, runs with their results, findings and notes.',
+        'Complete machine-readable dump: engagement, runs with their results, findings and notes.',
     },
     {
       format: 'csv',

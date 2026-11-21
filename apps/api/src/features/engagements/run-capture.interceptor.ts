@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   HttpException,
   Injectable,
   Logger,
@@ -9,12 +8,7 @@ import {
   type ExecutionContext,
   type NestInterceptor,
 } from '@nestjs/common';
-import {
-  ENGAGEMENT_HEADER,
-  TOOL_CATALOG,
-  type ToolId,
-  type ToolResult,
-} from '@recon/shared';
+import { ENGAGEMENT_HEADER, type ToolId, type ToolResult } from '@recon/shared';
 import {
   catchError,
   from,
@@ -30,7 +24,6 @@ import {
   type ToolRequest,
 } from '../../core/tool-request.js';
 import { EngagementsRepository } from './engagements.repository.js';
-import { checkScope } from './scope.js';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 /** Failures that say nothing about the target and are not worth keeping in the history. */
@@ -39,8 +32,7 @@ const NOT_RECORDED = new Set([400, 401, 403, 429]);
 /**
  * Engagement integration for every tool endpoint (POST /api/tools/<id>):
  * - without the engagement header: no effect;
- * - with it: rejects unknown/archived engagements, enforces the scope for active tools
- *   (the target and any extra `hosts`), and stores the run (success or upstream failure)
+ * - with it: rejects unknown/archived engagements and stores the run (success or upstream failure)
  *   in the engagement's history. The response gets the stored run's id as `runId`.
  */
 @Injectable()
@@ -58,9 +50,9 @@ export class RunCaptureInterceptor implements NestInterceptor {
     if (!engagementId || !tool) return next.handle();
 
     const startedAt = new Date();
-    // Pre-check failures (unknown/archived engagement, out of scope) are not runs: they
+    // Pre-check failures (unknown/archived engagement) are not runs: they
     // propagate untouched. Only the tool's own outcome is recorded.
-    return from(this.prepare(tool, engagementId, req.body)).pipe(
+    return from(this.prepare(engagementId)).pipe(
       switchMap(() =>
         next.handle().pipe(
           mergeMap(async (result) => {
@@ -98,7 +90,7 @@ export class RunCaptureInterceptor implements NestInterceptor {
     );
   }
 
-  private async prepare(tool: ToolId, engagementId: string, body: unknown) {
+  private async prepare(engagementId: string) {
     if (!UUID.test(engagementId))
       throw new BadRequestException('Invalid engagement id');
     const engagement = await this.repo.engagementRow(engagementId);
@@ -106,18 +98,6 @@ export class RunCaptureInterceptor implements NestInterceptor {
       throw new ConflictException(
         `Engagement "${engagement.name}" is archived; reactivate it to record new runs.`,
       );
-    }
-    const meta = TOOL_CATALOG[tool];
-    if (meta.mode !== 'active' || meta.scope !== 'remote') return;
-
-    const rules = await this.repo.scopeRules(engagementId);
-    for (const target of targetsOf(body)) {
-      const decision = checkScope(rules, target);
-      if (!decision.inScope) {
-        throw new ForbiddenException(
-          `Out of scope for engagement "${engagement.name}": ${decision.reason}.`,
-        );
-      }
     }
   }
 
@@ -134,17 +114,4 @@ export class RunCaptureInterceptor implements NestInterceptor {
       return undefined;
     }
   }
-}
-
-/** The main target plus extra hosts some tools accept (e.g. takeover `hosts`). */
-export function targetsOf(body: unknown): string[] {
-  const out: string[] = [];
-  const main = targetOf(body);
-  if (main) out.push(main);
-  const hosts = (body as { hosts?: unknown } | undefined)?.hosts;
-  if (Array.isArray(hosts)) {
-    for (const h of hosts)
-      if (typeof h === 'string' && h.trim()) out.push(h.trim());
-  }
-  return out;
 }

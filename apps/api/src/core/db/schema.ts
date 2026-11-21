@@ -16,22 +16,6 @@ export const engagements = sqliteTable('engagements', {
   updatedAt: text('updated_at').notNull().default(now),
 });
 
-export const scopeEntries = sqliteTable(
-  'scope_entries',
-  {
-    id: text().primaryKey(),
-    engagementId: text('engagement_id')
-      .notNull()
-      .references(() => engagements.id, { onDelete: 'cascade' }),
-    kind: text({ enum: ['domain', 'wildcard', 'ip', 'cidr'] }).notNull(),
-    value: text().notNull(),
-    excluded: integer({ mode: 'boolean' }).notNull().default(false),
-    note: text(),
-    createdAt: text('created_at').notNull().default(now),
-  },
-  (t) => [index('scope_engagement_idx').on(t.engagementId)],
-);
-
 export const runs = sqliteTable(
   'runs',
   {

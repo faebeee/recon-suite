@@ -49,8 +49,7 @@ Turborepo monorepo with a feature-driven architecture.
 | R-01 | WiFi Scanner             | local   | Nearby WiFi networks seen by the API host: SSID, band, channel, security, signal            |
 | R-02 | Bluetooth Scanner        | local   | BLE advertisements + Classic inquiry: name, vendor, class, RSSI, services (macOS, Linux)    |
 
-**Engagements** tie it together for real assessments: a scope list that active tools enforce,
-a history of every run with tags and run-to-run comparison, change monitoring (what changed
+**Engagements** tie it together for real assessments: a history of every run with tags and run-to-run comparison, change monitoring (what changed
 since the last run of each tool and target, with one-click re-runs), collected findings, notes, batch
 runs over many targets, and a Markdown/JSON/CSV report export. There is no login: the UI and API
 are meant for a single operator on a trusted network (the API listens on every interface, port
@@ -110,7 +109,7 @@ Configuration: see `apps/api/.env.example` and `apps/web/.env.example`.
 - Timeouts (except nmap scans), response size limits and port count limits apply to all
   tools. There is no rate limit.
 - No login: anyone who can reach the API can use it, so keep it on your machine or a private
-  network. Active tools stay inside the engagement scope. See
+  network. See
   [docs/security.md](docs/security.md).
 
 ## Architecture & agentic development

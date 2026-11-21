@@ -44,9 +44,8 @@ export function EngagementsPage() {
           <span className="text-glow">Engagements</span>
         </h1>
         <p className="max-w-2xl text-sm text-muted-foreground">
-          Group tool runs, scope, findings and notes per assessment. While an
-          engagement is active, every tool run is saved to its history and
-          active tools only accept in-scope targets.
+          Group tool runs, findings and notes per assessment. While an
+          engagement is active, every tool run is saved to its history.
         </p>
       </header>
 
@@ -194,9 +193,6 @@ function EngagementRow({ engagement: e }: { engagement: Engagement }) {
           <p className="text-xs text-muted-foreground">{e.client}</p>
         )}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] tracking-wider text-muted-foreground uppercase">
-          <span>
-            scope <span className="text-foreground">{e.counts.scope}</span>
-          </span>
           <span>
             runs <span className="text-foreground">{e.counts.runs}</span>
           </span>

@@ -19,7 +19,7 @@ export function EngagementPanel() {
           >
             Create or pick one
           </Link>
-          to keep history, scope and findings together.
+          to keep history and findings together.
         </p>
       </Panel>
     );
@@ -52,9 +52,6 @@ export function EngagementPanel() {
         </div>
         {c && (
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] tracking-wider text-muted-foreground uppercase">
-            <span>
-              scope <span className="text-foreground">{c.scope}</span>
-            </span>
             <span>
               runs <span className="text-foreground">{c.runs}</span>
             </span>
