@@ -33,12 +33,12 @@ colour tone, accepted target kinds). TypeScript fails the build when one of thes
 
 Features never import from each other. Shared code lives in core layers:
 
-| Layer                        | Contents                                                                                                                                        |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `packages/shared/src/common` | Target schemas (domain, host, URL, port), tool metadata, result envelope, graded findings                                                       |
-| `apps/api/src/core`          | Target guard, guarded and trusted HTTP clients, size-limited readers, `runCommand`, `mapConcurrent`, `runTool`, `db/` (Drizzle schema + SQLite) |
-| `apps/web/src/components`    | Design-system primitives (`cyber/`), tool page scaffolding (`tool/`), layout, shadcn/ui                                                         |
-| `apps/web/src/lib`           | API client, `useToolRunner`, tones, theme, formatting                                                                                           |
+| Layer                        | Contents                                                                                                                                                                            |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/shared/src/common` | Target schemas (domain, host, URL, port), tool metadata, result envelope, graded findings                                                                                           |
+| `apps/api/src/core`          | Target guard, guarded and trusted HTTP clients, size-limited readers, `runCommand`, `ToolExecService` (nmap, gobuster), `mapConcurrent`, `runTool`, `db/` (Drizzle schema + SQLite) |
+| `apps/web/src/components`    | Design-system primitives (`cyber/`), tool page scaffolding (`tool/`), layout, shadcn/ui                                                                                             |
+| `apps/web/src/lib`           | API client, `useToolRunner`, tones, theme, formatting                                                                                                                               |
 
 ## Request flow
 

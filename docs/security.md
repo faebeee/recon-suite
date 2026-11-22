@@ -12,7 +12,9 @@ Use the tools only against systems you own or have written permission to test.
   rdap.org, crt.sh, Team Cymru, the Internet Archive, NVD, SecurityTrails).
 - **Active** tools connect to the target. The UI marks them and shows an authorisation notice.
 - The toolkit deliberately stays at the level of standard reconnaissance: no exploitation, no
-  credential brute-forcing, no flooding and no evasion features.
+  credential brute-forcing, no flooding and no evasion features. Path discovery (Dir Buster,
+  Gobuster) is the one wordlist-driven feature, and it is bounded: built-in or server-side
+  wordlists only, plain `GET` requests, and hard request, time and thread limits.
 
 ## Target resolution
 
@@ -46,14 +48,17 @@ at `169.254.169.254`) and reserved addresses are **not** blocked.
 | Ports per scan | 64                                                                                                          |
 | Redirects      | 5 to 10 depending on the tool                                                                               |
 | Concurrency    | Bounded worker pools for multi-request tools (DKIM selectors, IP Intel)                                     |
+| Dir Buster     | 3000 requests, 3 minutes, 10 threads; stops after ten `429` answers                                         |
+| Gobuster       | 30 minutes (default 10), 50 threads; allowlisted wordlists only                                             |
 | Input          | Every request is validated against a strict schema; lists are capped                                        |
 
 ## Local commands
 
-Local tools and Nmap Scan run fixed OS commands (`nmap`, `ip`, `nmcli`, `netsh`,
-`bluetoothctl`, the macOS helper) with hard-coded argument lists and never through a shell.
-A user-chosen value, such as an interface name, becomes an argument only after strict validation and a check that the OS
-actually reported it.
+Local tools, the nmap tools and Gobuster run fixed OS commands (`nmap`, `gobuster`, `ip`,
+`nmcli`, `netsh`, `bluetoothctl`, the macOS helper) with hard-coded argument lists and never
+through a shell. A user-chosen value, such as an interface name, becomes an argument only after
+strict validation and a check that the OS actually reported it. Gobuster wordlists are picked by
+id from a fixed server-side list of install paths, checked to exist; clients never send a path.
 
 ## Deployment advice
 

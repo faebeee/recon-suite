@@ -17,16 +17,20 @@ The web UI is a client of a plain JSON API. You can call it directly from script
 | POST   | `/api/tools/<id>`                                         | Run a tool                                                                 |
 | GET    | `/api/tools/wifi/interfaces`                              | WiFi interfaces for the WiFi Scanner's `interface` option                  |
 | GET    | `/api/tools/host-scan/interfaces`                         | Network interfaces for Host Scan's `interface` option                      |
+| GET    | `/api/tools/gobuster/wordlists`                           | `{ installed, wordlists }`: Gobuster wordlist ids found on the API host    |
 | GET    | `/api/system/runtime`                                     | Where and with what each tool runs                                         |
 | GET    | `/api/system/overview`                                    | Status checks, database, tool support, settings (no secret values)         |
 | GET    | `/api/system/host`                                        | OS, CPU, memory, interfaces (IP, MAC), gateway, DNS, internet check        |
+| GET    | `/api/last-runs`                                          | `{ runs }`: status summary of every tool's last run (sidebar markers)      |
 | GET    | `/api/last-runs/<id>`                                     | `{ run }`: the tool's most recent run (`running`, `ok` or `error`) or null |
 | ...    | `/api/engagements/...`, `/api/runs/...`, `/api/notes/...` | [Engagement workspace](#engagements)                                       |
 
-Tool ids: `dns`, `subdomains`, `email-security`, `zone-transfer`, `dnssec`, `takeover`, `whois`,
-`ip-intel`, `cve-lookup`, `cert-search`, `reverse-ip`, `cloud-storage`, `http-headers`, `tls`,
-`web-files`, `tech-fingerprint`, `wayback`, `cors`, `tls-audit`, `js-endpoints`,
-`exposed-files`, `ports`, `banner-grab`, `host-scan`, `wifi`, `bluetooth`. The options of each
+Tool ids: `dns`, `whois`, `subdomains`, `email-security`, `zone-transfer`, `dnssec`, `takeover`,
+`ip-intel`, `cve-lookup`, `cert-search`, `reverse-ip`, `cloud-storage`, `passive-exposure`,
+`dev-footprint`, `dnsbl`, `http-headers`, `cookie-audit`, `http-methods`, `waf-detect`,
+`favicon-hash`, `api-discovery`, `tls`, `web-files`, `tech-fingerprint`, `wayback`, `cors`,
+`tls-audit`, `js-endpoints`, `exposed-files`, `dir-buster`, `gobuster`, `ports`, `banner-grab`,
+`nmap`, `network-scan`, `host-scan`, `wifi`, `bluetooth`. The options of each
 tool are listed in the [Tools reference](tools.md).
 
 There is no authentication and no rate limit.

@@ -6,6 +6,8 @@
   `apt install nodejs` on Debian, Kali or Parrot are usually too old; the API needs the built-in
   `node:sqlite` module.
 - npm 11 (ships with Node.js)
+- Optional: `nmap` for Nmap Scan, Network Scan and Host Scan, `gobuster` (plus wordlists such as
+  `seclists`) for Gobuster
 - Optional, for local tools: see [Local tools setup](local-tools.md)
 
 ## Run in development
@@ -28,7 +30,7 @@ There is no login. Engagements and history are stored in
 `apps/api/data/recon.db`, created on first start.
 
 At startup the API logs which tools this machine can run and, for the ones it can't, why and
-how to fix it (missing `nmap`, missing permission, ...).
+how to fix it (missing `nmap` or `gobuster`, missing permission, ...).
 
 ## Your first scan
 
