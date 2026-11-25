@@ -1,8 +1,9 @@
 import { useId, useMemo, useState, type KeyboardEvent } from 'react';
-import type { ToolId } from '@recon/shared';
+import { TOOL_CATALOG, type ToolId } from '@recon/shared';
 import { Panel, Tag } from '@/components/cyber';
 import { toneBg, toneText } from '@/lib/tones';
 import { cn } from '@/lib/utils';
+import { IntelViewExportButton } from './intel-view-export-button';
 import { PivotLinks } from './pivot-links';
 import {
   C,
@@ -35,7 +36,7 @@ export function DiscoveryRadar({
   center: string;
   blips: RadarBlip[];
   groups: RadarGroup[];
-  /** Tool to leave out of the pivot links (the current one). */
+  /** The current tool: left out of the pivot links, named in the Intel View export. */
   exclude?: ToolId;
   title?: string;
   /** Blips drawn at most (the rest is counted). */
@@ -85,7 +86,22 @@ export function DiscoveryRadar({
   if (!blips.length) return null;
 
   return (
-    <Panel title={title}>
+    <Panel
+      title={title}
+      actions={
+        <IntelViewExportButton
+          source={
+            exclude
+              ? `Recon Suite · ${TOOL_CATALOG[exclude].name}`
+              : 'Recon Suite'
+          }
+          tool={exclude}
+          center={center}
+          groups={groups}
+          items={visible}
+        />
+      }
+    >
       <div className="grid items-start gap-4 md:grid-cols-[minmax(0,26rem)_1fr]">
         <svg
           data-slot="radar"
