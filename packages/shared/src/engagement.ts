@@ -199,76 +199,6 @@ export const noteInputSchema = z.object({
 });
 export type NoteInput = z.input<typeof noteInputSchema>;
 
-/**
- * Notes import: JSON in this shape, pasted into an engagement's Notes tab, becomes notes.
- * External tools can produce it to feed their output into an engagement:
- *
- *   {
- *     "format": "recon-suite/notes",
- *     "version": 1,
- *     "notes": [
- *       { "title": "Admin panel", "body": "Found /admin", "target": "example.com", "tags": ["web"] }
- *     ]
- *   }
- *
- * Each note follows `noteInputSchema` (only `title` is required). The `format` marker is what
- * tells an import apart from ordinary pasted text. All notes are created or none.
- */
-export const NOTES_IMPORT_FORMAT = 'recon-suite/notes';
-export const NOTES_IMPORT_VERSION = 1;
-export const MAX_NOTES_PER_IMPORT = 200;
-
-export const notesImportSchema = z.object({
-  format: z.literal(NOTES_IMPORT_FORMAT),
-  version: z.literal(NOTES_IMPORT_VERSION, {
-    error: `Unsupported version (expected ${NOTES_IMPORT_VERSION})`,
-  }),
-  notes: z
-    .array(noteInputSchema)
-    .min(1, 'The import contains no notes')
-    .max(
-      MAX_NOTES_PER_IMPORT,
-      `At most ${MAX_NOTES_PER_IMPORT} notes per import`,
-    ),
-});
-export type NotesImport = z.input<typeof notesImportSchema>;
-
-export type NotesImportDetection =
-  | { kind: 'none' }
-  | { kind: 'invalid'; message: string }
-  | { kind: 'ok'; data: z.output<typeof notesImportSchema> };
-
-/**
- * Checks pasted text for a notes import. `none` means it is not one (no JSON object with the
- * format marker), so the paste should behave normally; `invalid` means it is marked as an
- * import but does not validate.
- */
-export function detectNotesImport(text: string): NotesImportDetection {
-  const trimmed = text.trim();
-  if (!trimmed.startsWith('{')) return { kind: 'none' };
-  let json: unknown;
-  try {
-    json = JSON.parse(trimmed);
-  } catch {
-    return { kind: 'none' };
-  }
-  if (
-    typeof json !== 'object' ||
-    json === null ||
-    (json as { format?: unknown }).format !== NOTES_IMPORT_FORMAT
-  ) {
-    return { kind: 'none' };
-  }
-  const parsed = notesImportSchema.safeParse(json);
-  if (parsed.success) return { kind: 'ok', data: parsed.data };
-  const issue = parsed.error.issues[0];
-  const where = issue?.path.length ? `${issue.path.join('.')}: ` : '';
-  return {
-    kind: 'invalid',
-    message: `Invalid notes import: ${where}${issue?.message ?? 'unknown error'}`,
-  };
-}
-
 export interface Note {
   id: string;
   engagementId: string;
@@ -321,7 +251,6 @@ export const FINDING_STATUS_ORDER: FindingStatus[] = [
  *   GET    posture(id)         -> PostureSeries[] (POSTURE_TOOLS, per tool+target, ordered by tool then target)
  *   GET    notes(id)           -> Note[] (newest first)
  *   POST   notes(id)           -> Note                  body: NoteInput
- *   POST   notesImport(id)     -> Note[] (in import order)  body: NotesImport (all or nothing)
  *   PATCH  note(noteId)        -> Note                  body: Partial<NoteInput>
  *   DELETE note(noteId)        -> 204
  *   GET    exportFile(id, fmt) -> file download (Content-Disposition attachment)
@@ -339,7 +268,6 @@ export const ENGAGEMENT_API = {
   findings: (id: string) => `/engagements/${id}/findings`,
   posture: (id: string) => `/engagements/${id}/posture`,
   notes: (id: string) => `/engagements/${id}/notes`,
-  notesImport: (id: string) => `/engagements/${id}/notes/import`,
   note: (noteId: string) => `/notes/${noteId}`,
   exportFile: (id: string, format: ExportFormat) =>
     `/engagements/${id}/export?format=${format}`,

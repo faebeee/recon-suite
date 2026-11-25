@@ -162,40 +162,6 @@ describe('Engagements (e2e)', () => {
       .send({ title: 'Kickoff call' })
       .expect(200);
 
-    // Notes import (all or nothing, import order kept).
-    const imported = await http
-      .post(`/api/engagements/${e.id}/notes/import`)
-      .send({
-        format: 'recon-suite/notes',
-        version: 1,
-        notes: [
-          { title: 'Imported A', target: 'example.com', tags: ['Scanner'] },
-          { title: 'Imported B', body: 'second' },
-        ],
-      })
-      .expect(201);
-    expect(imported.body.map((n: { title: string }) => n.title)).toEqual([
-      'Imported A',
-      'Imported B',
-    ]);
-    expect(imported.body[0].tags).toEqual(['scanner']);
-    await http
-      .post(`/api/engagements/${e.id}/notes/import`)
-      .send({
-        format: 'recon-suite/notes',
-        version: 1,
-        notes: [{ title: 'ok' }, { body: 'missing title' }],
-      })
-      .expect(400);
-    const allNotes = (
-      await http.get(`/api/engagements/${e.id}/notes`).expect(200)
-    ).body as { title: string }[];
-    expect(allNotes.map((n) => n.title)).toEqual([
-      'Imported A',
-      'Imported B',
-      'Kickoff call',
-    ]);
-
     // Export.
     const md = await http
       .get(`/api/engagements/${e.id}/export?format=md`)

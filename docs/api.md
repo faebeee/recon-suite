@@ -126,7 +126,6 @@ engagement:
 | GET    | `/api/engagements/:id/findings`         | Findings of the latest run per tool and target                                                  |
 | GET    | `/api/engagements/:id/notes`            | Notes                                                                                           |
 | POST   | `/api/engagements/:id/notes`            | Add `{ title, body?, target?, tags? }`                                                          |
-| POST   | `/api/engagements/:id/notes/import`     | Create many notes at once from the [notes import format](notes-import.md) (all or nothing)      |
 | PATCH  | `/api/notes/:noteId`                    | Edit a note                                                                                     |
 | DELETE | `/api/notes/:noteId`                    | Delete a note                                                                                   |
 | GET    | `/api/engagements/:id/export?format=md` | Report download: `md`, `json` or `csv`                                                          |

@@ -62,48 +62,18 @@ can be opened in any other compatible tool with one click. Every tool also accep
 `?target=` in the URL, e.g. `/tools/dns?target=example.com`. Two themes are built in:
 **Cyber** (default) and **Nothing** (monochrome, dot-matrix), switchable in the top bar.
 
-## Importing notes from other tools
-
-Other tools can feed their output into an engagement as notes. Produce JSON in this format and
-paste it anywhere on an engagement's **Notes** tab, or `POST` it to
-`/api/engagements/:id/notes/import`:
-
-```json
-{
-  "format": "recon-suite/notes",
-  "version": 1,
-  "notes": [
-    {
-      "title": "Admin panel reachable",
-      "body": "GET /admin returns the login page without IP restriction.",
-      "target": "https://example.com/admin",
-      "tags": ["web", "source:my-scanner"]
-    }
-  ]
-}
-```
-
-- `format` (exactly `"recon-suite/notes"`), `version` (`1`) and `notes` (1 to 200) are required.
-- Per note only `title` is required (max 200 characters). `body` is plain text up to 50,000
-  characters, `target` up to 260, and `tags` up to 20 (1 to 40 of `a-z 0-9 _ - : .`, lowercased).
-- All or nothing: one invalid note rejects the whole import. Unknown fields are ignored.
-
-Full specification with field rules, errors and generator examples:
-[docs/notes-import.md](docs/notes-import.md).
-
 ## Documentation
 
-| Page                                        | Contents                                              |
-| ------------------------------------------- | ----------------------------------------------------- |
-| [Getting started](docs/getting-started.md)  | Install, development, running, troubleshooting        |
-| [Using the UI](docs/using-the-ui.md)        | Tool pages, pivots, deep links, themes                |
-| [Tools reference](docs/tools.md)            | Every tool with options, data sources and limits      |
-| [HTTP API](docs/api.md)                     | Endpoints, response envelope, errors, `curl` examples |
-| [Notes import format](docs/notes-import.md) | JSON format for importing notes from other tools      |
-| [Configuration](docs/configuration.md)      | Environment variables                                 |
-| [Local tools setup](docs/local-tools.md)    | WiFi, Bluetooth, Host Scan per OS; macOS helper       |
-| [Security model](docs/security.md)          | Target resolution, limits, deployment advice          |
-| [Architecture](docs/architecture.md)        | Monorepo, feature slices, request flow                |
+| Page                                       | Contents                                              |
+| ------------------------------------------ | ----------------------------------------------------- |
+| [Getting started](docs/getting-started.md) | Install, development, running, troubleshooting        |
+| [Using the UI](docs/using-the-ui.md)       | Tool pages, pivots, deep links, themes                |
+| [Tools reference](docs/tools.md)           | Every tool with options, data sources and limits      |
+| [HTTP API](docs/api.md)                    | Endpoints, response envelope, errors, `curl` examples |
+| [Configuration](docs/configuration.md)     | Environment variables                                 |
+| [Local tools setup](docs/local-tools.md)   | WiFi, Bluetooth, Host Scan per OS; macOS helper       |
+| [Security model](docs/security.md)         | Target resolution, limits, deployment advice          |
+| [Architecture](docs/architecture.md)       | Monorepo, feature slices, request flow                |
 
 ## Stack
 

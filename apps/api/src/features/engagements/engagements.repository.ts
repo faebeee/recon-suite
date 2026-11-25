@@ -381,32 +381,6 @@ export class EngagementsRepository {
     return this.getNote(id);
   }
 
-  /**
-   * Creates all notes in one INSERT (all or nothing). Timestamps step down by 1 ms so the
-   * newest-first list shows them in import order.
-   */
-  async importNotes(
-    engagementId: string,
-    items: { title: string; body: string; target?: string; tags: string[] }[],
-  ): Promise<Note[]> {
-    const base = Date.now();
-    const rows = items.map((v, i) => {
-      const at = new Date(base + items.length - 1 - i).toISOString();
-      return {
-        id: randomUUID(),
-        engagementId,
-        ...v,
-        tags: JSON.stringify(v.tags),
-        createdAt: at,
-        updatedAt: at,
-      };
-    });
-    const inserted = await this.db.insert(notes).values(rows).returning();
-    await this.touch(engagementId);
-    const byId = new Map(inserted.map((r) => [r.id, toNote(r)]));
-    return rows.flatMap((r) => byId.get(r.id) ?? []);
-  }
-
   async getNote(noteId: string): Promise<Note> {
     const [row] = await this.db
       .select()

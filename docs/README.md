@@ -11,17 +11,16 @@ you pivot from one finding to the next tool.
 
 ## Contents
 
-| Page                                   | For                                                             |
-| -------------------------------------- | --------------------------------------------------------------- |
-| [Getting started](getting-started.md)  | Install, run in development, run a build, first scan            |
-| [Using the UI](using-the-ui.md)        | Dashboard, tool pages, pivots, deep links, themes               |
-| [Tools reference](tools.md)            | What every tool does, its options, data sources and limits      |
-| [HTTP API](api.md)                     | Endpoints, request and response format, errors, `curl` examples |
-| [Notes import format](notes-import.md) | JSON format other tools use to create engagement notes          |
-| [Configuration](configuration.md)      | Environment variables for the API, web app and start script     |
-| [Local tools setup](local-tools.md)    | WiFi, Bluetooth and Host Scan per OS, macOS helper              |
-| [Security model](security.md)          | Target resolution, limits, deployment advice                    |
-| [Architecture](architecture.md)        | Monorepo layout, feature slices, request flow, adding a tool    |
+| Page                                  | For                                                             |
+| ------------------------------------- | --------------------------------------------------------------- |
+| [Getting started](getting-started.md) | Install, run in development, run a build, first scan            |
+| [Using the UI](using-the-ui.md)       | Dashboard, tool pages, pivots, deep links, themes               |
+| [Tools reference](tools.md)           | What every tool does, its options, data sources and limits      |
+| [HTTP API](api.md)                    | Endpoints, request and response format, errors, `curl` examples |
+| [Configuration](configuration.md)     | Environment variables for the API, web app and start script     |
+| [Local tools setup](local-tools.md)   | WiFi, Bluetooth and Host Scan per OS, macOS helper              |
+| [Security model](security.md)         | Target resolution, limits, deployment advice                    |
+| [Architecture](architecture.md)       | Monorepo layout, feature slices, request flow, adding a tool    |
 
 Contributor and agent rules (conventions, definition of done) live in
 [`AGENTS.md`](../AGENTS.md).
