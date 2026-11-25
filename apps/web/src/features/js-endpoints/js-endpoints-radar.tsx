@@ -1,5 +1,9 @@
 import type { JsEndpointsOutput } from '@recon/shared';
-import { DiscoveryRadar, type RadarBlip } from '@/components/tool';
+import {
+  DiscoveryRadar,
+  type Discovery,
+  type RadarBlip,
+} from '@/components/tool';
 
 const GROUPS = [
   { id: 'secret', label: 'Possible secrets', tone: 'magenta' as const },
@@ -8,7 +12,9 @@ const GROUPS = [
   { id: 'path', label: 'API paths', tone: 'yellow' as const },
 ];
 
-export function JsEndpointsRadar({ data }: { data: JsEndpointsOutput }) {
+export function jsEndpointsDiscovery(
+  data: Pick<JsEndpointsOutput, 'page' | 'secrets' | 'hosts' | 'endpoints'>,
+): Discovery {
   const blips: RadarBlip[] = [
     // Secrets and hosts first: they matter most and must survive the blip cap.
     ...data.secrets.map((s, i) => ({
@@ -31,12 +37,11 @@ export function JsEndpointsRadar({ data }: { data: JsEndpointsOutput }) {
       ...(e.kind === 'url' && { pivot: e.value }),
     })),
   ];
+  return { center: new URL(data.page).host, groups: GROUPS, blips };
+}
+
+export function JsEndpointsRadar({ data }: { data: JsEndpointsOutput }) {
   return (
-    <DiscoveryRadar
-      center={new URL(data.page).host}
-      blips={blips}
-      groups={GROUPS}
-      exclude="js-endpoints"
-    />
+    <DiscoveryRadar {...jsEndpointsDiscovery(data)} exclude="js-endpoints" />
   );
 }

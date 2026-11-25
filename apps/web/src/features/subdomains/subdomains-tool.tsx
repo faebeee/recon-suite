@@ -46,7 +46,7 @@ export function SubdomainsTool({ initialTarget }: { initialTarget?: string }) {
         {(data, result) => (
           <>
             <SubdomainsRadar data={data} target={result.target} />
-            <SubdomainsResults data={data} />
+            <SubdomainsResults data={data} target={result.target} />
           </>
         )}
       </ToolResultView>

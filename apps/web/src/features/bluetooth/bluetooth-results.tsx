@@ -12,9 +12,10 @@ import type {
   BluetoothTransport,
 } from '@recon/shared';
 import { KeyValueGrid, Meter, Panel, Segmented, Tag } from '@/components/cyber';
-import { HostNoticePanel } from '@/components/tool';
+import { HostNoticePanel, IntelViewExportButton } from '@/components/tool';
 import { cn } from '@/lib/utils';
 import { toneText, type Tone } from '@/lib/tones';
+import { bluetoothDiscovery } from './bluetooth-radar';
 
 type Filter = 'all' | BluetoothTransport;
 
@@ -36,7 +37,13 @@ function qualityTone(q: number | undefined): Tone {
   return 'magenta';
 }
 
-export function BluetoothResults({ data }: { data: BluetoothOutput }) {
+export function BluetoothResults({
+  data,
+  host,
+}: {
+  data: BluetoothOutput;
+  host: string;
+}) {
   const [filter, setFilter] = useState<Filter>('all');
   const [query, setQuery] = useState('');
   const [namedOnly, setNamedOnly] = useState(false);
@@ -106,14 +113,20 @@ export function BluetoothResults({ data }: { data: BluetoothOutput }) {
       <Panel
         title={`${devices.length} devices`}
         actions={
-          filters.length > 2 && (
-            <Segmented
-              label="Transport filter"
-              options={filters}
-              value={filter}
-              onChange={setFilter}
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <IntelViewExportButton
+              tool="bluetooth"
+              discovery={bluetoothDiscovery(devices, host)}
             />
-          )
+            {filters.length > 2 && (
+              <Segmented
+                label="Transport filter"
+                options={filters}
+                value={filter}
+                onChange={setFilter}
+              />
+            )}
+          </div>
         }
         bodyClassName="p-0"
       >

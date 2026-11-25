@@ -86,3 +86,10 @@ export function layout(blips: RadarBlip[], groups: RadarGroup[]): Placed[] {
     });
   });
 }
+
+/** What a discovery tool shows on the radar and exports to Intel View. */
+export interface Discovery {
+  center: string;
+  blips: RadarBlip[];
+  groups: RadarGroup[];
+}

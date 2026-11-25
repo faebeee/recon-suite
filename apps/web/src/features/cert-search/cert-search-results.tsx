@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
 import type { CertSearchOutput } from '@recon/shared';
 import { CopyButton, Panel, Tag } from '@/components/cyber';
-import { PivotLinks } from '@/components/tool';
+import { IntelViewExportButton, PivotLinks } from '@/components/tool';
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/format';
+import { certSearchDiscovery } from './cert-search-radar';
 
 const PAGE = 200;
 const APEX_SHOWN = 40;
@@ -62,10 +63,16 @@ export function CertSearchResults({ data }: { data: CertSearchOutput }) {
       <Panel
         title={`${data.domains.length} names`}
         actions={
-          <CopyButton
-            value={filtered.map((d) => d.name).join('\n')}
-            label="Copy list"
-          />
+          <div className="flex items-center gap-1">
+            <IntelViewExportButton
+              tool="cert-search"
+              discovery={certSearchDiscovery(data, filtered)}
+            />
+            <CopyButton
+              value={filtered.map((d) => d.name).join('\n')}
+              label="Copy list"
+            />
+          </div>
         }
         bodyClassName="p-0"
       >

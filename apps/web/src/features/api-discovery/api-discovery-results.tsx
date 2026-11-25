@@ -1,9 +1,14 @@
 import { useState } from 'react';
 import type { ApiDiscoveryOutput, ApiSpec } from '@recon/shared';
 import { Panel, Tag } from '@/components/cyber';
-import { FindingsList, PivotLinks } from '@/components/tool';
+import {
+  FindingsList,
+  IntelViewExportButton,
+  PivotLinks,
+} from '@/components/tool';
 import { Button } from '@/components/ui/button';
 import type { Tone } from '@/lib/tones';
+import { apiDiscoveryDiscovery } from './api-discovery-radar';
 
 const SHOWN = 25;
 
@@ -15,7 +20,7 @@ function statusTone(status: number | undefined): Tone {
   return 'yellow';
 }
 
-function SpecPanel({ spec }: { spec: ApiSpec }) {
+function SpecPanel({ origin, spec }: { origin: string; spec: ApiSpec }) {
   const [all, setAll] = useState(false);
   const endpoints = all ? spec.endpoints : spec.endpoints.slice(0, SHOWN);
   return (
@@ -23,9 +28,20 @@ function SpecPanel({ spec }: { spec: ApiSpec }) {
       title={spec.title ?? spec.version}
       bodyClassName="p-0"
       actions={
-        <Tag tone={spec.hasSecuritySchemes ? 'muted' : 'yellow'}>
-          {spec.hasSecuritySchemes ? 'auth declared' : 'no auth declared'}
-        </Tag>
+        <div className="flex items-center gap-2">
+          <IntelViewExportButton
+            tool="api-discovery"
+            discovery={apiDiscoveryDiscovery({
+              origin,
+              specs: [spec],
+              graphql: [],
+              docPages: [],
+            })}
+          />
+          <Tag tone={spec.hasSecuritySchemes ? 'muted' : 'yellow'}>
+            {spec.hasSecuritySchemes ? 'auth declared' : 'no auth declared'}
+          </Tag>
+        </div>
       }
     >
       <div className="space-y-1 border-b border-border px-4 py-2 text-xs text-muted-foreground">
@@ -86,7 +102,7 @@ export function ApiDiscoveryResults({ data }: { data: ApiDiscoveryOutput }) {
       </Panel>
 
       {data.specs.map((s) => (
-        <SpecPanel key={s.url} spec={s} />
+        <SpecPanel origin={data.origin} key={s.url} spec={s} />
       ))}
 
       {data.graphql

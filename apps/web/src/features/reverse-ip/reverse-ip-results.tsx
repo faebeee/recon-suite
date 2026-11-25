@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import type { ReverseIpOutput } from '@recon/shared';
 import { CopyButton, KeyValueGrid, Panel } from '@/components/cyber';
-import { PivotLinks } from '@/components/tool';
+import { IntelViewExportButton, PivotLinks } from '@/components/tool';
+import { reverseIpDiscovery } from './reverse-ip-radar';
 
 export function ReverseIpResults({ data }: { data: ReverseIpOutput }) {
   const [filter, setFilter] = useState('');
@@ -37,7 +38,15 @@ export function ReverseIpResults({ data }: { data: ReverseIpOutput }) {
 
       <Panel
         title={`${data.domains.length} hostnames`}
-        actions={<CopyButton value={filtered.join('\n')} label="Copy list" />}
+        actions={
+          <div className="flex items-center gap-1">
+            <IntelViewExportButton
+              tool="reverse-ip"
+              discovery={reverseIpDiscovery(data, filtered)}
+            />
+            <CopyButton value={filtered.join('\n')} label="Copy list" />
+          </div>
+        }
         bodyClassName="p-0"
       >
         <div className="border-b border-border px-4 py-2">

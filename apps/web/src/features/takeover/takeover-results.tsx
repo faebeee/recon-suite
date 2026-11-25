@@ -1,8 +1,13 @@
 import type { TakeoverOutput, TakeoverStatus } from '@recon/shared';
 import { Panel, Tag } from '@/components/cyber';
-import { FindingsList, PivotLinks } from '@/components/tool';
+import {
+  FindingsList,
+  IntelViewExportButton,
+  PivotLinks,
+} from '@/components/tool';
 import { cn } from '@/lib/utils';
 import { toneText, type Tone } from '@/lib/tones';
+import { takeoverDiscovery } from './takeover-radar';
 
 const STATUS_TONE: Record<TakeoverStatus, Tone> = {
   vulnerable: 'magenta',
@@ -45,7 +50,16 @@ export function TakeoverResults({ data }: { data: TakeoverOutput }) {
         </p>
       </Panel>
 
-      <Panel title={`Candidates (${candidates.length})`} bodyClassName="p-0">
+      <Panel
+        title={`Candidates (${candidates.length})`}
+        actions={
+          <IntelViewExportButton
+            tool="takeover"
+            discovery={takeoverDiscovery(data)}
+          />
+        }
+        bodyClassName="p-0"
+      >
         {candidates.length === 0 ? (
           <p className="px-4 py-3 text-sm text-muted-foreground">
             No host has a CNAME record

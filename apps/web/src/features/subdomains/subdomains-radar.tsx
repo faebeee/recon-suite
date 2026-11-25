@@ -1,5 +1,5 @@
 import type { SubdomainsOutput } from '@recon/shared';
-import { DiscoveryRadar, type RadarBlip } from '@/components/tool';
+import { DiscoveryRadar, type Discovery } from '@/components/tool';
 
 const GROUPS = [
   { id: 'direct', label: 'One level', tone: 'cyan' as const },
@@ -7,19 +7,17 @@ const GROUPS = [
   { id: 'wildcard', label: 'Wildcard', tone: 'yellow' as const },
 ];
 
-export function SubdomainsRadar({
-  data,
-  target,
-}: {
-  data: SubdomainsOutput;
-  target: string;
-}) {
+export function subdomainsDiscovery(
+  subdomains: SubdomainsOutput['subdomains'],
+  target: string,
+): Discovery {
   const depth = target.split('.').length;
-  const blips: RadarBlip[] = data.subdomains
-    .filter((s) => s.name !== target)
-    .map((s) => {
-      const host = s.name.replace(/^\*\./, '');
-      return {
+  return {
+    center: target,
+    groups: GROUPS,
+    blips: subdomains
+      .filter((s) => s.name !== target)
+      .map((s) => ({
         id: s.name,
         label: s.name,
         group: s.wildcard
@@ -28,14 +26,21 @@ export function SubdomainsRadar({
             ? 'deep'
             : 'direct',
         detail: `${s.certificates} certificate${s.certificates === 1 ? '' : 's'}, last seen ${s.lastSeen.slice(0, 10)}`,
-        pivot: host,
-      };
-    });
+        pivot: s.name.replace(/^\*\./, ''),
+      })),
+  };
+}
+
+export function SubdomainsRadar({
+  data,
+  target,
+}: {
+  data: SubdomainsOutput;
+  target: string;
+}) {
   return (
     <DiscoveryRadar
-      center={target}
-      blips={blips}
-      groups={GROUPS}
+      {...subdomainsDiscovery(data.subdomains, target)}
       exclude="subdomains"
     />
   );

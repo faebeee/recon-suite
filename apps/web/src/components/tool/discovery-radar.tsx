@@ -1,5 +1,5 @@
 import { useId, useMemo, useState, type KeyboardEvent } from 'react';
-import { TOOL_CATALOG, type ToolId } from '@recon/shared';
+import type { ToolId } from '@recon/shared';
 import { Panel, Tag } from '@/components/cyber';
 import { toneBg, toneText } from '@/lib/tones';
 import { cn } from '@/lib/utils';
@@ -13,11 +13,12 @@ import {
   R_MAX,
   R_MIN,
   SIZE,
+  type Discovery,
   type RadarBlip,
   type RadarGroup,
 } from './radar-layout';
 
-export type { RadarBlip, RadarGroup };
+export type { Discovery, RadarBlip, RadarGroup };
 
 /**
  * Radar view of a discovery tool's results: the target in the centre, findings as blips
@@ -29,6 +30,7 @@ export function DiscoveryRadar({
   blips,
   groups,
   exclude,
+  tool,
   title = 'Radar',
   max = 150,
   distanceHint,
@@ -36,8 +38,10 @@ export function DiscoveryRadar({
   center: string;
   blips: RadarBlip[];
   groups: RadarGroup[];
-  /** The current tool: left out of the pivot links, named in the Intel View export. */
+  /** Tool to leave out of the pivot links (the current one). */
   exclude?: ToolId;
+  /** Tool named in the Intel View export; defaults to `exclude`. */
+  tool?: ToolId;
   title?: string;
   /** Blips drawn at most (the rest is counted). */
   max?: number;
@@ -90,15 +94,8 @@ export function DiscoveryRadar({
       title={title}
       actions={
         <IntelViewExportButton
-          source={
-            exclude
-              ? `Recon Suite · ${TOOL_CATALOG[exclude].name}`
-              : 'Recon Suite'
-          }
-          tool={exclude}
-          center={center}
-          groups={groups}
-          items={visible}
+          tool={tool ?? exclude}
+          discovery={{ center, groups, blips: visible }}
         />
       }
     >

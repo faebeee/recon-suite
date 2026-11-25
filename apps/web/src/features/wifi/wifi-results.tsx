@@ -2,7 +2,7 @@ import { ChevronRight, Wifi, WifiHigh, WifiLow, WifiZero } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { WifiBand, WifiNetwork, WifiOutput } from '@recon/shared';
 import { KeyValueGrid, Meter, Panel, Segmented, Tag } from '@/components/cyber';
-import { HostNoticePanel } from '@/components/tool';
+import { HostNoticePanel, IntelViewExportButton } from '@/components/tool';
 import { cn } from '@/lib/utils';
 import { toneText, type Tone } from '@/lib/tones';
 import {
@@ -11,6 +11,7 @@ import {
   securityTone,
   type WifiGroup,
 } from './group-networks';
+import { wifiDiscovery } from './wifi-radar';
 
 type BandFilter = 'all' | WifiBand;
 const BAND_FILTERS: { value: BandFilter; label: string }[] = [
@@ -44,7 +45,13 @@ function SignalIcon({ quality }: { quality?: number }) {
   );
 }
 
-export function WifiResults({ data }: { data: WifiOutput }) {
+export function WifiResults({
+  data,
+  host,
+}: {
+  data: WifiOutput;
+  host: string;
+}) {
   const [band, setBand] = useState<BandFilter>('all');
   const networks = useMemo(
     () =>
@@ -106,12 +113,18 @@ export function WifiResults({ data }: { data: WifiOutput }) {
       <Panel
         title={`${groups.length} networks`}
         actions={
-          <Segmented
-            label="Band filter"
-            options={BAND_FILTERS}
-            value={band}
-            onChange={setBand}
-          />
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <IntelViewExportButton
+              tool="wifi"
+              discovery={wifiDiscovery(networks, host)}
+            />
+            <Segmented
+              label="Band filter"
+              options={BAND_FILTERS}
+              value={band}
+              onChange={setBand}
+            />
+          </div>
         }
         bodyClassName="p-0"
       >

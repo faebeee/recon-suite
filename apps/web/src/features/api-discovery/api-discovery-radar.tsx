@@ -1,5 +1,9 @@
 import type { ApiDiscoveryOutput } from '@recon/shared';
-import { DiscoveryRadar, type RadarBlip } from '@/components/tool';
+import {
+  DiscoveryRadar,
+  type Discovery,
+  type RadarBlip,
+} from '@/components/tool';
 
 const GROUPS = [
   { id: 'spec', label: 'Specs', tone: 'yellow' as const },
@@ -8,7 +12,9 @@ const GROUPS = [
   { id: 'endpoint', label: 'Endpoints', tone: 'green' as const },
 ];
 
-export function ApiDiscoveryRadar({ data }: { data: ApiDiscoveryOutput }) {
+export function apiDiscoveryDiscovery(
+  data: Pick<ApiDiscoveryOutput, 'origin' | 'specs' | 'graphql' | 'docPages'>,
+): Discovery {
   const blips: RadarBlip[] = [
     ...data.specs.map((s) => ({
       id: `spec:${s.url}`,
@@ -42,12 +48,11 @@ export function ApiDiscoveryRadar({ data }: { data: ApiDiscoveryOutput }) {
       })),
     ),
   ];
+  return { center: data.origin, groups: GROUPS, blips };
+}
+
+export function ApiDiscoveryRadar({ data }: { data: ApiDiscoveryOutput }) {
   return (
-    <DiscoveryRadar
-      center={data.origin}
-      blips={blips}
-      groups={GROUPS}
-      exclude="api-discovery"
-    />
+    <DiscoveryRadar {...apiDiscoveryDiscovery(data)} exclude="api-discovery" />
   );
 }

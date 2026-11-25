@@ -1,5 +1,9 @@
 import type { TakeoverOutput, TakeoverStatus } from '@recon/shared';
-import { DiscoveryRadar, type RadarGroup } from '@/components/tool';
+import {
+  DiscoveryRadar,
+  type Discovery,
+  type RadarGroup,
+} from '@/components/tool';
 
 const GROUPS: (RadarGroup & { id: TakeoverStatus })[] = [
   { id: 'vulnerable', label: 'Vulnerable', tone: 'magenta' },
@@ -8,21 +12,22 @@ const GROUPS: (RadarGroup & { id: TakeoverStatus })[] = [
   { id: 'safe', label: 'Safe', tone: 'green' },
 ];
 
+export function takeoverDiscovery(data: TakeoverOutput): Discovery {
+  return {
+    center: data.domain,
+    groups: GROUPS,
+    blips: data.candidates.map((c) => ({
+      id: c.host,
+      label: c.host,
+      group: c.status,
+      detail: [c.cname.length && `CNAME ${c.cname.join(' → ')}`, c.reason]
+        .filter(Boolean)
+        .join(' · '),
+      pivot: c.host,
+    })),
+  };
+}
+
 export function TakeoverRadar({ data }: { data: TakeoverOutput }) {
-  return (
-    <DiscoveryRadar
-      center={data.domain}
-      blips={data.candidates.map((c) => ({
-        id: c.host,
-        label: c.host,
-        group: c.status,
-        detail: [c.cname.length && `CNAME ${c.cname.join(' → ')}`, c.reason]
-          .filter(Boolean)
-          .join(' · '),
-        pivot: c.host,
-      }))}
-      groups={GROUPS}
-      exclude="takeover"
-    />
-  );
+  return <DiscoveryRadar {...takeoverDiscovery(data)} exclude="takeover" />;
 }

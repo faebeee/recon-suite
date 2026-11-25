@@ -88,7 +88,7 @@ export function WifiTool() {
         {(output, result) => (
           <>
             <WifiRadar data={output} host={result.target} />
-            <WifiResults data={output} />
+            <WifiResults data={output} host={result.target} />
           </>
         )}
       </ToolResultView>

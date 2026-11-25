@@ -14,6 +14,8 @@ export {
 } from './run-changes';
 export {
   DiscoveryRadar,
+  type Discovery,
   type RadarBlip,
   type RadarGroup,
 } from './discovery-radar';
+export { IntelViewExportButton } from './intel-view-export-button';

@@ -1,28 +1,25 @@
 import { Check, Download, Share2 } from 'lucide-react';
 import { useState } from 'react';
+import { TOOL_CATALOG, type ToolId } from '@recon/shared';
 import { Button } from '@/components/ui/button';
-import {
-  buildIntelViewExport,
-  type IntelViewItem,
-} from '@/lib/intel-view-export';
+import { buildIntelViewExport } from '@/lib/intel-view-export';
+import type { Discovery } from './radar-layout';
 
 /**
  * Copies discovery results as an Intel View notes document (paste it onto a project
- * canvas with Ctrl/Cmd+V), with a JSON download next to it.
+ * canvas with Ctrl/Cmd+V), with a JSON download next to it. Used by `DiscoveryRadar` and
+ * the result tables of discovery tools.
  */
 export function IntelViewExportButton({
-  source,
   tool,
-  center,
-  groups,
-  items,
+  discovery: { center, groups, blips: items },
 }: {
-  source: string;
-  tool?: string;
-  center: string;
-  groups: { id: string; label: string }[];
-  items: IntelViewItem[];
+  tool?: ToolId;
+  discovery: Discovery;
 }) {
+  const source = tool
+    ? `Recon Suite · ${TOOL_CATALOG[tool].name}`
+    : 'Recon Suite';
   const [status, setStatus] = useState<string | null>(null);
 
   const build = () => {
@@ -63,6 +60,8 @@ export function IntelViewExportButton({
     URL.revokeObjectURL(url);
     if (omitted > 0) flash(`Saved${cutNote(omitted)}`);
   };
+
+  if (!items.length) return null;
 
   return (
     <div className="flex items-center gap-1">

@@ -1,8 +1,15 @@
 import { useMemo, useState } from 'react';
 import type { JsEndpointsOutput, JsScript } from '@recon/shared';
 import { Panel, Tag } from '@/components/cyber';
-import { FindingsList, PivotLinks } from '@/components/tool';
+import {
+  FindingsList,
+  IntelViewExportButton,
+  PivotLinks,
+} from '@/components/tool';
 import type { Tone } from '@/lib/tones';
+import { jsEndpointsDiscovery } from './js-endpoints-radar';
+
+const NONE = { secrets: [], hosts: [], endpoints: [] };
 
 const MAX_VISIBLE = 200;
 
@@ -92,8 +99,10 @@ function ScriptsPanel({ scripts }: { scripts: JsScript[] }) {
 }
 
 function EndpointsPanel({
+  page,
   endpoints,
 }: {
+  page: string;
   endpoints: JsEndpointsOutput['endpoints'];
 }) {
   const [filter, setFilter] = useState('');
@@ -105,7 +114,20 @@ function EndpointsPanel({
   }, [endpoints, filter]);
 
   return (
-    <Panel title={`Endpoints (${endpoints.length})`} bodyClassName="p-0">
+    <Panel
+      title={`Endpoints (${endpoints.length})`}
+      actions={
+        <IntelViewExportButton
+          tool="js-endpoints"
+          discovery={jsEndpointsDiscovery({
+            ...NONE,
+            page,
+            endpoints: visible,
+          })}
+        />
+      }
+      bodyClassName="p-0"
+    >
       <div className="border-b border-border px-4 py-2">
         <input
           value={filter}
@@ -171,6 +193,16 @@ export function JsEndpointsResults({ data }: { data: JsEndpointsOutput }) {
           title={`Secrets (${data.secrets.length})`}
           tone="magenta"
           className="lg:col-span-2"
+          actions={
+            <IntelViewExportButton
+              tool="js-endpoints"
+              discovery={jsEndpointsDiscovery({
+                ...NONE,
+                page: data.page,
+                secrets: data.secrets,
+              })}
+            />
+          }
           bodyClassName="p-0"
         >
           <div className="overflow-x-auto px-4 py-2">
@@ -207,9 +239,22 @@ export function JsEndpointsResults({ data }: { data: JsEndpointsOutput }) {
         <ScriptsPanel scripts={data.scripts} />
       </div>
 
-      <EndpointsPanel endpoints={data.endpoints} />
+      <EndpointsPanel page={data.page} endpoints={data.endpoints} />
 
-      <Panel title={`Hosts (${data.hosts.length})`} bodyClassName="p-0">
+      <Panel
+        title={`Hosts (${data.hosts.length})`}
+        actions={
+          <IntelViewExportButton
+            tool="js-endpoints"
+            discovery={jsEndpointsDiscovery({
+              ...NONE,
+              page: data.page,
+              hosts: data.hosts,
+            })}
+          />
+        }
+        bodyClassName="p-0"
+      >
         {data.hosts.length === 0 ? (
           <p className="px-4 py-3 text-sm text-muted-foreground">
             No hosts referenced

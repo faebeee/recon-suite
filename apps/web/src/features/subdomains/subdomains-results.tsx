@@ -1,13 +1,20 @@
 import { useMemo, useState } from 'react';
 import type { SubdomainsOutput } from '@recon/shared';
 import { CopyButton, Panel, Tag } from '@/components/cyber';
-import { PivotLinks } from '@/components/tool';
+import { IntelViewExportButton, PivotLinks } from '@/components/tool';
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/format';
+import { subdomainsDiscovery } from './subdomains-radar';
 
 const PAGE = 200;
 
-export function SubdomainsResults({ data }: { data: SubdomainsOutput }) {
+export function SubdomainsResults({
+  data,
+  target,
+}: {
+  data: SubdomainsOutput;
+  target: string;
+}) {
   const [filter, setFilter] = useState('');
   const [limit, setLimit] = useState(PAGE);
 
@@ -22,10 +29,16 @@ export function SubdomainsResults({ data }: { data: SubdomainsOutput }) {
     <Panel
       title={`${data.total} subdomains`}
       actions={
-        <CopyButton
-          value={filtered.map((s) => s.name).join('\n')}
-          label="Copy list"
-        />
+        <div className="flex items-center gap-1">
+          <IntelViewExportButton
+            tool="subdomains"
+            discovery={subdomainsDiscovery(filtered, target)}
+          />
+          <CopyButton
+            value={filtered.map((s) => s.name).join('\n')}
+            label="Copy list"
+          />
+        </div>
       }
       bodyClassName="p-0"
     >

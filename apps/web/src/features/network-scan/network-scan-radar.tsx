@@ -1,9 +1,13 @@
 import type { NetworkScanOutput } from '@recon/shared';
-import { DiscoveryRadar, type RadarGroup } from '@/components/tool';
+import {
+  DiscoveryRadar,
+  type Discovery,
+  type RadarGroup,
+} from '@/components/tool';
 
 const UNKNOWN = 'Unknown device';
 
-export function NetworkScanRadar({ data }: { data: NetworkScanOutput }) {
+export function networkScanDiscovery(data: NetworkScanOutput): Discovery {
   const kinds = [
     ...new Set(data.hosts.map((h) => h.deviceGuess ?? UNKNOWN)),
   ].sort(
@@ -15,19 +19,21 @@ export function NetworkScanRadar({ data }: { data: NetworkScanOutput }) {
     label: k,
     tone: k === UNKNOWN ? 'muted' : 'cyan',
   }));
+  return {
+    center: data.network,
+    groups,
+    blips: data.hosts.map((h) => ({
+      id: h.ip,
+      label: h.ip,
+      group: h.deviceGuess ?? UNKNOWN,
+      detail: [h.vendor, h.macAddress].filter(Boolean).join(' · ') || undefined,
+      pivot: h.ip,
+    })),
+  };
+}
+
+export function NetworkScanRadar({ data }: { data: NetworkScanOutput }) {
   return (
-    <DiscoveryRadar
-      center={data.network}
-      blips={data.hosts.map((h) => ({
-        id: h.ip,
-        label: h.ip,
-        group: h.deviceGuess ?? UNKNOWN,
-        detail:
-          [h.vendor, h.macAddress].filter(Boolean).join(' · ') || undefined,
-        pivot: h.ip,
-      }))}
-      groups={groups}
-      exclude="network-scan"
-    />
+    <DiscoveryRadar {...networkScanDiscovery(data)} exclude="network-scan" />
   );
 }

@@ -70,7 +70,7 @@ export function BluetoothTool() {
         {(output, result) => (
           <>
             <BluetoothRadar data={output} host={result.target} />
-            <BluetoothResults data={output} />
+            <BluetoothResults data={output} host={result.target} />
           </>
         )}
       </ToolResultView>

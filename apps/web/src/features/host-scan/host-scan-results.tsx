@@ -1,6 +1,7 @@
 import type { HostScanOutput } from '@recon/shared';
 import { CopyButton, KeyValueGrid, Panel, Tag } from '@/components/cyber';
-import { PivotLinks } from '@/components/tool';
+import { IntelViewExportButton, PivotLinks } from '@/components/tool';
+import { hostScanDiscovery } from './host-scan-radar';
 
 export function HostScanResults({ data }: { data: HostScanOutput }) {
   return (
@@ -32,7 +33,16 @@ export function HostScanResults({ data }: { data: HostScanOutput }) {
         />
       </Panel>
 
-      <Panel title={`${data.hosts.length} hosts`} bodyClassName="p-0">
+      <Panel
+        title={`${data.hosts.length} hosts`}
+        actions={
+          <IntelViewExportButton
+            tool="host-scan"
+            discovery={hostScanDiscovery(data)}
+          />
+        }
+        bodyClassName="p-0"
+      >
         {data.hosts.length === 0 ? (
           <p className="px-4 py-6 text-sm text-muted-foreground">
             No hosts responded to the nmap host sweep.
