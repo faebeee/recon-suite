@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { apiDelete, apiPatch, apiPost, type ApiError } from '@/lib/api-client';
 import { ENGAGEMENTS_KEY } from '@/lib/engagement';
 import { formatDateTime } from '@/lib/format';
+import { NotesImport } from './notes-import';
 import { notesQuery } from './queries';
 import {
   ConfirmDelete,
@@ -33,6 +34,7 @@ export function NotesTab({ engagementId }: { engagementId: string }) {
 
   return (
     <div className="space-y-4">
+      <NotesImport engagementId={engagementId} />
       <NoteForm
         key={editing?.id ?? 'new'}
         engagementId={engagementId}

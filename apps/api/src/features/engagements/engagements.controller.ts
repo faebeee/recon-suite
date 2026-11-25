@@ -18,6 +18,7 @@ import {
   engagementInputSchema,
   engagementPatchSchema,
   noteInputSchema,
+  notesImportSchema,
   runListQuerySchema,
   runPatchSchema,
   type Engagement,
@@ -207,6 +208,16 @@ export class EngagementsController {
   ): Promise<Note> {
     await this.repo.engagementRow(id);
     return this.repo.createNote(id, body);
+  }
+
+  @Post('engagements/:id/notes/import')
+  async importNotes(
+    @Param('id', uuid) id: string,
+    @Body({ schema: notesImportSchema })
+    body: z.output<typeof notesImportSchema>,
+  ): Promise<Note[]> {
+    await this.repo.engagementRow(id);
+    return this.repo.importNotes(id, body.notes);
   }
 
   @Patch('notes/:noteId')

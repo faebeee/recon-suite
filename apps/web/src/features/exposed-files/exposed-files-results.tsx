@@ -18,7 +18,10 @@ function state(c: ExposedFileCheck): { tone: Tone; label: string } {
   if (c.exposed) return { tone: SEVERITY_TONE[c.severity], label: 'exposed' };
   if (c.error) return { tone: 'muted', label: 'error' };
   if (c.soft404) return { tone: 'muted', label: 'soft 404' };
-  return { tone: 'green', label: c.status ? String(c.status) : 'absent' };
+  // Not exposed: neutral, not green (green reads as "found"/"open" elsewhere in the UI).
+  if (c.status === 404 || c.status === 410 || !c.status)
+    return { tone: 'muted', label: 'not found' };
+  return { tone: 'muted', label: String(c.status) };
 }
 
 export function ExposedFilesResults({ data }: { data: ExposedFilesOutput }) {
