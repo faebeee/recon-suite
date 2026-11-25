@@ -7,6 +7,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { ApiError } from '@/lib/api-client';
 import type { SavedRunInfo } from '@/lib/use-tool-runner';
 import { formatDateTime, formatMs } from '@/lib/format';
+import { IntelViewExportButton } from './intel-view-export-button';
+import { resultDiscovery } from './intel-view';
+import type { Discovery } from './radar-layout';
 import { RunChangesPanel } from './run-changes';
 
 /** The subset of a TanStack mutation this view needs. */
@@ -22,6 +25,11 @@ interface ToolResultViewProps<T> {
   mutation: RunState<T>;
   loadingLabel?: string;
   children: (data: T, result: ToolResult<T>) => ReactNode;
+  /**
+   * Maps the output to Intel View notes. The run's findings are always exported too, so
+   * tools whose findings say it all can leave this out.
+   */
+  intelView?: (data: T, result: ToolResult<T>) => Discovery;
 }
 
 /**
@@ -55,6 +63,7 @@ function ResultLifecycle<T>({
   mutation,
   loadingLabel = 'Scanning',
   children,
+  intelView,
 }: ToolResultViewProps<T>) {
   if (mutation.isPending) {
     return (
@@ -117,10 +126,19 @@ function ResultLifecycle<T>({
             </span>
           </span>
         </div>
-        <TabsList>
-          <TabsTrigger value="result">Result</TabsTrigger>
-          <TabsTrigger value="raw">Raw JSON</TabsTrigger>
-        </TabsList>
+        <div className="flex flex-wrap items-center gap-2">
+          <IntelViewExportButton
+            tool={result.tool}
+            discovery={resultDiscovery(
+              result,
+              intelView?.(result.data, result),
+            )}
+          />
+          <TabsList>
+            <TabsTrigger value="result">Result</TabsTrigger>
+            <TabsTrigger value="raw">Raw JSON</TabsTrigger>
+          </TabsList>
+        </div>
       </div>
       <TabsContent value="result" className="space-y-4">
         {result.runId && <RunChangesPanel runId={result.runId} />}

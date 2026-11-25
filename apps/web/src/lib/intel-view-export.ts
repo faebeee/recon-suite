@@ -12,6 +12,7 @@ export const INTEL_VIEW_MAX_NOTES = 500;
 
 export interface IntelViewNote {
   type?: string;
+  version?: string;
   title?: string;
   content?: string;
   tags?: string[];
@@ -31,6 +32,34 @@ export interface IntelViewItem {
   detail?: string;
   /** Host, IP or URL; IPs and http(s) URLs become typed notes. */
   pivot?: string;
+  /** Software/service name (e.g. `ssh`, `nginx`): becomes a service note. Wins over `pivot`. */
+  service?: string;
+  /** Software version, kept on service notes only. */
+  version?: string;
+}
+
+/** Note types with a fixed meaning in Intel View; everything else is a service type. */
+const BUILTIN_TYPES = new Set([
+  'standard',
+  'log',
+  'file',
+  'url',
+  'ip',
+  'command',
+  'email',
+]);
+const VERSION_MAX = 100;
+
+/** `Apache httpd` -> `apache-httpd`; undefined when nothing usable is left or it is reserved. */
+export function serviceSlug(name: string): string | undefined {
+  const slug = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^[^a-z]+/, '')
+    .replace(/-+$/, '')
+    .slice(0, 40)
+    .replace(/-+$/, '');
+  return slug && !BUILTIN_TYPES.has(slug) ? slug : undefined;
 }
 
 export interface IntelViewExport {
@@ -56,6 +85,19 @@ function valueNote(value: string): Pick<IntelViewNote, 'type' | 'content'> {
 }
 
 function itemNote(item: IntelViewItem, tags: string[]): IntelViewNote {
+  const service = item.service ? serviceSlug(item.service) : undefined;
+  if (service) {
+    const body = [item.detail, item.pivot && `\`${item.pivot}\``].filter(
+      Boolean,
+    );
+    return {
+      type: service,
+      title: item.label,
+      ...(item.version && { version: item.version.slice(0, VERSION_MAX) }),
+      ...(body.length > 0 && { content: body.join('\n\n') }),
+      tags,
+    };
+  }
   const typed = item.pivot ? valueNote(item.pivot) : {};
   if (typed.type) {
     // Typed notes have no free body, so the detail goes into the title.

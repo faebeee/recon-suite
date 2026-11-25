@@ -19,3 +19,4 @@ export {
   type RadarGroup,
 } from './discovery-radar';
 export { IntelViewExportButton } from './intel-view-export-button';
+export { resultDiscovery } from './intel-view';

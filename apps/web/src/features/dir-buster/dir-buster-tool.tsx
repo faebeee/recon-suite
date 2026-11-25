@@ -16,6 +16,7 @@ import {
 } from '@/components/tool';
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { DirBusterResults } from './dir-buster-results';
+import { dirBusterIntelView } from './dir-buster-intel-view';
 
 const WORDLISTS: { value: DirBusterWordlist; label: string }[] = [
   { value: 'quick', label: 'quick (~100)' },
@@ -129,7 +130,11 @@ export function DirBusterTool({ initialTarget }: { initialTarget?: string }) {
           </div>
         </FormOption>
       </TargetForm>
-      <ToolResultView mutation={runner.mutation} loadingLabel="Busting paths">
+      <ToolResultView
+        intelView={dirBusterIntelView}
+        mutation={runner.mutation}
+        loadingLabel="Busting paths"
+      >
         {(data) => <DirBusterResults data={data} />}
       </ToolResultView>
     </ToolPage>

@@ -15,6 +15,7 @@ import {
 } from '@/components/tool';
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { DnsResults } from './dns-results';
+import { dnsIntelView } from './dns-intel-view';
 
 const RESOLVERS = Object.keys(DNS_RESOLVERS) as DnsResolver[];
 
@@ -54,7 +55,11 @@ export function DnsTool({ initialTarget }: { initialTarget?: string }) {
           />
         </FormOption>
       </TargetForm>
-      <ToolResultView mutation={runner.mutation} loadingLabel="Resolving">
+      <ToolResultView
+        intelView={(d, r) => dnsIntelView(d, r.target)}
+        mutation={runner.mutation}
+        loadingLabel="Resolving"
+      >
         {(data) => <DnsResults data={data} />}
       </ToolResultView>
     </ToolPage>

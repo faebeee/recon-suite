@@ -9,7 +9,7 @@ import { FormOption, ToolPage, ToolResultView } from '@/components/tool';
 import { Button } from '@/components/ui/button';
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { BluetoothResults } from './bluetooth-results';
-import { BluetoothRadar } from './bluetooth-radar';
+import { BluetoothRadar, bluetoothDiscovery } from './bluetooth-radar';
 
 const TRANSPORTS: { value: BluetoothScanTransport; label: string }[] = [
   { value: 'both', label: 'BLE + Classic' },
@@ -64,6 +64,7 @@ export function BluetoothTool() {
         </div>
       </Panel>
       <ToolResultView
+        intelView={(d, r) => bluetoothDiscovery(d.devices, r.target)}
         mutation={runner.mutation}
         loadingLabel={`Listening for ${durationSec}s`}
       >

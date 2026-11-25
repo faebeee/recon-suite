@@ -25,6 +25,7 @@ import {
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { GobusterResults } from './gobuster-results';
 import { gobusterWordlistsQuery } from './wordlists-query';
+import { gobusterIntelView } from './gobuster-intel-view';
 
 /** "1534, 0" -> [1534, 0]; anything that isn't a whole number is dropped. */
 function parseLengths(text: string): number[] {
@@ -175,6 +176,7 @@ export function GobusterTool({ initialTarget }: { initialTarget?: string }) {
         </FormOption>
       </TargetForm>
       <ToolResultView
+        intelView={gobusterIntelView}
         mutation={runner.mutation}
         loadingLabel={`Running gobuster (up to ${minutes} min)`}
       >

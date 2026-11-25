@@ -10,7 +10,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { TakeoverResults } from './takeover-results';
-import { TakeoverRadar } from './takeover-radar';
+import { TakeoverRadar, takeoverDiscovery } from './takeover-radar';
 
 type Source = 'ct' | 'list';
 
@@ -66,6 +66,7 @@ export function TakeoverTool({ initialTarget }: { initialTarget?: string }) {
         </FormOption>
       </TargetForm>
       <ToolResultView
+        intelView={(d) => takeoverDiscovery(d)}
         mutation={runner.mutation}
         loadingLabel={
           source === 'ct'

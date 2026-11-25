@@ -13,6 +13,7 @@ import {
 } from '@/components/tool';
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { BannerGrabResults } from './banner-grab-results';
+import { bannerGrabIntelView } from './banner-grab-intel-view';
 
 const TIMEOUTS = [1000, 3000, 5000].map((value) => ({
   value,
@@ -78,6 +79,7 @@ export function BannerGrabTool({ initialTarget }: { initialTarget?: string }) {
         </FormOption>
       </TargetForm>
       <ToolResultView
+        intelView={(d, r) => bannerGrabIntelView(d, r.target)}
         mutation={runner.mutation}
         loadingLabel="Grabbing banners"
       >

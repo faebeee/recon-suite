@@ -2,7 +2,7 @@ import { TOOL_CATALOG } from '@recon/shared';
 import { TargetForm, ToolPage, ToolResultView } from '@/components/tool';
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { NetworkScanResults } from './network-scan-results';
-import { NetworkScanRadar } from './network-scan-radar';
+import { NetworkScanRadar, networkScanDiscovery } from './network-scan-radar';
 
 export function NetworkScanTool({ initialTarget }: { initialTarget?: string }) {
   const runner = useToolRunner('network-scan', {
@@ -22,6 +22,7 @@ export function NetworkScanTool({ initialTarget }: { initialTarget?: string }) {
         label="Network / IP / Subnet"
       />
       <ToolResultView
+        intelView={(d) => networkScanDiscovery(d)}
         mutation={runner.mutation}
         loadingLabel="Sweeping the network"
       >

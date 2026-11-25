@@ -9,7 +9,7 @@ import {
 } from '@/components/tool';
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { SubdomainsResults } from './subdomains-results';
-import { SubdomainsRadar } from './subdomains-radar';
+import { SubdomainsRadar, subdomainsDiscovery } from './subdomains-radar';
 
 export function SubdomainsTool({ initialTarget }: { initialTarget?: string }) {
   const [includeExpired, setIncludeExpired] = useState(false);
@@ -40,6 +40,7 @@ export function SubdomainsTool({ initialTarget }: { initialTarget?: string }) {
         </FormOption>
       </TargetForm>
       <ToolResultView
+        intelView={(d, r) => subdomainsDiscovery(d.subdomains, r.target)}
         mutation={runner.mutation}
         loadingLabel="Mining CT logs (can take ~30s)"
       >

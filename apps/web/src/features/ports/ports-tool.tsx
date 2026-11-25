@@ -9,6 +9,7 @@ import {
 } from '@/components/tool';
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { PortsResults } from './ports-results';
+import { portsIntelView } from './ports-intel-view';
 
 type Preset = keyof typeof PORT_PRESETS | 'custom';
 const PRESETS = [...Object.keys(PORT_PRESETS), 'custom'].map((value) => ({
@@ -78,7 +79,11 @@ export function PortsTool({ initialTarget }: { initialTarget?: string }) {
           </FormOption>
         )}
       </TargetForm>
-      <ToolResultView mutation={runner.mutation} loadingLabel="Probing ports">
+      <ToolResultView
+        intelView={(d, r) => portsIntelView(d, r.target)}
+        mutation={runner.mutation}
+        loadingLabel="Probing ports"
+      >
         {(data) => <PortsResults data={data} />}
       </ToolResultView>
     </ToolPage>

@@ -18,6 +18,9 @@ export interface RadarBlip {
   detail?: string;
   /** Host, IP or URL offered as pivot when selected. */
   pivot?: string;
+  /** Intel View export only: software/service name and version (service note). */
+  service?: string;
+  version?: string;
 }
 
 export interface RadarGroup {

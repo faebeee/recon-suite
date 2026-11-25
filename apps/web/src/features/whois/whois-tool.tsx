@@ -2,6 +2,7 @@ import { TOOL_CATALOG } from '@recon/shared';
 import { TargetForm, ToolPage, ToolResultView } from '@/components/tool';
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { WhoisResults } from './whois-results';
+import { whoisIntelView } from './whois-intel-view';
 
 export function WhoisTool({ initialTarget }: { initialTarget?: string }) {
   const runner = useToolRunner('whois', {
@@ -21,6 +22,7 @@ export function WhoisTool({ initialTarget }: { initialTarget?: string }) {
         label="Domain or IP"
       />
       <ToolResultView
+        intelView={whoisIntelView}
         mutation={runner.mutation}
         loadingLabel="Querying registry"
       >

@@ -27,6 +27,12 @@ style `new-york`, Radix), lucide-react icons, Zod (shared schemas from `@recon/s
 - **Pivots:** wherever a result contains a hostname/IP/URL, render `<PivotLinks value=... exclude="<id>" />`
   so the user can jump to other tools. Which tools accept which target kind is configured in
   `TOOL_UI[id].accepts`.
+- **Intel View export:** `ToolResultView` shows an "Intel View" button that copies the run as an
+  `intel-view/notes` v1 document (https://github.com/faebeee/intel-view). The run's findings are
+  always included; tools whose output holds more than the findings pass
+  `intelView={(data, result) => Discovery}` (mapper in `<id>-intel-view.ts`, or the
+  `<id>Discovery` function of a radar tool). Use `service`/`version` on items for software and
+  open ports (they become Intel View service notes).
 - Server state goes through TanStack Query only. No ad-hoc `fetch` in components; use
   `apiFetch`/`apiPost` from `lib/api-client.ts`.
 

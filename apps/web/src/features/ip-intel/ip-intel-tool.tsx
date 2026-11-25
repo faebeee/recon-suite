@@ -2,6 +2,7 @@ import { TOOL_CATALOG } from '@recon/shared';
 import { TargetForm, ToolPage, ToolResultView } from '@/components/tool';
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { IpIntelResults } from './ip-intel-results';
+import { ipIntelIntelView } from './ip-intel-intel-view';
 
 export function IpIntelTool({ initialTarget }: { initialTarget?: string }) {
   const runner = useToolRunner('ip-intel', {
@@ -20,7 +21,11 @@ export function IpIntelTool({ initialTarget }: { initialTarget?: string }) {
         error={runner.validationError}
         label="IP or domain"
       />
-      <ToolResultView mutation={runner.mutation} loadingLabel="Looking up">
+      <ToolResultView
+        intelView={ipIntelIntelView}
+        mutation={runner.mutation}
+        loadingLabel="Looking up"
+      >
         {(data) => <IpIntelResults data={data} />}
       </ToolResultView>
     </ToolPage>

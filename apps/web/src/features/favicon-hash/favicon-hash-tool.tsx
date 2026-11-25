@@ -2,6 +2,7 @@ import { TOOL_CATALOG } from '@recon/shared';
 import { TargetForm, ToolPage, ToolResultView } from '@/components/tool';
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { FaviconHashResults } from './favicon-hash-results';
+import { faviconHashIntelView } from './favicon-hash-intel-view';
 
 export function FaviconHashTool({ initialTarget }: { initialTarget?: string }) {
   const runner = useToolRunner('favicon-hash', {
@@ -20,7 +21,11 @@ export function FaviconHashTool({ initialTarget }: { initialTarget?: string }) {
         error={runner.validationError}
         label="URL"
       />
-      <ToolResultView mutation={runner.mutation} loadingLabel="Hashing icons">
+      <ToolResultView
+        intelView={faviconHashIntelView}
+        mutation={runner.mutation}
+        loadingLabel="Hashing icons"
+      >
         {(data) => <FaviconHashResults data={data} />}
       </ToolResultView>
     </ToolPage>

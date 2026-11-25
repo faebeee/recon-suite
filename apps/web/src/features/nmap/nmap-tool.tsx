@@ -9,6 +9,7 @@ import {
 } from '@/components/tool';
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { NmapResults } from './nmap-results';
+import { nmapIntelView } from './nmap-intel-view';
 
 type PortMode = 'top-100' | 'top-1000' | 'custom';
 const PORT_MODES: { value: PortMode; label: string }[] = [
@@ -95,6 +96,7 @@ export function NmapTool({ initialTarget }: { initialTarget?: string }) {
         </FormOption>
       </TargetForm>
       <ToolResultView
+        intelView={(d, r) => nmapIntelView(d, r.target)}
         mutation={runner.mutation}
         loadingLabel="Running nmap (can take a few minutes)"
       >

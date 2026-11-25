@@ -8,7 +8,7 @@ import { useToolRunner } from '@/lib/use-tool-runner';
 import { InterfaceSelect } from './interface-select';
 import { hostScanInterfacesQuery } from './interfaces-query';
 import { HostScanResults } from './host-scan-results';
-import { HostScanRadar } from './host-scan-radar';
+import { HostScanRadar, hostScanDiscovery } from './host-scan-radar';
 
 export function HostScanTool() {
   const selectId = useId();
@@ -85,6 +85,7 @@ export function HostScanTool() {
         </div>
       </Panel>
       <ToolResultView
+        intelView={(d) => hostScanDiscovery(d)}
         mutation={runner.mutation}
         loadingLabel={`Sweeping the subnet on ${selected ?? '…'}`}
       >

@@ -2,6 +2,7 @@ import { TOOL_CATALOG } from '@recon/shared';
 import { TargetForm, ToolPage, ToolResultView } from '@/components/tool';
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { TechFingerprintResults } from './tech-fingerprint-results';
+import { techFingerprintIntelView } from './tech-fingerprint-intel-view';
 
 export function TechFingerprintTool({
   initialTarget,
@@ -24,7 +25,11 @@ export function TechFingerprintTool({
         error={runner.validationError}
         label="URL"
       />
-      <ToolResultView mutation={runner.mutation} loadingLabel="Fingerprinting">
+      <ToolResultView
+        intelView={techFingerprintIntelView}
+        mutation={runner.mutation}
+        loadingLabel="Fingerprinting"
+      >
         {(data) => <TechFingerprintResults data={data} />}
       </ToolResultView>
     </ToolPage>

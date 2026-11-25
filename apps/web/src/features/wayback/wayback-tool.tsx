@@ -10,6 +10,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { WaybackResults } from './wayback-results';
+import { waybackIntelView } from './wayback-intel-view';
 
 const LIMITS = [500, 1000, 5000].map((value) => ({ value }));
 
@@ -51,6 +52,7 @@ export function WaybackTool({ initialTarget }: { initialTarget?: string }) {
         </FormOption>
       </TargetForm>
       <ToolResultView
+        intelView={waybackIntelView}
         mutation={runner.mutation}
         loadingLabel="Querying the Internet Archive (can take up to a minute)"
       >

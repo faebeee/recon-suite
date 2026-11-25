@@ -9,7 +9,7 @@ import {
 } from '@/components/tool';
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { JsEndpointsResults } from './js-endpoints-results';
-import { JsEndpointsRadar } from './js-endpoints-radar';
+import { JsEndpointsRadar, jsEndpointsDiscovery } from './js-endpoints-radar';
 
 const LIMITS = [5, 15, MAX_JS_SCRIPTS].map((value) => ({ value }));
 
@@ -41,6 +41,7 @@ export function JsEndpointsTool({ initialTarget }: { initialTarget?: string }) {
         </FormOption>
       </TargetForm>
       <ToolResultView
+        intelView={(d) => jsEndpointsDiscovery(d)}
         mutation={runner.mutation}
         loadingLabel="Downloading and parsing scripts"
       >

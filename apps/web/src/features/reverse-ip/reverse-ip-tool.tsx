@@ -2,7 +2,7 @@ import { TOOL_CATALOG } from '@recon/shared';
 import { TargetForm, ToolPage, ToolResultView } from '@/components/tool';
 import { useToolRunner } from '@/lib/use-tool-runner';
 import { ReverseIpResults } from './reverse-ip-results';
-import { ReverseIpRadar } from './reverse-ip-radar';
+import { ReverseIpRadar, reverseIpDiscovery } from './reverse-ip-radar';
 
 export function ReverseIpTool({ initialTarget }: { initialTarget?: string }) {
   const runner = useToolRunner('reverse-ip', {
@@ -22,6 +22,7 @@ export function ReverseIpTool({ initialTarget }: { initialTarget?: string }) {
         label="IP or domain"
       />
       <ToolResultView
+        intelView={(d) => reverseIpDiscovery(d)}
         mutation={runner.mutation}
         loadingLabel="Asking SecurityTrails"
       >
